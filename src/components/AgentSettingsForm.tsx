@@ -132,7 +132,7 @@ export const AgentSettingsForm = (props: Props) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-4xl my-2 rounded-md px-8 text-gray-800"
+      className="w-full max-w-4xl my-2 px-8 text-gray-800 overflow-hidden rounded-xl sm:bg-gray-50 sm:px-8 sm:shadow"
     >
       {/* BASIC SETTINGS */}
       <Field className="flex flex-row my-4 justify-between items-center">
