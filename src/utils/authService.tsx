@@ -1,4 +1,4 @@
-import { useEffect, useState  } from "react";
+import { useEffect, useState } from "react";
 import api from "@/utils/api";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3001";
@@ -16,19 +16,17 @@ type loginFormDataType = {
 
 const localStorageKey = "authToken";
 
-
 export const AuthService = {
   createAccount: async (
     formData: createAccountFormDataType
   ): Promise<Response> => {
-    
-    const {token} = await api.post('/accounts', formData)
+    const { token } = await api.post("/accounts", formData);
     storeToken(token);
     return token; // I don't think I need to return anything.
   },
 
   login: async (formData: loginFormDataType) => {
-    const {token} = await api.post("/auth", formData)
+    const { token } = await api.post("/auth", formData);
     storeToken(token);
     return token;
   },

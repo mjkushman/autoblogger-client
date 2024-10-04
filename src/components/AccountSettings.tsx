@@ -1,5 +1,7 @@
 import { Account } from "@/types";
 import { useEffect, useState } from "react";
+import api from '@/utils/api'
+import { Navigate, useLoaderData } from "react-router";
 
 type Props = {};
 
@@ -163,26 +165,27 @@ const placeholderResponse = {
 
 export const AccountSettings = (props: Props) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [account, setAccount] = useState(null);
+  const [account, setAccount] = useState(useLoaderData() as Account);
   const [isApiKeyVisibile, setIsApiKeyVisibile] = useState(false);
+  // const account = useLoaderData() as Account[]
+  if(!account || !account.accountId) return <Navigate to="/auth/login" replace />
 
-  
-  useEffect(() => {
-    setIsLoading(true);
-    const response = placeholderResponse as Account;
 
-    setAccount(response);
-    setIsLoading(false);
-  }, []);
+  // useEffect(() => {
+  //   setIsLoading(true);
+  //   // const response = placeholderResponse as Account;
+  //   // const apiResponse = api.get('account')
 
-  console.dir(account);
+  //   // setAccount(response);
+  //   setIsLoading(false);
+  // }, []);
 
-  if (isLoading) return "Loading...";
-  if (!isLoading)
+  // console.log(`LOADED DATA FROM DATALOADER: ${JSON.stringify(loadedData)}}`)
+
+  // if (isLoading) return "Loading...";
+  // if (!isLoading)
     return (
       <div>
-        AccountSettings DATA BELOW
-        <div>{account.firstName}</div>
         <div className="col-span-8 overflow-hidden rounded-xl sm:bg-gray-50 sm:px-8 sm:shadow">
           <div className="pt-4">
             <h1 className="py-2 text-2xl font-semibold">Account settings</h1>
@@ -204,9 +207,9 @@ export const AccountSettings = (props: Props) => {
           </div>
           <p className="py-2 text-l font-semibold">API Key</p>
           <p className="font- text-slate-600">
-              Do no share your API key. <br/>
-              Use this key in your app to make requests to the autoblogger server.
-            </p>
+            Do no share your API key. <br />
+            Use this key in your app to make requests to the autoblogger server.
+          </p>
           <div className="flex flex-row items-center">
             <input
               disabled
@@ -214,7 +217,7 @@ export const AccountSettings = (props: Props) => {
               className="text-gray-600 h-10 px-4"
               value={account.apiKey}
             />
-            <button onClick={()=> setIsApiKeyVisibile(!isApiKeyVisibile)}>
+            <button onClick={() => setIsApiKeyVisibile(!isApiKeyVisibile)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="m-auto mx-2 h-6 w-6 cursor-pointer font-semibold text-gray-600 underline decoration-2 h-10"
@@ -235,7 +238,7 @@ export const AccountSettings = (props: Props) => {
           <hr className="mt-4 mb-8" />
 
           <div className="mb-10">
-            <p className="py-2 text-xl font-semibold">Delete Account</p>
+            <p className="py-2 text-l font-semibold">Destroy Account</p>
             <p className="inline-flex items-center rounded-full bg-rose-100 px-4 py-1 text-rose-600">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -252,12 +255,12 @@ export const AccountSettings = (props: Props) => {
               Proceed with caution
             </p>
             <p className="mt-2">
-              Make sure you have taken backup of your account in case you ever
-              need to get access to your data. We will completely wipe your
-              data. There is no way to access your account after this action.
+              Destroying your account deletes all your information including
+              your agent, posts, and any post comments. <br />
+              This action cannot be undone.
             </p>
-            <button className="ml-auto text-sm font-semibold text-rose-600 underline decoration-2">
-              Continue with deletion
+            <button className="ml-auto text-sm font-semibold text-rose-600 underline decoration-2 my-1">
+              Destroy account
             </button>
           </div>
         </div>

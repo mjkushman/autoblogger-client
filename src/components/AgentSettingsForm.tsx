@@ -130,249 +130,259 @@ export const AgentSettingsForm = (props: Props) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full max-w-4xl my-2 px-8 text-gray-800 overflow-hidden rounded-xl sm:bg-gray-50 sm:px-8 sm:shadow"
-    >
-      {/* BASIC SETTINGS */}
-      <Field className="flex flex-row my-4 justify-between items-center">
-        <Label className={"text-xl py-1"}>Enable Agent</Label>
-        <Switch
-          name="agentIsEnabled"
-          id="agentIsEnabled"
-          checked={formData.agentIsEnabled}
-          onChange={(value) => handleEnableChange("agent", value)}
-          className={
-            "group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-[checked]:bg-blue-600"
-          }
-        >
-          <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-        </Switch>
-      </Field>
-      <Fieldset
-        className={"flex flex-wrap gap-2 data-[disabled]:text-gray-400"}
-        disabled={!agentFormIsEnabled}
+    <div className="overflow-hidden rounded-xl sm:bg-gray-50 sm:px-8 sm:shadow">
+      <div className="pt-4">
+        <h1 className="py-2 text-2xl font-semibold">Agent Settings</h1>
+      </div>
+      <hr className="mt-4 mb-8" />
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-4xl my-2 px-8 text-gray-800 "
       >
-        <Field>
-          <Label className={"flex justify-start text-sm py-1"}>
-            First Name
-          </Label>
-          <Input
-            type="text"
-            name="firstName"
-            id="firstName"
-            required
-            placeholder="Hal"
-            autoComplete="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
+        {/* BASIC SETTINGS */}
+        <Field className="flex flex-row my-4 justify-between items-center">
+          <Label className={"text-xl py-1"}>Enable Agent</Label>
+          <Switch
+            name="agentIsEnabled"
+            id="agentIsEnabled"
+            checked={formData.agentIsEnabled}
+            onChange={(value) => handleEnableChange("agent", value)}
             className={
-              "bg-transparent border border-violet-900 py-1 px-2 leading-tight focus:outline-solid rounded-md h-10"
+              "group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-[checked]:bg-blue-600"
             }
-          />
-        </Field>
-        <Field>
-          <Label className={"flex justify-start text-sm py-1"}>Last Name</Label>
-          <Input
-            type="text"
-            name="lastName"
-            id="lastName"
-            placeholder="9000"
-            autoComplete="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            className={
-              "bg-transparent border border-violet-900 py-1 px-2 leading-tight focus:outline-solid rounded-md h-10"
-            }
-          />
-        </Field>
-        <Field>
-          <Label className={"flex justify-start text-sm py-1"}>Username</Label>
-          <Input
-            type="username"
-            name="username"
-            id="username"
-            required
-            placeholder="hal9000"
-            autoComplete="username"
-            value={formData.username}
-            onChange={handleChange}
-            className={
-              "bg-transparent border border-violet-900 py-1 px-2 leading-tight focus:outline-solid rounded-md h-10"
-            }
-          />
-        </Field>
-        <Field>
-          <Label
-            className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
           >
-            Email
-          </Label>
-          <Input
-            type="text"
-            name="email"
-            id="email"
-            required
-            placeholder="hal@spacestation.com"
-            autoComplete="email"
-            value={formData.email}
-            onChange={handleChange}
-            className={
-              "bg-transparent border border-violet-900  w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg h-10"
-            }
-          />
+            <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
+          </Switch>
         </Field>
-      </Fieldset>
-
-      {/* ENABLED POSTING */}
-      <Field
-        className="flex flex-row my-4 justify-between items-center data-[disabled]:text-gray-400"
-        disabled={!agentFormIsEnabled}
-      >
-        <Label className={"text-xl py-1"}>Enable Posting</Label>
-        <Switch
-          name="postIsEnabled"
-          id="postIsEnabled"
-          checked={formData.postIsEnabled}
-          onChange={(value) => handleEnableChange("post", value)}
-          className={
-            "group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-[checked]:bg-blue-600"
-          }
+        <Fieldset
+          className={"flex flex-wrap gap-2 data-[disabled]:text-gray-400"}
+          disabled={!agentFormIsEnabled}
         >
-          <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-        </Switch>
-      </Field>
-
-      {/* PERSONALITY section */}
-      <Fieldset
-        disabled={!postFormIsEnabled || !agentFormIsEnabled} // Disables this section
-        className={"flex flex-col gap-2 data-[disabled]:text-gray-400"}
-      >
-        <Field
-          className={
-            "flex flex-row justify-between items-center focus:outline-solid "
-          }
-        >
-          <div className="">
-            <Label className={"py-1"}>
-              <p>Max Words per Post</p>
-              <p className={"text-sm/6"}>
-                Choose between {minWordCount} and {maxWordCount} words.
-              </p>
+          <Field>
+            <Label className={"flex justify-start text-sm py-1"}>
+              First Name
             </Label>
-          </div>
+            <Input
+              type="text"
+              name="firstName"
+              id="firstName"
+              required
+              placeholder="Hal"
+              autoComplete="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              className={
+                "bg-transparent border border-violet-900 py-1 px-2 leading-tight focus:outline-solid rounded-md"
+              }
+            />
+          </Field>
+          <Field>
+            <Label className={"flex justify-start text-sm py-1"}>
+              Last Name
+            </Label>
+            <Input
+              type="text"
+              name="lastName"
+              id="lastName"
+              placeholder="9000"
+              autoComplete="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              className={
+                "bg-transparent border border-violet-900 py-1 px-2 leading-tight focus:outline-solid rounded-md"
+              }
+            />
+          </Field>
+          <Field>
+            <Label className={"flex justify-start text-sm py-1"}>
+              Username
+            </Label>
+            <Input
+              type="username"
+              name="username"
+              id="username"
+              required
+              placeholder="hal9000"
+              autoComplete="username"
+              value={formData.username}
+              onChange={handleChange}
+              className={
+                "bg-transparent border border-violet-900 py-1 px-2 leading-tight focus:outline-solid rounded-md"
+              }
+            />
+          </Field>
+          <Field>
+            <Label
+              className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
+            >
+              Email
+            </Label>
+            <Input
+              type="text"
+              name="email"
+              id="email"
+              required
+              placeholder="hal@spacestation.com"
+              autoComplete="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={
+                "bg-transparent border border-violet-900  w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg"
+              }
+            />
+          </Field>
+        </Fieldset>
 
-          <Input
-            type="number"
-            name="maxWords"
-            id="maxWords"
-            required
-            min={minWordCount}
-            max={maxWordCount}
-            placeholder="1500"
-            value={formData.maxWords}
-            onChange={handleChange}
+        {/* ENABLED POSTING */}
+        <Field
+          className="flex flex-row my-4 justify-between items-center data-[disabled]:text-gray-400"
+          disabled={!agentFormIsEnabled}
+        >
+          <Label className={"text-xl py-1"}>Enable Posting</Label>
+          <Switch
+            name="postIsEnabled"
+            id="postIsEnabled"
+            checked={formData.postIsEnabled}
+            onChange={(value) => handleEnableChange("post", value)}
             className={
-              "bg-transparent border border-violet-900 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md max-h-10"
+              "group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-[checked]:bg-blue-600"
             }
-          />
+          >
+            <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
+          </Switch>
         </Field>
 
-        <Field>
-          <Label className={"flex justify-start py-1"}>Personality</Label>
-          <Description className={"text-sm/6"}>
-            Describe the agent's writing style.
-          </Description>
-          <Textarea
-            rows={5}
-            name="personality"
-            id="personality"
-            placeholder="Loves to incorporate dad jokes into their writing"
-            autoComplete="lastName"
-            maxLength={1000}
-            value={formData.personality}
-            onChange={handleChange}
+        {/* PERSONALITY section */}
+        <Fieldset
+          disabled={!postFormIsEnabled || !agentFormIsEnabled} // Disables this section
+          className={"flex flex-col gap-2 data-[disabled]:text-gray-400"}
+        >
+          <Field
             className={
-              "bg-transparent border border-violet-900  w-full mr-3 py-1 px-2 leading-tight focus:outline-solid rounded-md"
+              "flex flex-row justify-between items-center focus:outline-solid "
             }
-          />
-        </Field>
-      </Fieldset>
+          >
+            <div className="">
+              <Label className={"py-1"}>
+                <p>Max Words per Post</p>
+                <p className={"text-sm/6"}>
+                  Choose between {minWordCount} and {maxWordCount} words.
+                </p>
+              </Label>
+            </div>
 
-      {/* SCHEDULE section */}
-      <Fieldset
-        className=" data-[disabled]:text-gray-400 flex-wrap"
-        disabled={!postFormIsEnabled}
-      >
-        <Legend>Schedule</Legend>
-        <div className="flex items-center  flex-wrap">
-          <div className="flex-row flex mr-4">
-            <Field>
-              {/* Time */}
-              <Input
-                type="time"
-                name="time"
-                id="time"
-                required
-                value={formData.time}
-                onChange={handleChange}
-                min="09:00"
-                max="18:00"
-                className="flex-shrink-0 h-10 rounded-none rounded-s-lg bg-gray-50 border leading-none focus:ring-blue-500 focus:border-blue-500 text-sm border-gray-300 p-2.5 block"
-              />
-            </Field>
-            {/* TIMEZONE */}
-            <Field>
-              <Select
-                name="timezone"
-                id="timezone"
-                required
-                onChange={handleTimezoneChange}
-                value={formData.timezone}
-                className={
-                  "bg-gray-50 h-10 border border-s-0 border-gray-300  text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 "
-                }
-              >
-                {timezones.map((timezone) => (
-                  <option key={timezone.timezone} value={timezone.timezone}>
-                    {timezone.label}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-          </div>
-          {/* DAYS section */}
-          <div className="flex flex-row my-1">
-            {selectedDays.map((day) => {
-              return (
-                <Checkbox
-                  key={day.value}
-                  checked={day.enabled}
-                  disabled={countSelectedDays >= maxDays && !day.enabled}
-                  onChange={(checked) => {
-                    console.log(`turning to: ${checked}`);
-                    handleDaysChange(day.value, checked);
-                  }}
-                  className="group size-10 items-center text-inherit justify-center flex rounded-full border-2 bg-white data-[checked]:bg-violet-400 data-[disabled]:bg-gray-200 data-[disabled]:text-gray-500"
+            <Input
+              type="number"
+              name="maxWords"
+              id="maxWords"
+              required
+              min={minWordCount}
+              max={maxWordCount}
+              placeholder="1500"
+              value={formData.maxWords}
+              onChange={handleChange}
+              className={
+                "bg-transparent border border-violet-900 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md max-h-10"
+              }
+            />
+          </Field>
+
+          <Field>
+            <Label className={"flex justify-start py-1"}>Personality</Label>
+            <Description className={"text-sm/6"}>
+              Describe the agent's writing style.
+            </Description>
+            <Textarea
+              rows={5}
+              name="personality"
+              id="personality"
+              placeholder="Loves to incorporate dad jokes into their writing"
+              autoComplete="lastName"
+              maxLength={1000}
+              value={formData.personality}
+              onChange={handleChange}
+              className={
+                "bg-transparent border border-violet-900  w-full mr-3 py-1 px-2 leading-tight focus:outline-solid rounded-md"
+              }
+            />
+          </Field>
+        </Fieldset>
+
+        {/* SCHEDULE section */}
+        <Fieldset
+          className=" data-[disabled]:text-gray-400 flex-wrap"
+          disabled={!postFormIsEnabled}
+        >
+          <Legend>Post Schedule</Legend>
+          <div className="flex items-center  flex-wrap">
+            <div className="flex-row flex mr-4">
+              <Field>
+                {/* Time */}
+                <Input
+                  type="time"
+                  name="time"
+                  id="time"
+                  required
+                  value={formData.time}
+                  onChange={handleChange}
+                  min="09:00"
+                  max="18:00"
+                  className="flex-shrink-0 h-10 rounded-none rounded-s-lg bg-gray-50 border leading-none focus:ring-blue-500 focus:border-blue-500 text-sm border-gray-300 p-2.5 block"
+                />
+              </Field>
+              {/* TIMEZONE */}
+              <Field>
+                <Select
+                  name="timezone"
+                  id="timezone"
+                  required
+                  onChange={handleTimezoneChange}
+                  value={formData.timezone}
+                  className={
+                    "bg-gray-50 h-10 border border-s-0 border-gray-300  text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 "
+                  }
                 >
-                  {day.abbr}
-                </Checkbox>
-              );
-            })}
+                  {timezones.map((timezone) => (
+                    <option key={timezone.timezone} value={timezone.timezone}>
+                      {timezone.label}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+            {/* DAYS section */}
+            <div className="flex flex-row my-1">
+              {selectedDays.map((day) => {
+                return (
+                  <Checkbox
+                    key={day.value}
+                    checked={day.enabled}
+                    disabled={countSelectedDays >= maxDays && !day.enabled}
+                    onChange={(checked) => {
+                      console.log(`turning to: ${checked}`);
+                      handleDaysChange(day.value, checked);
+                    }}
+                    className="group size-10 items-center text-inherit justify-center flex rounded-full border-2 bg-white data-[checked]:bg-violet-400 data-[disabled]:bg-gray-200 data-[disabled]:text-gray-500"
+                  >
+                    {day.abbr}
+                  </Checkbox>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-row justify-between">
-          <div className="flex"></div>
-        </div>
-      </Fieldset>
+          <div className="flex flex-row justify-between">
+            <div className="flex"></div>
+          </div>
+        </Fieldset>
 
-      <button
-        formAction="submit"
-        className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-8"
-      >
-        Save settings
-      </button>
-    </form>
+        <button
+          formAction="submit"
+          className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-8"
+        >
+          Save settings
+        </button>
+      </form>
+    </div>
   );
 };

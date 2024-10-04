@@ -29,8 +29,9 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     const updateUser = () => {
       console.log("PROVIDER updating user with token:", token);
       if (token) {
-        const { firstName, lastName, email } = jose.decodeJwt(token) as User;
-        setUser({ firstName, lastName, email }); // decode token to set User
+        const { firstName, lastName, email, accountId } = jose.decodeJwt(token) as User;
+        setUser({ firstName, lastName, email, accountId }); // decode token to set User
+        console.log(`set user to ${JSON.stringify(user)}`)
       } else {
         setUser(null); // if no token, erase the user from context
       }

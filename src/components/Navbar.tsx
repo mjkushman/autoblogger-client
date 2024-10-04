@@ -28,7 +28,7 @@ export const Navbar = () => {
           <NavLink to={"#"} onClick={() => handleLogout()}>
             Sign out
           </NavLink>
-          <NavLink to={"#"}>Account</NavLink>
+          <NavLink to={"/account"}>Account</NavLink>
         </>
       )}
     </nav>
