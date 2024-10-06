@@ -4,7 +4,7 @@ type Props = {};
 
 export const SignupSection = (props: Props) => {
   return (
-    <div className="mx-auto text-center max-w-7xl pt-12 px-6 lg:px-8 my-2 border-t border-gray-200">
+    <div id="signup" className="mx-auto text-center max-w-7xl pt-12 px-6 lg:px-8 my-2 border-t border-gray-200">
       <div className="mx-auto lg:mx-0">
         <h2 className="lg:text-3xl tracking-tight sm:text-2xl">Try it out</h2>
         <p className="mt-2 text-lg leading-8 text-gray-500">

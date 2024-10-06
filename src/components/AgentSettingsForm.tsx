@@ -11,117 +11,151 @@ import {
   Switch,
   Textarea,
 } from "@headlessui/react";
+import api from "@/utils/api";
 
 import timezones from "@/app/fixtures/timezones";
+import { Agent } from "@/types";
 
-type Props = {};
+type Props = {
+  agent: Agent;
+};
 
-export const AgentSettingsForm = (props: Props) => {
+export const AgentSettingsForm = ({ agent }: Props) => {
+  // const agent = account.Agents[1];
+  // console.log("passed agent", agent);
   const initialFormData = {
-    // update this to populate by useEffect, from account info
-    firstName: "",
-    lastName: "",
-    email: "",
-    username: "",
-    personality: "",
-    maxWords: 1500,
-    time: "",
-    timezone: "",
-    agentIsEnabled: false,
-    postIsEnabled: false,
+    isEnabled: agent.isEnabled,
+    firstName: agent.firstName,
+    lastName: agent.lastName,
+    email: agent.email,
+    username: agent.username,
+    postSettings: {
+      isEnabled: agent.postSettings.isEnabled,
+      personality: agent.postSettings.personality,
+      maxWords: agent.postSettings.maxWords,
+      time: agent.postSettings.time || "12:00",
+      daysOfWeek: agent.postSettings.daysOfWeek || ["mon", "wed"],
+      timezone: agent.postSettings.timezone || "America/Los_Angeles",
+    },
   };
 
   const [formData, setFormData] = useState(initialFormData);
   const [postFormIsEnabled, setPostFormIsEnabled] = useState(
-    initialFormData.postIsEnabled
+    initialFormData.postSettings.isEnabled
   );
   const [agentFormIsEnabled, setAgentFormIsEnabled] = useState(
-    initialFormData.agentIsEnabled
+    initialFormData.isEnabled
   );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ): void => {
+    console.log("receiving:", e);
     const { name, value } = e.target;
     console.log(`Updating ${name} to ${value}`);
     setFormData((formData) => ({ ...formData, [name]: value }));
     console.dir(formData);
   };
 
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    console.log("NEW TIME:", value);
+    setFormData((formData) => ({
+      ...formData,
+      postSettings: {
+        ...formData.postSettings,
+        time: value,
+      },
+    }));
+  };
+
   const days: { abbr: string; value: string; enabled: boolean }[] = [
-    { abbr: "M", value: "monday", enabled: false },
-    { abbr: "T", value: "tuesday", enabled: false },
-    { abbr: "W", value: "wednesday", enabled: false },
-    { abbr: "Th", value: "thursday", enabled: false },
-    { abbr: "F", value: "friday", enabled: false },
-    { abbr: "Sa", value: "saturday", enabled: false },
-    { abbr: "Su", value: "sunday", enabled: false },
+    { abbr: "M", value: "mon", enabled: false },
+    { abbr: "T", value: "tue", enabled: false },
+    { abbr: "W", value: "wed", enabled: false },
+    { abbr: "Th", value: "thu", enabled: false },
+    { abbr: "F", value: "fri", enabled: false },
+    { abbr: "Sa", value: "sat", enabled: false },
+    { abbr: "Su", value: "sun", enabled: false },
   ];
 
-  const [selectedDays, setSelectedDays] = useState(days);
-
-  const [countSelectedDays, setCountSelectedDays] = useState(0);
   const maxDays = 2; // max number of days per week that can be selected
   const minWordCount = 100;
   const maxWordCount = 10000;
 
   const handleDaysChange = (dayValue: string, checked: boolean) => {
     // if it's already selected OR total days < max, proceed to either select or unselect
-
-    const currentSelectedCount = selectedDays.filter(
-      (day) => day.enabled
-    ).length;
-    // console.log('currentSelectedCount', currentSelectedCount)
-
+    const currentSelectedCount = formData.postSettings.daysOfWeek.length;
     // check if we are already at max days
     if (checked && currentSelectedCount >= maxDays) {
       console.log("already at max days");
       return; // returns without doing more.
     }
-    // update the day
-    setSelectedDays((prevSelectedDays) =>
-      prevSelectedDays.map((day) =>
-        day.value === dayValue ? { ...day, enabled: checked } : { ...day }
-      )
+    // And update formData
+    setFormData((formData) => {
+      let currentDays: string[] = [...formData.postSettings.daysOfWeek];
+      if (checked) {
+        currentDays = [...currentDays, dayValue];
+      } else {
+        currentDays = [...currentDays].filter((day) => day !== dayValue);
+      }
+
+      return {
+        ...formData,
+        postSettings: {
+          ...formData.postSettings,
+          daysOfWeek: currentDays,
+        },
+      };
+    });
+    console.log(
+      "formData.postSettings.daysOfWeek:",
+      formData.postSettings.daysOfWeek
     );
-    // update the current count of days selected
-    // increment or decrement total days
-    setCountSelectedDays((prevCount) =>
-      checked ? prevCount + 1 : prevCount - 1
-    ); // updating this day
   };
 
   const handleEnableChange = (field: "post" | "agent", value: boolean) => {
     if (field === "agent") {
       setAgentFormIsEnabled(value);
-      setFormData((formData) => ({ ...formData, agentIsEnabled: value }));
+      setFormData((formData) => ({ ...formData, isEnabled: value }));
       if (value === false) {
         // if turning off, turn off off Post too
         setPostFormIsEnabled(value);
-        setFormData((formData) => ({ ...formData, postIsEnabled: value }));
+        setFormData((formData) => ({
+          ...formData,
+          postSettings: { ...formData.postSettings, isEnabled: value },
+        }));
       }
     } else if (field === "post") {
-      setFormData((formData) => ({ ...formData, postIsEnabled: value }));
+      setFormData((formData) => ({
+        ...formData,
+        postSettings: { ...formData.postSettings, isEnabled: value },
+      }));
       setPostFormIsEnabled(value);
     }
   };
 
   const handleTimezoneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
-    setFormData((formData) => ({ ...formData, timezone: value }));
+    setFormData((formData) => ({
+      ...formData,
+      postSettings: { ...formData.postSettings, timezone: value },
+    }));
   };
 
   const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
+    e: React.FormEvent<HTMLFormElement>, 
   ): Promise<void> => {
     e.preventDefault();
-
     console.log("Submitting form data:");
+    console.log("for agent:", agent.agentId)
+    // Build the crontab expression
     console.dir(formData);
 
     // Invoke API call
     try {
       console.log("form submitted. TODO: implement API logic");
+      // const response = await api.patch("/")
 
       setFormData(initialFormData);
     } catch (error) {
@@ -130,30 +164,32 @@ export const AgentSettingsForm = (props: Props) => {
   };
 
   return (
-    <div className="overflow-hidden rounded-xl sm:bg-gray-50 sm:px-8 sm:shadow">
-      <div className="pt-4">
-        <h1 className="py-2 text-2xl font-semibold">Agent Settings</h1>
-      </div>
-      <hr className="mt-4 mb-8" />
+    <div className="overflow-hidden my-4 rounded-xl sm:bg-gray-50 sm:px-8 sm:shadow">
       <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-4xl my-2 px-8 text-gray-800 "
+        onSubmit={ handleSubmit}
+        className="w-full max-w-4xl my-2 px-8 text-gray-800"
       >
         {/* BASIC SETTINGS */}
-        <Field className="flex flex-row my-4 justify-between items-center">
-          <Label className={"text-xl py-1"}>Enable Agent</Label>
-          <Switch
-            name="agentIsEnabled"
-            id="agentIsEnabled"
-            checked={formData.agentIsEnabled}
-            onChange={(value) => handleEnableChange("agent", value)}
-            className={
-              "group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-[checked]:bg-blue-600"
-            }
-          >
-            <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-          </Switch>
-        </Field>
+        <div className=" flex flex-row justify-between items-centergap-3">
+          <h3 className="py-2 text-2xl font-semibold">
+            Settings for: {agent.firstName}
+          </h3>
+
+          <Field className="justify-end gap-3 items-center flex flex-row">
+            <Label className={"text-xl py-1"}>Enable Agent</Label>
+            <Switch
+              name="agentIsEnabled"
+              id={`${agent.agentId}-isEnabled`}
+              checked={formData.isEnabled}
+              onChange={(value) => handleEnableChange("agent", value)}
+              className={
+                "group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-[checked]:bg-blue-600"
+              }
+            >
+              <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
+            </Switch>
+          </Field>
+        </div>
         <Fieldset
           className={"flex flex-wrap gap-2 data-[disabled]:text-gray-400"}
           disabled={!agentFormIsEnabled}
@@ -165,14 +201,14 @@ export const AgentSettingsForm = (props: Props) => {
             <Input
               type="text"
               name="firstName"
-              id="firstName"
+              id={`${agent.agentId}-firstName`}
               required
-              placeholder="Hal"
+              placeholder="Enter a first name"
               autoComplete="firstName"
               value={formData.firstName}
               onChange={handleChange}
               className={
-                "bg-transparent border border-violet-900 py-1 px-2 leading-tight focus:outline-solid rounded-md"
+                "bg-transparent border border-violet-900 py-1 px-2 max-w-44 leading-tight focus:outline-solid rounded-md"
               }
             />
           </Field>
@@ -183,13 +219,13 @@ export const AgentSettingsForm = (props: Props) => {
             <Input
               type="text"
               name="lastName"
-              id="lastName"
-              placeholder="9000"
+              id={`${agent.agentId}-lastName`}
+              placeholder="Enter a last name"
               autoComplete="lastName"
               value={formData.lastName}
               onChange={handleChange}
               className={
-                "bg-transparent border border-violet-900 py-1 px-2 leading-tight focus:outline-solid rounded-md"
+                "bg-transparent border border-violet-900 py-1 px-2 max-w-44 leading-tight focus:outline-solid rounded-md"
               }
             />
           </Field>
@@ -200,34 +236,32 @@ export const AgentSettingsForm = (props: Props) => {
             <Input
               type="username"
               name="username"
-              id="username"
+              id={`${agent.agentId}-username`}
               required
-              placeholder="hal9000"
-              autoComplete="username"
+              placeholder={initialFormData.username}
+              autoComplete="Username"
               value={formData.username}
               onChange={handleChange}
               className={
-                "bg-transparent border border-violet-900 py-1 px-2 leading-tight focus:outline-solid rounded-md"
+                "bg-transparent border border-violet-900 py-1 px-2 max-w-44 leading-tight focus:outline-solid rounded-md"
               }
             />
           </Field>
           <Field>
-            <Label
-              className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
-            >
+            <Label className={"flex justify-start text-sm px-2 py-1"}>
               Email
             </Label>
             <Input
               type="text"
               name="email"
-              id="email"
+              id={`${agent.agentId}-email`}
               required
-              placeholder="hal@spacestation.com"
+              placeholder="Email address"
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
               className={
-                "bg-transparent border border-violet-900  w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg"
+                "bg-transparent border border-violet-900 py-1 px-2 max-w-44 leading-tight focus:outline-none rounded-md"
               }
             />
           </Field>
@@ -235,14 +269,14 @@ export const AgentSettingsForm = (props: Props) => {
 
         {/* ENABLED POSTING */}
         <Field
-          className="flex flex-row my-4 justify-between items-center data-[disabled]:text-gray-400"
+          className="flex flex-row mb-4 mt-8 justify-end gap-3 items-center data-[disabled]:text-gray-400"
           disabled={!agentFormIsEnabled}
         >
           <Label className={"text-xl py-1"}>Enable Posting</Label>
           <Switch
             name="postIsEnabled"
-            id="postIsEnabled"
-            checked={formData.postIsEnabled}
+            id={`${agent.agentId}-postIsEnabled`}
+            checked={formData.postSettings.isEnabled}
             onChange={(value) => handleEnableChange("post", value)}
             className={
               "group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-[checked]:bg-blue-600"
@@ -274,12 +308,12 @@ export const AgentSettingsForm = (props: Props) => {
             <Input
               type="number"
               name="maxWords"
-              id="maxWords"
+              id={`${agent.agentId}-maxWords`}
               required
               min={minWordCount}
               max={maxWordCount}
               placeholder="1500"
-              value={formData.maxWords}
+              value={formData.postSettings.maxWords}
               onChange={handleChange}
               className={
                 "bg-transparent border border-violet-900 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md max-h-10"
@@ -295,11 +329,11 @@ export const AgentSettingsForm = (props: Props) => {
             <Textarea
               rows={5}
               name="personality"
-              id="personality"
+              id={`${agent.agentId}-personality`}
               placeholder="Loves to incorporate dad jokes into their writing"
               autoComplete="lastName"
               maxLength={1000}
-              value={formData.personality}
+              value={formData.postSettings.personality}
               onChange={handleChange}
               className={
                 "bg-transparent border border-violet-900  w-full mr-3 py-1 px-2 leading-tight focus:outline-solid rounded-md"
@@ -321,12 +355,12 @@ export const AgentSettingsForm = (props: Props) => {
                 <Input
                   type="time"
                   name="time"
-                  id="time"
+                  id={`${agent.agentId}-time`}
                   required
-                  value={formData.time}
-                  onChange={handleChange}
-                  min="09:00"
-                  max="18:00"
+                  value={formData.postSettings.time}
+                  onChange={handleTimeChange}
+                  min="00:00"
+                  max="23:59"
                   className="flex-shrink-0 h-10 rounded-none rounded-s-lg bg-gray-50 border leading-none focus:ring-blue-500 focus:border-blue-500 text-sm border-gray-300 p-2.5 block"
                 />
               </Field>
@@ -334,10 +368,10 @@ export const AgentSettingsForm = (props: Props) => {
               <Field>
                 <Select
                   name="timezone"
-                  id="timezone"
+                  id={`${agent.agentId}-timezone`}
                   required
                   onChange={handleTimezoneChange}
-                  value={formData.timezone}
+                  value={formData.postSettings.timezone}
                   className={
                     "bg-gray-50 h-10 border border-s-0 border-gray-300  text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 "
                   }
@@ -352,12 +386,17 @@ export const AgentSettingsForm = (props: Props) => {
             </div>
             {/* DAYS section */}
             <div className="flex flex-row my-1">
-              {selectedDays.map((day) => {
+              {days.map((day) => {
                 return (
                   <Checkbox
-                    key={day.value}
-                    checked={day.enabled}
-                    disabled={countSelectedDays >= maxDays && !day.enabled}
+                    key={agent.agentId + day.value}
+                    checked={formData.postSettings.daysOfWeek.includes(
+                      day.value
+                    )}
+                    disabled={
+                      formData.postSettings.daysOfWeek.length >= maxDays &&
+                      !formData.postSettings.daysOfWeek.includes(day.value)
+                    }
                     onChange={(checked) => {
                       console.log(`turning to: ${checked}`);
                       handleDaysChange(day.value, checked);

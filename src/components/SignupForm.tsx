@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { Field, Fieldset, Input, Label } from "@headlessui/react";
 import { AuthService } from "@/utils/authService";
 import { UserContext } from "@/app/provider";
+import { useNavigate } from "react-router";
 
 export const SignupForm = () => {
   const { setToken } = useContext(UserContext);
@@ -14,6 +15,7 @@ export const SignupForm = () => {
     verifyPassword: "",
   };
   const [formData, setFormData] = useState(initialFormData);
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -40,10 +42,11 @@ export const SignupForm = () => {
         password: formData.password,
       }).then(
         (value) => {
-          console.log('Entering .then with value:' ,value)
+          console.log("Entering .then with value:", value); // if request succeeds
           setToken(value);
+          navigate("/account");
         },
-        () => console.log("Request failed")
+        () => console.log("Request failed") // if request fails
       );
 
       setFormData(initialFormData);

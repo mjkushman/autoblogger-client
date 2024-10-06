@@ -9,9 +9,13 @@ type Agent = {
   postSettings: {
     llm: string;
     maxWords: number;
+    time: string,
+    daysOfWeek: string[],
     isEnabled: boolean;
     cronSchedule: string;
     displaySchedule: string;
+    personality: string;
+    timezone: string;
   };
   imageUrl: string;
   createdAt: Date;

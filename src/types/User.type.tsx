@@ -1,3 +1,4 @@
+// deprecate in favor of Account type
 type User = {
   firstName: string;
   lastName: string;

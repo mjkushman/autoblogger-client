@@ -4,7 +4,6 @@ type Account = {
   email: string;
   firstName: string;
   lastName: string;
-  password: string;
   apiKey: string;
   apiKeyIndex: string;
   imageUrl: string;

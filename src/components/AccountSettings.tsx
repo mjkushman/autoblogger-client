@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import api from '@/utils/api'
 import { Navigate, useLoaderData } from "react-router";
 
-type Props = {};
+type Props = {
+  account: Account
+};
 
 const placeholderResponse = {
   accountId: "act_00000000-0000-0000-0000-000000000001",
@@ -163,9 +165,9 @@ const placeholderResponse = {
   ],
 };
 
-export const AccountSettings = (props: Props) => {
+export const AccountSettings = ({account}: Props) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [account, setAccount] = useState(useLoaderData() as Account);
+  // const [account, setAccount] = useState(useLoaderData() as Account);
   const [isApiKeyVisibile, setIsApiKeyVisibile] = useState(false);
   // const account = useLoaderData() as Account[]
   if(!account || !account.accountId) return <Navigate to="/auth/login" replace />

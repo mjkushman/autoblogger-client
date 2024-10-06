@@ -24,10 +24,10 @@ export const LoginForm = (): React.ReactElement => {
       AuthService.login(formData)
       .then(
         (value) => {
-          console.log('entering .then. value: ', value)
+          console.log('entering .then. value: ', value) // if request succeeds
           setToken(value); // updates token, triggering update of user
-          navigate("/")},
-        () => console.log("Request failed")
+          navigate("/account")},
+        () => console.log("Request failed") // if request fails
       );
 
       setFormData(initialFormData);
