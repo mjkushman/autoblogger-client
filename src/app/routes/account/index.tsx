@@ -1,5 +1,5 @@
 import { AccountSettings } from "@/components/AccountSettings";
-import { AgentSettingsForm } from "@/components/AgentSettingsForm";
+import { AgentSettingsForm } from "@/components/AgentSettings";
 import { Account } from "@/types";
 import { useState } from "react";
 import { useLoaderData } from "react-router";
@@ -9,19 +9,17 @@ export const AccountRoot = () => {
 
   return (
     <>
-      <div className="p-4 my-4-10">
+      <div className="my-10">
         <h1 className="text-5xl">Settings</h1>
       </div>
+      <h1 className="pt-2 text-2xl font-semibold">Account</h1>
       <div className="py-2 my-4">
-        {/* section component */}
         <AccountSettings account={account} />
       </div>
-
-      {/* temporary div for viewing forms as I edit them */}
+      <h1 className="pt-2 text-2xl font-semibold">Agents</h1>
       <div className="py-2 my-4">
-        {/* section component */}
         {account.Agents.map((agent) => {
-          return <AgentSettingsForm agent={agent}  key={agent.agentId}/>;
+          return <AgentSettingsForm agent={agent} key={agent.agentId} />;
         })}
       </div>
       <div className="flex flex-auto m-auto justify-center"></div>
