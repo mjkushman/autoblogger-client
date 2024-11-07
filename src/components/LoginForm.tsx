@@ -13,7 +13,8 @@ export const LoginForm = (): React.ReactElement => {
     verifyPassword: "",
   };
 
-  const { setToken } = useContext(UserContext);
+  const userContext = useContext(UserContext);
+  const setToken = userContext?.setToken
 
   const navigate = useNavigate();
   const handleSubmit = async (
@@ -22,13 +23,14 @@ export const LoginForm = (): React.ReactElement => {
     e.preventDefault();
     try {
       AuthService.login(formData)
-      .then(
-        (value) => {
-          console.log('entering .then. value: ', value) // if request succeeds
-          setToken(value); // updates token, triggering update of user
-          navigate("/account")},
-        () => console.log("Request failed") // if request fails
-      );
+        .then(
+          (value) => {
+            console.log("entering .then. value: ", value); // if request succeeds
+            setToken(value); // updates token, triggering update of user
+          },
+          () => console.log("Request failed") // if request fails
+        )
+        .then(() => navigate("/account"));
 
       setFormData(initialFormData);
     } catch (error) {
@@ -50,6 +52,7 @@ export const LoginForm = (): React.ReactElement => {
         onSubmit={handleSubmit}
         className={"w-full max-w-sm my-2  rounded-md px-8"}
       >
+        <p>try: org1@org1.com // hashedpassword</p>
         <Fieldset className={"flex flex-col gap-2"}>
           <Field>
             <Label
