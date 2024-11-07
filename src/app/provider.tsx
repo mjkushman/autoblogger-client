@@ -1,7 +1,7 @@
 import { Suspense, createContext, useState, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { MainErrorFallback } from "@/components/ErrorFallback";
-import { User } from "@/types/User.type";
+import User from "@/types/User.type";
 
 import * as jose from "jose";
 
@@ -14,7 +14,10 @@ type UserContextType = {
   setToken: (token: string) => void;
 };
 
-export const UserContext = createContext<UserContextType | null>(null);
+export const UserContext = createContext<UserContextType>({
+  user: null,
+  setToken: () => {},
+});
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   console.log("rendering AppProvider");
@@ -29,9 +32,11 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     const updateUser = () => {
       console.log("PROVIDER updating user with token:", token);
       if (token) {
-        const { firstName, lastName, email, accountId } = jose.decodeJwt(token) as User;
+        const { firstName, lastName, email, accountId } = jose.decodeJwt(
+          token
+        ) as User;
         setUser({ firstName, lastName, email, accountId }); // decode token to set User
-        console.log(`set user to ${JSON.stringify(user)}`)
+        console.log(`set user to ${JSON.stringify(user)}`);
       } else {
         setUser(null); // if no token, erase the user from context
       }

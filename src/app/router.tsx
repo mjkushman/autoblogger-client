@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import {
   createBrowserRouter,
   Navigate,
@@ -9,14 +9,10 @@ import { MainLayout } from "./layouts/MainLayout";
 import { UserContext } from "./provider";
 import { User } from "@/types";
 import api from "@/utils/api";
+import { RequireAuth } from "./layouts/RequireAuth";
+import { AccountRoot } from "./routes/account";
 
-type AppRouterProps = {
-  children: React.ReactNode;
-};
-
-const createAppRouter = (user: User) => {
-  
-  
+const createAppRouter = (user: User | null) => {
   return createBrowserRouter([
     // each route goes here
 
@@ -33,14 +29,19 @@ const createAppRouter = (user: User) => {
         },
         {
           path: "account",
-          lazy: async () => {
-            const {AccountRoot} = await import("./routes/account")
-            return {Component: AccountRoot}
-          },
+          element: (
+            <RequireAuth>
+              <AccountRoot />
+            </RequireAuth>
+          ),
+          // lazy: async () => {
+          //   const { AccountRoot } = await import("./routes/account");
+          //   return { Component: AccountRoot };
+          // },
           loader: async () => {
-            if(!user || !user.accountId) return null
-            return api.get(`/accounts/${user.accountId}`)
-          }
+            if (!user || !user.accountId) return null;
+            return api.get(`accounts/`); // passes accountId as part of token
+          },
         },
         {
           path: "docs",
@@ -85,8 +86,8 @@ const createAppRouter = (user: User) => {
 };
 
 export const AppRouter = () => {
-  const context = useContext(UserContext)
-  const user = context?.user
+  const context = useContext(UserContext);
+  const user = context ? context.user : null;
   const router = createAppRouter(user);
 
   return <RouterProvider router={router} />;

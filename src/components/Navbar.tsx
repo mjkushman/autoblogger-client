@@ -9,12 +9,12 @@ export const Navbar = () => {
   const [currentUser, setCurrentUser] = useState(user);
   const navigate = useNavigate();
 
-  const [isHovered, setIsHovered] = useState(false);
+  // const [isHovered, setIsHovered] = useState(false);
 
   const handleLogout = () => {
+    navigate("/");
     AuthService.logout();
     setToken(null);
-    navigate("/");
   };
 
   useEffect(() => {
