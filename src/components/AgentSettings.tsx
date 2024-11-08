@@ -177,6 +177,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
       setIsLoading(true);
       const response = await api.delete("agents", { agentId: agent.agentId });
       console.log("Deleted successfully:", response);
+      setIsLoading(false);
     } catch (error) {
       console.log("failed to delete:", error);
     }

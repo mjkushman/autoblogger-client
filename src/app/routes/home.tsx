@@ -1,7 +1,5 @@
 import { BlogExamples } from "@/components/BlogExamples";
 import { GetStarted } from "@/components/GetStarted";
-import { SignupSection } from "@/components/SignupSection";
-import { Link } from "react-router-dom";
 
 export const HomeRoute = () => {
   // const navigate = useNavigate();

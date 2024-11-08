@@ -18,12 +18,13 @@ type loginFormDataType = {
 export const localStorageKey = "authToken";
 
 export const AuthService = {
-  createAccount: async (formData: createAccountFormDataType): Promise<void> => {
+  createAccount: async (formData: createAccountFormDataType): Promise<string> => {
     const { token } = await api.post<
       createAccountFormDataType,
       CreateAccountResponse
     >("accounts", formData);
     storeToken(token);
+    return token
   },
 
   login: async (formData: loginFormDataType):Promise<string> => {
