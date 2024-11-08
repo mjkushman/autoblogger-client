@@ -152,6 +152,7 @@ export const SignupForm = () => {
             name="verifyPassword"
             id="verifyPassword"
             placeholder="verify password"
+            autoComplete="new-password"
             value={formData.verifyPassword}
             onChange={handleChange}
             className={

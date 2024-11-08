@@ -1,4 +1,5 @@
 import { BlogExamples } from "@/components/BlogExamples";
+import { GetStarted } from "@/components/GetStarted";
 import { SignupSection } from "@/components/SignupSection";
 import { Link } from "react-router-dom";
 
@@ -28,19 +29,8 @@ export const HomeRoute = () => {
             content, publish posts, and respond to your users' comments.
           </p>
         </div>
-        <div className="text-center m-4">
-          <h3 className="text-xl my-2 ">Check out the docs</h3>
-          <p>Learn how to set up an Autoblogger agent</p>
-          <Link to="#">
-            <button className="py-2 px-4 m-4 rounded-lg text-gray-100 bg-violet-900">
-              Read the docs
-            </button>
-          </Link>
-        </div>
       </div>
-      <div className="py-2 my-4">
-        <SignupSection />
-      </div>
+      <GetStarted/>
       <div className="py-2 my-4">
         <BlogExamples />
       </div>

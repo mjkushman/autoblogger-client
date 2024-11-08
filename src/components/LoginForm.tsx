@@ -52,7 +52,6 @@ export const LoginForm = (): React.ReactElement => {
         onSubmit={handleSubmit}
         className={"w-full max-w-sm my-2  rounded-md px-8"}
       >
-        <p>try: org1@org1.com // hashedpassword</p>
         <Fieldset className={"flex flex-col gap-2"}>
           <Field>
             <Label
@@ -86,7 +85,7 @@ export const LoginForm = (): React.ReactElement => {
               id="password"
               required
               placeholder="password"
-              autoComplete="new-password"
+              autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
               className={
