@@ -4,3 +4,8 @@ export type CreateAccountResponse = {
 export type LoginResponse = {
     token: string
 }
+export type ApiResponse = {
+    status: number,
+    message?: string,
+    data: string
+}

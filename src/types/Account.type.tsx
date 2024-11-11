@@ -1,5 +1,5 @@
-import {Blog, Agent} from '@/types'
-type Account = {
+import { Blog, Agent } from "@/types";
+export type Account = {
   accountId: string;
   email: string;
   firstName: string;
@@ -7,9 +7,8 @@ type Account = {
   apiKey: string;
   apiKeyIndex: string;
   imageUrl: string;
-  createdAt: Date,
+  createdAt: Date;
   updatedAt: Date;
-  Blogs: Blog[],
-  Agents: Agent[]
+  Blogs: Blog[];
+  Agents: Agent[];
 };
-export default Account

@@ -1,4 +1,4 @@
-type Agent = {
+export type Agent = {
   agentId: string;
   accountId: string;
   username: string;
@@ -22,4 +22,4 @@ type Agent = {
   updatedAt: Date;
 };
 
-export default Agent;
+// export default Agent;

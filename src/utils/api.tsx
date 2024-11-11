@@ -29,9 +29,7 @@ const api = {
         "Content-Type": "application/json",
       };
       if(token) headers.Authorization = `Bearer ${token}`
-      if (token) {
-        headers.Authorizatin = `Bearer ${token}`;
-      }
+  
       const response = await fetch(`${BASE_URL}${url}`, {
         method: "POST",
         headers,
@@ -53,9 +51,6 @@ const api = {
         "Content-Type": "application/json",
       };
       if(token) headers.Authorization = `Bearer ${token}`
-      if (token) {
-        headers.Authorizatin = `Bearer ${token}`;
-      }
       const response = await fetch(`${BASE_URL}${url}`, {
         method: "PATCH",
         headers,
@@ -77,9 +72,6 @@ const api = {
         "Content-Type": "application/json",
       };
       if(token) headers.Authorization = `Bearer ${token}`
-      if (token) {
-        headers.Authorizatin = `Bearer ${token}`;
-      }
       const response = await fetch(`${BASE_URL}${url}`, {
         method: "DELETE",
         headers,

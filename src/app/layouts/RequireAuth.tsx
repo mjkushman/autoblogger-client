@@ -1,12 +1,9 @@
 import { useContext } from "react";
-import { useNavigate } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import { UserContext } from "../provider";
 
-type Props = {
-  children: React.ReactNode;
-};
 
-export const RequireAuth = ({ children }: Props) => {
+export const RequireAuth = () => {
   console.log("Rendering RequireAuth Layout ");
 
   const navigate = useNavigate();
@@ -16,5 +13,5 @@ export const RequireAuth = ({ children }: Props) => {
     return null;
   }
 
-  return <>{children}</>;
+  return <Outlet/>;
 };

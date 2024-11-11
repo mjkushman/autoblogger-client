@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useLoaderData } from "react-router";
 
 export const AccountRoot = () => {
-  const [account, setAccount] = useState(useLoaderData() as Account);
+  const [account] = useState(useLoaderData() as Account);
 
   return (
     <>
@@ -23,6 +23,7 @@ export const AccountRoot = () => {
         })}
       </div>
       <div className="flex flex-auto m-auto justify-center"></div>
+
     </>
   );
 };
