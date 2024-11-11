@@ -1,6 +1,5 @@
 import api from "@/utils/api";
-import { CreateAccountResponse } from "@/types";
-import { LoginResponse } from "@/types/Api.type";
+import { ApiResponse } from "@/types";
 
 // const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3001";
 
@@ -19,18 +18,18 @@ export const localStorageKey = "authToken";
 
 export const AuthService = {
   createAccount: async (formData: createAccountFormDataType): Promise<string> => {
-    const { token } = await api.post<
+    const { data } = await api.post<
       createAccountFormDataType,
-      CreateAccountResponse
+      ApiResponse
     >("accounts", formData);
-    storeToken(token);
-    return token
+    storeToken(data);
+    return data
   },
 
   login: async (formData: loginFormDataType):Promise<string> => {
-    const { token } = await api.post<loginFormDataType, LoginResponse>("auth", formData);
-    storeToken(token);
-    return token;
+    const { data } = await api.post<loginFormDataType, ApiResponse>("auth", formData);
+    storeToken(data);
+    return data;
   },
 
   logout: (): void => {

@@ -188,7 +188,7 @@ export const AccountSettings = ({ account }: Props) => {
   // if (!isLoading)
   return (
     <>
-      <div className="col-span-8 overflow-hidden rounded-xl sm:bg-gray-50 sm:px-8 sm:shadow">
+      <div className="col-span-8 overflow-hidden rounded-xl sm:bg-gray-50 sm:px-8 sm:drop-shadow-md border border-gray-300">
         <div className="pt-4">
           <p className="py-2 text-l font-semibold">Name</p>
         </div>

@@ -15,31 +15,32 @@ import {
 import api from "@/utils/api";
 
 import timezones from "@/app/fixtures/timezones";
-import { Agent } from "@/types";
+import { Account } from "@/types";
 
 type Props = {
-  agent: Agent;
+  accountId: Account["accountId"];
 };
 
-export const AgentSettingsForm = ({ agent }: Props) => {
+export const AgentCreate = ({ accountId }: Props): React.ReactNode => {
+  console.log("rendering AgentCreate");
   // const agent = account.Agents[1];
   // console.log("passed agent", agent);
 
   // I think I need to add a useEffect hook to update initial form data after submitting the form.
   const initialFormData = {
-    agentId: agent.agentId,
-    isEnabled: agent.isEnabled,
-    firstName: agent.firstName,
-    lastName: agent.lastName,
-    email: agent.email,
-    username: agent.username,
+    accountId: accountId,
+    isEnabled: false,
+    firstName: "",
+    lastName: "",
+    email: "",
+    username: "",
     postSettings: {
-      isEnabled: agent.postSettings.isEnabled,
-      personality: agent.postSettings.personality,
-      maxWords: agent.postSettings.maxWords,
-      time: agent.postSettings.time || "12:00",
-      daysOfWeek: agent.postSettings.daysOfWeek || ["mon", "wed"],
-      timezone: agent.postSettings.timezone || "America/Los_Angeles",
+      isEnabled: false,
+      personality: "",
+      maxWords: 500,
+      time: "12:00",
+      daysOfWeek: ["wed"],
+      timezone: "America/Los_Angeles",
     },
   };
 
@@ -47,15 +48,9 @@ export const AgentSettingsForm = ({ agent }: Props) => {
 
   const [formData, setFormData] = useState(initialFormData);
 
-  const [isEditable, setIsEditable] = useState(false);
-  const [isDeleteVisible, setIsDeleteVisible] = useState(false);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    console.log("receiving:", e);
     const { name, value } = e.target;
-    console.log(`Updating ${name} to ${value}`);
     setFormData((formData) => ({ ...formData, [name]: value }));
-    console.dir(formData);
   };
 
   const handlePersonalityChange = (
@@ -163,24 +158,12 @@ export const AgentSettingsForm = ({ agent }: Props) => {
     console.dir(formData);
     // Invoke API call
     try {
-      const response = await api.patch(`agents`, formData);
+      const response = await api.post(`agents`, formData);
       console.log("form submit response:", response);
     } catch (error) {
       console.log(`Failed to submit: ${error}`);
     }
     setIsLoading(false);
-  };
-
-  const handleDelete = async () => {
-    console.log(`deleting ${agent.firstName}`);
-    try {
-      setIsLoading(true);
-      const response = await api.delete("agents", { agentId: agent.agentId });
-      console.log("Deleted successfully:", response);
-      setIsLoading(false);
-    } catch (error) {
-      console.log("failed to delete:", error);
-    }
   };
 
   return (
@@ -191,47 +174,15 @@ export const AgentSettingsForm = ({ agent }: Props) => {
           className="w-full max-w-4xl my-2 px-8 text-gray-800"
         >
           {/* BASIC SETTINGS */}
-          <div className=" flex flex-row justify-between items-center">
-            <h3 className="py-2 text-2xl font-semibold">
-              {agent.firstName} {agent.lastName}
-            </h3>
-            <div>
-              <Button
-                disabled={!isEditable}
-                onClick={() => {
-                  setFormData(initialFormData);
-                  setIsEditable(false);
-                }}
-                className="data-[disabled]:hidden rounded-lg bg-none my-4 px-2 mx-2 text-sm text-red-800"
-              >
-                Cancel
-              </Button>
-              <Button
-                disabled={isLoading}
-                formAction="submit"
-                // type="button"
-                onClick={() => {
-                  if (isEditable) {
-                    handleSubmit();
-                    setIsEditable(false);
-                  } else {
-                    setIsEditable(true);
-                  }
-                }}
-                className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-4 mx-2 data-[disabled]:bg-gray-500"
-              >
-                {isEditable ? "Save Edits" : "Edit Settings"}
-              </Button>
-            </div>
-          </div>
+          <div className=" flex flex-row justify-between items-center"></div>
           <Field
             className="gap-3 items-center flex flex-row my-1"
-            disabled={!isEditable}
+            disabled={isLoading}
           >
             <Label className={"py-1 font-semibold"}>Enable Agent</Label>
             <Switch
               name="agentIsEnabled"
-              id={`${agent.agentId}-isEnabled`}
+              id="isEnabled"
               checked={formData.isEnabled}
               onChange={(value) => handleEnableChange("agent", value)}
               className={
@@ -244,7 +195,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
           {/* BASIC INFO */}
           <Fieldset
             className={"flex flex-wrap gap-2 my-2"}
-            disabled={!isEditable}
+            disabled={isLoading}
           >
             <Field>
               <Label className={"flex justify-start text-sm p-1 font-semibold"}>
@@ -253,7 +204,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
               <Input
                 type="text"
                 name="firstName"
-                id={`${agent.agentId}-firstName`}
+                id="firstName"
                 required
                 placeholder="Enter a first name"
                 autoComplete="firstName"
@@ -271,7 +222,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
               <Input
                 type="text"
                 name="lastName"
-                id={`${agent.agentId}-lastName`}
+                id="lastName"
                 placeholder="Enter a last name"
                 autoComplete="lastName"
                 value={formData.lastName}
@@ -288,10 +239,10 @@ export const AgentSettingsForm = ({ agent }: Props) => {
               <Input
                 type="username"
                 name="username"
-                id={`${agent.agentId}-username`}
+                id="username"
                 required
                 placeholder={initialFormData.username}
-                autoComplete="Username"
+                autoComplete="username"
                 value={formData.username}
                 onChange={handleChange}
                 className={
@@ -306,7 +257,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
               <Input
                 type="text"
                 name="email"
-                id={`${agent.agentId}-email`}
+                id="email"
                 required
                 placeholder="Email address"
                 autoComplete="email"
@@ -322,12 +273,12 @@ export const AgentSettingsForm = ({ agent }: Props) => {
           {/* ENABLED POSTING */}
           <Field
             className="flex flex-row py-2 gap-3 items-center font-semibold"
-            disabled={!isEditable}
+            disabled={isLoading}
           >
             <Label className={""}>Enable Posting</Label>
             <Switch
               name="postIsEnabled"
-              id={`${agent.agentId}-postIsEnabled`}
+              id="postIsEnabled"
               checked={formData.postSettings.isEnabled}
               onChange={(value) => handleEnableChange("post", value)}
               className={
@@ -340,7 +291,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
           {/* SCHEDULE section */}
           <Fieldset
             className="flex flex-wrap py-2 items-center"
-            disabled={!isEditable}
+            disabled={isLoading}
           >
             <Legend className="font-semibold">Post Schedule</Legend>
             <div className="flex flex-wrap">
@@ -349,7 +300,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
                 <Input
                   type="time"
                   name="time"
-                  id={`${agent.agentId}-time`}
+                  id="time"
                   required
                   value={formData.postSettings.time}
                   onChange={handleTimeChange}
@@ -362,7 +313,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
               <Field className="mr-2">
                 <Select
                   name="timezone"
-                  id={`${agent.agentId}-timezone`}
+                  id="timezone"
                   required
                   onChange={handleTimezoneChange}
                   value={formData.postSettings.timezone}
@@ -383,7 +334,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
                 {days.map((day) => {
                   return (
                     <Checkbox
-                      key={agent.agentId + day.value}
+                      key={day.value}
                       checked={formData.postSettings.daysOfWeek.includes(
                         day.value
                       )}
@@ -408,7 +359,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
             </div>
           </Fieldset>
           {/* PERSONALITY section */}
-          <Fieldset disabled={!isEditable} className={"flex flex-col gap-2 "}>
+          <Fieldset disabled={isLoading} className={"flex flex-col gap-2 "}>
             <Field
               className={
                 "flex flex-row gap-4 items-center focus:outline-solid py-2"
@@ -423,7 +374,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
               <Input
                 type="number"
                 name="maxWords"
-                id={`${agent.agentId}-maxWords`}
+                id="maxWords"
                 required
                 min={minWordCount}
                 max={maxWordCount}
@@ -450,7 +401,7 @@ export const AgentSettingsForm = ({ agent }: Props) => {
               <Textarea
                 rows={5}
                 name="personality"
-                id={`${agent.agentId}-personality`}
+                id="personality"
                 placeholder={formData.postSettings.personality}
                 autoComplete="lastName"
                 maxLength={1000}
@@ -462,22 +413,17 @@ export const AgentSettingsForm = ({ agent }: Props) => {
               />
             </Field>
           </Fieldset>
-          <Button
-            onClick={() => setIsDeleteVisible(!isDeleteVisible)}
-            className="text-rose-700 text-sm  border-rose-700 border-b-2"
-            hidden={!isEditable}
-          >
-            {isDeleteVisible ? "Nevermind" : "Delete this agent"}
-          </Button>
-          <span hidden={!isDeleteVisible} className="m-2 text-sm ">
-            Are you sure? This action cannot be undone.
+          <div className="flex justify-end">
             <Button
-              onClick={() => handleDelete()}
-              className="text-rose-700 text-sm  border-rose-700 p-1 rounded-lg underline"
+              disabled={isLoading}
+              formAction="submit"
+              // type="button"
+              onClick={() => handleSubmit()}
+              className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-4 mx-2 data-[disabled]:bg-gray-500"
             >
-              I'm sure.
+              Create Agent
             </Button>
-          </span>
+          </div>
         </form>
       </div>
     </>

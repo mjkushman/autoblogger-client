@@ -12,6 +12,7 @@ import api from "@/utils/api";
 import { RequireAuth } from "./layouts/RequireAuth";
 import { AccountRoot } from "./routes/account";
 import { NewAgent } from "./routes/account/new-agent";
+import { ApiResponse } from "@/types/Api.type";
 
 const createAppRouter = (user: User | null) => {
   return createBrowserRouter([
@@ -36,7 +37,8 @@ const createAppRouter = (user: User | null) => {
               element: <AccountRoot />,
               loader: async () => {
                 if (!user || !user.accountId) return null;
-                return api.get(`accounts/`); // passes accountId as part of token
+                const { data } = await api.get<Promise<ApiResponse>>(`accounts/`); // passes accountId as part of token
+                return data
               },
             },
             {
@@ -44,7 +46,8 @@ const createAppRouter = (user: User | null) => {
               element: <NewAgent />,
               loader: async () => {
                 if (!user || !user.accountId) return null;
-                return api.get(`accounts/`); // passes accountId as part of token
+                const {data} = await api.get<Promise<ApiResponse>>(`accounts/`); // passes accountId as part of token
+                return data
               },
             },
           ],
