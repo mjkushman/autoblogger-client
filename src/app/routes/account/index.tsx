@@ -1,8 +1,15 @@
 import { AccountSettings } from "@/components/AccountSettings";
 import { AgentSettingsForm } from "@/components/AgentSettings";
 import { Loading } from "@/components/Loading";
-import { Account, Agent, User } from "@/types";
-import { AgentsApiResponse } from "@/types/Api.type";
+import {
+  Account,
+  Agent,
+  User,
+  AgentsApiResponse,
+  AgentApiResponse,
+  AgentFormData,
+  ApiResponse,
+} from "@/types";
 import api from "@/utils/api";
 import { Button } from "@headlessui/react";
 import { useEffect, useState } from "react";
@@ -19,18 +26,41 @@ export const AccountRoot = ({ user }: Props) => {
   const [agents, setAgents] = useState<Agent[]>();
 
   // get agents
+  const getAgents = async () => {
+    const { data } = await api.get<AgentsApiResponse>("agents");
+    setAgents(data);
+    console.log("retrieved agents:");
+    console.log(data);
+  };
+
   useEffect(() => {
-    const getAgents = async () => {
-      const { data } = await api.get<AgentsApiResponse>("agents");
-      setAgents(data);
-      console.log("retrieved agents:");
-      console.log(data);
-    };
     getAgents();
   }, [user]);
 
+  useEffect(() => {
+    setAgents(() => agents);
+  }, [agents]);
 
-  
+  const updateAgent = async (formData: AgentFormData): Promise<void> => {
+    console.log("Submitting form data:");
+    console.dir(formData);
+    // Invoke API call
+    try {
+      await api.patch<AgentFormData, AgentApiResponse>(`agents`, formData);
+      getAgents();
+    } catch (error) {
+      console.log(`Failed to submit: ${error}`);
+    }
+  };
+
+  const deleteAgent = async (agentId: string) => {
+    try {
+      await api.delete<{agentId:string}, ApiResponse>("agents", { agentId });
+      getAgents();
+    } catch (error) {
+      console.log("failed to delete:", error);
+    }
+  };
 
   return (
     <>
@@ -56,7 +86,14 @@ export const AccountRoot = ({ user }: Props) => {
       <div className="py-2 my-4">
         {agents ? (
           agents.map((agent) => {
-            return <AgentSettingsForm agent={agent} key={agent.agentId} />;
+            return (
+              <AgentSettingsForm
+                agent={agent}
+                updateAgent={updateAgent}
+                deleteAgent={deleteAgent}
+                key={agent.agentId}
+              />
+            );
           })
         ) : (
           <Loading />

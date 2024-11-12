@@ -15,7 +15,11 @@ import { NewAgent } from "./routes/account/new-agent";
 import { ApiResponse } from "@/types/Api.type";
 import { Loading } from "@/components/Loading";
 
-const createAppRouter = (user: User | null) => {
+// type Props = {
+//   user: User | null
+// }
+
+const createAppRouter = (user: User) => {
   return createBrowserRouter([
     // each route goes here
     {
@@ -39,7 +43,7 @@ const createAppRouter = (user: User | null) => {
           children: [
             {
               path: "",
-              element: <AccountRoot />,
+              element: <AccountRoot user={user} />,
               loader: async () => {
                 if (!user || !user.accountId) return null;
                 const { data } = await api.get<Promise<ApiResponse>>(
@@ -69,7 +73,7 @@ const createAppRouter = (user: User | null) => {
     },
     {
       path: "/auth",
-      element: <Outlet />, // a different layout
+      element: <Outlet />,
       children: [
         {
           path: "",

@@ -20,7 +20,7 @@ export const GetStarted = () => {
           </div>
           <div>
             <Link
-              to="#"
+              to="auth/login"
               className="py-2 px-2 m-4 rounded-lg text-gray-100 bg-violet-900 text-center w-24"
             >
               Get API key

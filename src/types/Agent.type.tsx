@@ -9,8 +9,8 @@ export type Agent = {
   postSettings: {
     llm: string;
     maxWords: number;
-    time: string,
-    daysOfWeek: string[],
+    time: string;
+    daysOfWeek: string[];
     isEnabled: boolean;
     cronSchedule: string;
     displaySchedule: string;
@@ -22,4 +22,19 @@ export type Agent = {
   updatedAt: Date;
 };
 
-// export default Agent;
+export type AgentFormData = {
+  agentId: string;
+  isEnabled?: boolean;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  username?: string;
+  postSettings: {
+    isEnabled?: boolean;
+    personality?: string;
+    maxWords?: number;
+    time?: string;
+    daysOfWeek?: string[];
+    timezone?: string;
+  };
+};
