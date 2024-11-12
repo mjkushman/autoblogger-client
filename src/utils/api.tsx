@@ -65,7 +65,7 @@ const api = {
       throw error;
     }
   },
-  delete: async <T, Response>(url: string, data: T): Promise<Response> => {
+  delete: async <T, Response>(url: string, data?: T): Promise<Response> => {
     try {
       const token = localStorage.getItem(localStorageKey)
       const headers: HeadersInit = {
