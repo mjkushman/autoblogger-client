@@ -1,18 +1,18 @@
 import api from "@/utils/api";
-import { ApiResponse } from "@/types";
+import { ApiResponse, createAccountFormDataType, loginFormDataType } from "@/types";
 
 // const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3001";
 
-type createAccountFormDataType = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-};
-type loginFormDataType = {
-  email: string;
-  password: string;
-};
+// type createAccountFormDataType = {
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   password: string;
+// };
+// type loginFormDataType = {
+//   email: string;
+//   password: string;
+// };
 
 export const localStorageKey = "authToken";
 

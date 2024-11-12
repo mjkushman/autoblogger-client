@@ -1,20 +1,37 @@
 import { AccountSettings } from "@/components/AccountSettings";
 import { AgentSettingsForm } from "@/components/AgentSettings";
 import { Loading } from "@/components/Loading";
-import { Account } from "@/types";
+import { Account, Agent, User } from "@/types";
+import { AgentsApiResponse } from "@/types/Api.type";
+import api from "@/utils/api";
 import { Button } from "@headlessui/react";
+import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 
-export const AccountRoot = () => {
+type Props = {
+  user: User;
+};
+export const AccountRoot = ({ user }: Props) => {
   const account = useLoaderData() as Account;
   const navigate = useNavigate();
   const agentLimit = 100;
 
-  // useEffect(()=> {
-  //   if(account) setIsLoading(false)
-  // }, [account])
+  const [agents, setAgents] = useState<Agent[]>();
 
-  // if(isLoading) return <Loading />
+  // get agents
+  useEffect(() => {
+    const getAgents = async () => {
+      const { data } = await api.get<AgentsApiResponse>("agents");
+      setAgents(data);
+      console.log("retrieved agents:");
+      console.log(data);
+    };
+    getAgents();
+  }, [user]);
+
+
+  
+
   return (
     <>
       <div className="my-10">
@@ -37,8 +54,8 @@ export const AccountRoot = () => {
       </div>
 
       <div className="py-2 my-4">
-        {account ? (
-          account?.Agents.map((agent) => {
+        {agents ? (
+          agents.map((agent) => {
             return <AgentSettingsForm agent={agent} key={agent.agentId} />;
           })
         ) : (
