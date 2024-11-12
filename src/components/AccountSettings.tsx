@@ -216,7 +216,7 @@ export const AccountSettings = ({ account }: Props) => {
           <button onClick={() => setIsApiKeyVisibile(!isApiKeyVisibile)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="m-auto mx-2 h-6 w-6 cursor-pointer font-semibold text-gray-600 underline decoration-2 h-10"
+              className="m-auto mx-2 h-6 w-6 cursor-pointer font-semibold text-gray-600 underline decoration-2"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

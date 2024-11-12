@@ -16,17 +16,20 @@ import api from "@/utils/api";
 
 import timezones from "@/app/fixtures/timezones";
 import { Agent } from "@/types";
+import { AgentFormData } from "@/types";
 
 type Props = {
-  agent: Agent;
+  agent: Agent,
+  updateAgent: (formData: AgentFormData) => Promise<void>
+  deleteAgent: (agentId:string) => Promise<void>
 };
 
-export const AgentSettingsForm = ({ agent }: Props) => {
+export const AgentSettingsForm = ({ agent, updateAgent, deleteAgent }: Props) => {
   // const agent = account.Agents[1];
   // console.log("passed agent", agent);
 
   // I think I need to add a useEffect hook to update initial form data after submitting the form.
-  const initialFormData = {
+  const initialFormData: AgentFormData = {
     agentId: agent.agentId,
     isEnabled: agent.isEnabled,
     firstName: agent.firstName,
@@ -157,30 +160,15 @@ export const AgentSettingsForm = ({ agent }: Props) => {
   const handleSubmit = async (): // e: React.FormEvent<HTMLFormElement>
   Promise<void> => {
     // e.preventDefault();
-    setIsLoading(true);
-
-    console.log("Submitting form data:");
-    console.dir(formData);
-    // Invoke API call
-    try {
-      const response = await api.patch(`agents`, formData);
-      console.log("form submit response:", response);
-    } catch (error) {
-      console.log(`Failed to submit: ${error}`);
-    }
-    setIsLoading(false);
+   if(JSON.stringify(formData) !== JSON.stringify(initialFormData)) updateAgent(formData)
+    
   };
 
   const handleDelete = async () => {
     console.log(`deleting ${agent.firstName}`);
-    try {
-      setIsLoading(true);
-      const response = await api.delete("agents", { agentId: agent.agentId });
-      console.log("Deleted successfully:", response);
-      setIsLoading(false);
-    } catch (error) {
-      console.log("failed to delete:", error);
-    }
+    deleteAgent(agent.agentId)
+
+  
   };
 
   return (
