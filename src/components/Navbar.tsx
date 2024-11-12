@@ -2,7 +2,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "@/app/provider";
 import { AuthService } from "@/utils/authService";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+} from "@headlessui/react";
+import { NavBarLink } from "@/types";
 
 export const Navbar = () => {
   const { user, setToken } = useContext(UserContext);
@@ -21,58 +28,106 @@ export const Navbar = () => {
     setCurrentUser(user);
   }, [user]);
 
+  const navLinks: NavBarLink[] = [
+    { label: "Home", to: "/" },
+    { label: "Docs", to: "/docs" },
+  ];
+
+  const signedInNavLinks: NavBarLink[] = [{ label: "Account", to: "/account" }];
+  const signedOutNavLinks: NavBarLink[] = [
+    { label: "Get Started", to: "/auth/login" },
+    { label: "Sign In", to: "/auth/login" },
+  ];
+
   return (
-    <nav className="flex flex-row justify-between">
-      {/* right side */}
-      <div className="flex gap-3">
-        <NavLink to={"/"}>Autoblogger</NavLink>
-        <NavLink to={"/auth/login"}>Docs</NavLink>
-      </div>
+    <nav className="bg-transparent dark:border-gray-700">
+      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <NavLink
+          to="/"
+          className="flex items-center space-x-3 rtl:space-x-reverse"
+        >
+          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
+            Autoblogger
+          </span>
+        </NavLink>
 
-      {/* left side */}
-      <div className="flex justify-end gap-3">
-        {/* LOGGED OUT MENU */}
-        {!currentUser && (
-          <>
-            <NavLink to={"/auth/login"}>Get Started</NavLink>
-            <NavLink to={"/auth/login"}>Sign in</NavLink>
-          </>
-        )}
+        <div className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-inherit md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 ">
+          {navLinks.map(({ label, to }) => (
+            <NavLink
+              to={to}
+              className={
+                "block py-2 px-3 rounded md:bg-transparent  md:p-0 md:dark:bg-transparent aria-[current=page]:text-violet-700"
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
 
-        {/* LOGGED IN MENU */}
-        {currentUser && (
-          <>
+          {!currentUser &&
+            signedOutNavLinks.map(({ label, to }) => (
+              <NavLink
+                to={to}
+                className={
+                  "block py-2 px-3 rounded md:bg-transparent  md:p-0 md:dark:bg-transparent aria-[current=page]:text-violet-700"
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
+
+          {currentUser && (
             <Menu as="div" className="group">
               {({ open }) => (
                 <>
-                  <MenuButton className="justify-center w-full rounded-sm focus:outline-none group-hover:bg-blue-100">
-                    {currentUser.firstName}
+                  <MenuButton className="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 hover:text-violet-700 md:p-0 md:w-auto ">
+                    {currentUser?.firstName ? currentUser.firstName : "User"}
+                    <svg
+                      className={`w-2.5 h-2.5 ms-2.5 transform transition duration-150 ease-in-out ${
+                        open ? "rotate-180" : ""
+                      }`}
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 10 6"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m1 1 4 4 4-4"
+                      />
+                    </svg>
                   </MenuButton>
+                  {/* <!-- Dropdown menu --> */}
                   <MenuItems
                     anchor="bottom"
-                    className="shadow-lg group-hover:block"
+                    className="font-normal py-2 text-sm text-gray-700 dark:text-gray-400 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 group-hover:block"
                   >
-                    <MenuItem>
-                      <NavLink
-                        to={"/account"}
-                        className="group-hover:block data-[focus]:bg-blue-100"
+                    {signedInNavLinks.map(({ label, to }) => (
+                      <MenuItem>
+                        <NavLink
+                          to={to}
+                          className="block px-4 py-2 hover:bg-gray-100 aria-[current=page]:text-violet-700 text-center m-auto"
+                        >
+                          {label}
+                        </NavLink>
+                      </MenuItem>
+                    ))}
+                    <div className="py-1">
+                      <Button
+                        onClick={() => handleLogout()}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 m-auto"
                       >
-                        Account
-                      </NavLink>
-                    </MenuItem>
-
-                    <button
-                      className="block data-[focus]:bg-blue-100"
-                      onClick={() => handleLogout()}
-                    >
-                      Sign Out
-                    </button>
+                        Sign out
+                      </Button>
+                    </div>
                   </MenuItems>
                 </>
               )}
             </Menu>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </nav>
   );
