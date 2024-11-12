@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { Suspense, useContext } from "react";
 import {
   createBrowserRouter,
   Navigate,
@@ -13,6 +13,7 @@ import { RequireAuth } from "./layouts/RequireAuth";
 import { AccountRoot } from "./routes/account";
 import { NewAgent } from "./routes/account/new-agent";
 import { ApiResponse } from "@/types/Api.type";
+import { Loading } from "@/components/Loading";
 
 const createAppRouter = (user: User | null) => {
   return createBrowserRouter([
@@ -30,15 +31,21 @@ const createAppRouter = (user: User | null) => {
         },
         {
           path: "account",
-          element: <RequireAuth />,
+          element: (
+            <Suspense fallback={<Loading />}>
+              <RequireAuth />
+            </Suspense>
+          ),
           children: [
             {
               path: "",
               element: <AccountRoot />,
               loader: async () => {
                 if (!user || !user.accountId) return null;
-                const { data } = await api.get<Promise<ApiResponse>>(`accounts/`); // passes accountId as part of token
-                return data
+                const { data } = await api.get<Promise<ApiResponse>>(
+                  `accounts/`
+                ); // passes accountId as part of token
+                return data;
               },
             },
             {
@@ -46,8 +53,10 @@ const createAppRouter = (user: User | null) => {
               element: <NewAgent />,
               loader: async () => {
                 if (!user || !user.accountId) return null;
-                const {data} = await api.get<Promise<ApiResponse>>(`accounts/`); // passes accountId as part of token
-                return data
+                const { data } = await api.get<Promise<ApiResponse>>(
+                  `accounts/`
+                ); // passes accountId as part of token
+                return data;
               },
             },
           ],

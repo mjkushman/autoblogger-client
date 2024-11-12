@@ -1,7 +1,7 @@
 import { Suspense, createContext, useState, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { MainErrorFallback } from "@/components/ErrorFallback";
-import User from "@/types/User.type";
+import { User } from "@/types";
 
 import * as jose from "jose";
 

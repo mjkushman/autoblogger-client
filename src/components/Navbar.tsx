@@ -1,4 +1,4 @@
-import { NavLink, useNavigate, Link } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "@/app/provider";
 import { AuthService } from "@/utils/authService";
@@ -34,7 +34,7 @@ export const Navbar = () => {
         {/* LOGGED OUT MENU */}
         {!currentUser && (
           <>
-            <NavLink to={"#signup"}>Get Started</NavLink>
+            <NavLink to={"/auth/login"}>Get Started</NavLink>
             <NavLink to={"/auth/login"}>Sign in</NavLink>
           </>
         )}

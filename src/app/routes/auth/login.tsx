@@ -14,8 +14,16 @@ export const LoginRoute = () => {
         <p>try: org1@org1.com // hashedpassword</p>
       </div>
       <div>
-      <p>New to Autoblogger?
-      <button className="px-1 text-violet-800" onClick={() => setHasAccount(false)}> Create an account</button></p>
+        <p>
+          New to Autoblogger?
+          <button
+            className="px-1 text-violet-800"
+            onClick={() => setHasAccount(!hasAccount)}
+          >
+            {" "}
+            Create an account
+          </button>
+        </p>
       </div>
       <LoginForm />
     </div>
@@ -27,11 +35,18 @@ export const LoginRoute = () => {
         </h2>
       </div>
       <div>
-      <p>Already have an account?
-      <button className="px-1 text-violet-800" onClick={() => setHasAccount(true)}> Sign in</button></p>
+        <p>
+          Already have an account?
+          <button
+            className="px-1 text-violet-800"
+            onClick={() => setHasAccount(!hasAccount)}
+          >
+            {" "}
+            Sign in
+          </button>
+        </p>
       </div>
       <SignupForm />
-      
     </div>
   );
 };
