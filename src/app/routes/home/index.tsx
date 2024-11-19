@@ -1,5 +1,5 @@
-import { BlogExamples } from "@/components/BlogExamples";
-import { GetStarted } from "@/components/GetStarted";
+import { BlogExamples } from "@/app/routes/home/BlogExamples";
+import { GetStarted } from "@/app/routes/home/GetStarted";
 
 export const HomeRoute = () => {
   // const navigate = useNavigate();

@@ -1,5 +1,5 @@
-import { LoginForm } from "@/components/LoginForm";
-import { SignupForm } from "@/components/SignupForm";
+import { LoginForm } from "@/app/routes/auth/LoginForm";
+import { SignupForm } from "@/app/routes/auth/SignupForm";
 import { useState } from "react";
 
 export const LoginRoute = () => {

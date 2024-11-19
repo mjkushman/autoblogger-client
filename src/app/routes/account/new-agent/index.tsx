@@ -1,4 +1,4 @@
-import { AgentCreate } from "@/components/AgentCreate";
+import { AgentCreate } from "@/app/routes/account/new-agent/AgentCreate";
 import { Account } from "@/types";
 
 import { useState } from "react";

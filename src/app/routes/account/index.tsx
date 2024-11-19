@@ -1,5 +1,5 @@
 import { AccountSettings } from "@/components/AccountSettings";
-import { AgentSettingsForm } from "@/components/AgentSettings";
+import { AgentSettingsForm } from "@/app/routes/account/AgentSettings";
 import { Loading } from "@/components/Loading";
 import {
   Account,

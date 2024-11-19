@@ -16,12 +16,14 @@ import api from "@/utils/api";
 
 import timezones from "@/app/fixtures/timezones";
 import { Account } from "@/types";
+import { useNavigate } from "react-router";
 
 type Props = {
   accountId: Account["accountId"];
 };
 
 export const AgentCreate = ({ accountId }: Props): React.ReactNode => {
+  const navigate = useNavigate();
   console.log("rendering AgentCreate");
   // const agent = account.Agents[1];
   // console.log("passed agent", agent);
@@ -158,8 +160,10 @@ export const AgentCreate = ({ accountId }: Props): React.ReactNode => {
     console.dir(formData);
     // Invoke API call
     try {
-      const response = await api.post(`agents`, formData);
-      console.log("form submit response:", response);
+      api.post(`agents`, formData)
+      .then(() => {
+        navigate("/account");
+      });
     } catch (error) {
       console.log(`Failed to submit: ${error}`);
     }
