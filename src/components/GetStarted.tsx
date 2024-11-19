@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { BASE_URL } from "@/utils/api";
 
 
 export const GetStarted = () => {
@@ -12,7 +13,7 @@ export const GetStarted = () => {
         <div className="grid grid-cols-2 my-4">
           <div>
             <Link
-              to="#"
+              to={`${BASE_URL}docs`}
               className="py-2 px-2 m-4 rounded-lg text-violet-900 bg-none text-center"
             >
               Explore the docs

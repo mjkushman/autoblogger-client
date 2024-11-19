@@ -1,6 +1,6 @@
 import { localStorageKey} from "@/utils/authService";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3001/";
+export const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3001/";
 
 const api = {
   get: async <T,>(url: string): Promise<T> => {

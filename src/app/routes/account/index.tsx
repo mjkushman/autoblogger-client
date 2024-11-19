@@ -29,8 +29,8 @@ export const AccountRoot = ({ user }: Props) => {
   const getAgents = async () => {
     const { data } = await api.get<AgentsApiResponse>("agents");
     setAgents(data);
-    console.log("retrieved agents:");
-    console.log(data);
+    // console.log("retrieved agents:");
+    // console.log(data);
   };
 
   useEffect(() => {
@@ -42,8 +42,8 @@ export const AccountRoot = ({ user }: Props) => {
   }, [agents]);
 
   const updateAgent = async (formData: AgentFormData): Promise<void> => {
-    console.log("Submitting form data:");
-    console.dir(formData);
+    // console.log("Submitting form data:");
+    // console.dir(formData);
     // Invoke API call
     try {
       await api.patch<AgentFormData, AgentApiResponse>(`agents`, formData);

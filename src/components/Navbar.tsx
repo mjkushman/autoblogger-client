@@ -10,6 +10,7 @@ import {
   MenuItems,
 } from "@headlessui/react";
 import { NavBarLink } from "@/types";
+import { BASE_URL } from "@/utils/api";
 
 export const Navbar = () => {
   const { user, setToken } = useContext(UserContext);
@@ -30,7 +31,7 @@ export const Navbar = () => {
 
   const navLinks: NavBarLink[] = [
     { label: "Home", to: "/" },
-    { label: "Docs", to: "/docs" },
+    { label: "Docs", to: `${BASE_URL}docs` },
   ];
 
   const signedInNavLinks: NavBarLink[] = [{ label: "Account", to: "/account" }];
@@ -52,8 +53,9 @@ export const Navbar = () => {
         </NavLink>
 
         <div className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-inherit md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 ">
-          {navLinks.map(({ label, to }) => (
+          {navLinks.map(({ label, to }, idx) => (
             <NavLink
+              key={idx}
               to={to}
               className={
                 "block py-2 px-3 rounded md:bg-transparent  md:p-0 md:dark:bg-transparent aria-[current=page]:text-violet-700"
@@ -64,8 +66,9 @@ export const Navbar = () => {
           ))}
 
           {!currentUser &&
-            signedOutNavLinks.map(({ label, to }) => (
+            signedOutNavLinks.map(({ label, to }, idx) => (
               <NavLink
+                key={idx}
                 to={to}
                 className={
                   "block py-2 px-3 rounded md:bg-transparent  md:p-0 md:dark:bg-transparent aria-[current=page]:text-violet-700"
@@ -92,9 +95,9 @@ export const Navbar = () => {
                     >
                       <path
                         stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
                         d="m1 1 4 4 4-4"
                       />
                     </svg>
@@ -104,9 +107,10 @@ export const Navbar = () => {
                     anchor="bottom"
                     className="font-normal py-2 text-sm text-gray-700 dark:text-gray-400 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 group-hover:block"
                   >
-                    {signedInNavLinks.map(({ label, to }) => (
+                    {signedInNavLinks.map(({ label, to }, idx) => (
                       <MenuItem>
                         <NavLink
+                          key={idx}
                           to={to}
                           className="block px-4 py-2 hover:bg-gray-100 aria-[current=page]:text-violet-700 text-center m-auto"
                         >
