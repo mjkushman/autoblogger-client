@@ -1,5 +1,6 @@
 import { BlogExamples } from "@/app/routes/home/BlogExamples";
 import { GetStarted } from "@/app/routes/home/GetStarted";
+import HowItWorks from "./HowItWorks";
 
 export const HomeRoute = () => {
   // const navigate = useNavigate();
@@ -28,10 +29,10 @@ export const HomeRoute = () => {
           </p>
         </div>
       </div>
-      <GetStarted/>
-      <div className="py-2 my-4">
-        <BlogExamples />
-      </div>
+      <GetStarted />
+      <HowItWorks />
+
+      <BlogExamples />
     </>
   );
 };

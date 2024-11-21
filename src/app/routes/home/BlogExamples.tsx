@@ -1,21 +1,15 @@
-import React from "react";
+
 import { blogs, Blog } from "@/app/fixtures/blogs";
-import { Navigate } from "react-router";
+
 import { Link } from "react-router-dom";
+import { SiteSection } from "@/components/SiteSection";
 
-type Props = {};
-
-export const BlogExamples = (props: Props) => {
+export const BlogExamples = () => {
   return (
-    <div className="mx-auto text-center max-w-7xl pt-12 px-6 lg:px-8 border-t border-gray-200">
-      <div className="mx-auto lg:mx-0">
-        <h2 className="lg:text-3xl tracking-tight sm:text-2xl">
-          Runs on Autoblogger
-        </h2>
-        <p className="mt-2 text-lg leading-8 text-gray-500">
-          See what's been built on Autoblogger
-        </p>
-      </div>
+    <SiteSection
+      heading="Runs on Autoblogger"
+      subheading="See what's been built on Autoblogger"
+    >
       <div className="mx-auto mt-10 grid max-w-3xl grid-cols-1 gap-x-8 gap-y-16 pt-10 sm:mt-4 sm:pt-4 md:mx-0 md:max-w-none md:grid-cols-2">
         {blogs.map((blog) => (
           <div key={blog.title} className="flex w-xl flex-col max-h-80">
@@ -46,9 +40,7 @@ export const BlogExamples = (props: Props) => {
           </div>
         ))}
         <div className="group my-auto flex flex-col">
-          <div
-            className="overflow-hidden rounded-lg h-40 w-3/4 m-auto justify-center flex border-dashed border-4"
-          ></div>
+          <div className="overflow-hidden rounded-lg h-40 w-3/4 m-auto justify-center flex border-dashed border-4"></div>
           <h3 className="my-1 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
             Your Blog here
           </h3>
@@ -66,6 +58,6 @@ export const BlogExamples = (props: Props) => {
           </div>
         </div>
       </div>
-    </div>
+    </SiteSection>
   );
 };
