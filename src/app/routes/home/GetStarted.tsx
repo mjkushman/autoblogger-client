@@ -16,7 +16,7 @@ export const GetStarted = () => {
               to={`${BASE_URL}docs`}
               className="py-2 px-2 m-4 rounded-lg text-violet-900 bg-none text-center"
             >
-              Explore the docs
+              Explore the API
             </Link>
           </div>
           <div>

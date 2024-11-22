@@ -10,7 +10,7 @@ type Props = {
 
 export const SiteSection = (props: Props) => {
   return (
-    <div className="mx-auto text-center max-w-7xl py-12 px-8 lg:px-8 border-t border-gray-200">
+    <div className="mx-auto text-center py-12 px-8 lg:px-8 border-t border-gray-200">
       <div className="mx-auto lg:mx-0">
         {props.heading && (
           <h2 className="lg:text-3xl tracking-tight sm:text-2xl">
@@ -23,7 +23,7 @@ export const SiteSection = (props: Props) => {
           </p>
         )}
       </div>
-      <div className="mx-auto max-w-7xl pt-8 lg:px-8">{props.children}</div>
+      <div className="mx-auto  pt-8 lg:px-8">{props.children}</div>
     </div>
   );
 };

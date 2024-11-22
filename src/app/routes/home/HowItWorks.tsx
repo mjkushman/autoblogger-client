@@ -1,40 +1,82 @@
 import { SiteSection } from "@/components/SiteSection";
+// import SyntaxHighlighter from "react-syntax-highlighter";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
+import curl from "highlightjs-curl";
+import ocean from "react-syntax-highlighter/dist/esm/styles/hljs/ocean";
+
+SyntaxHighlighter.registerLanguage("javascript", js);
+SyntaxHighlighter.registerLanguage("curl", curl);
+
+import { BASE_URL } from "@/utils/api";
+import { useState } from "react";
+
+const getPostsJs = `    const response = await fetch('${BASE_URL}api/posts', { headers: { x-api-key: 'YOUR_API_KEY',}});
+    const { data } = await response.json();
+`;
+const getPostsCurl = `    curl -X GET \
+  -H "x-api-key: YOUR_API_KEY" \
+  "https://${BASE_URL}api/posts"
+`;
+
+const getPostsSnippet = {
+    javascript: `    const response = await fetch('${BASE_URL}api/posts', { headers: { x-api-key: 'YOUR_API_KEY',}});
+    const { data } = await response.json();`,
+    
+    curl:
+    ` curl -X GET -H "x-api-key: YOUR_API_KEY" "https://${BASE_URL}api/posts"`
+}
+
 
 const HowItWorks = () => {
+    const [language, setLanguage] = useState<'javascript' | 'curl'>('javascript');
+
+    const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setLanguage(event.target.value as 'javascript' | 'curl')
+      };
   return (
     <SiteSection heading="How It Works">
-      <div className="text-left leading-relaxed">
-        <p>Autoblogger is an API that your website or blog can plug into.</p>
-        It automates the process of planning, writing, and publishing new blog
-        content. Essentially it puts your blog on autopilot.
-        <p className="font-semibold">Admin Dashboard</p>
-        After you create an account you’ll be able to create new agents and
-        customize their settings.
-        <ul className="list-disc list-inside">
-          <li>
-            Personality - define the writing style and topics for your AI agent.
-            They’ll reference this bio every time they write a new post.
-          </li>
-          <li>
-            Post settings: determine how often your agent should write and how
-            long each post should be.
-          </li>
-          <li>
-            Comment settings: Determine if and how your agent should respond to
-            comments on their content.
-          </li>
-        </ul>
-        <p className="font-semibold">Get your blog posts</p>
-        <p>
-          In your website’s code, make requests to the Autoblogger API to
-          retrieve and display your blog content. Post content will be generated
-          by Autoblogger.
-        </p>
-        <p>
-          You have control over how posts are displayed and formatted. If your
-          website allows commenting on posts, you should also use the
-          Autoblogger Comments endpoint.
-        </p>
+      <div className="leading-relaxed text-left">
+        <div className="mx-12 leading-normal text-center">
+          <p>Autoblogger is a service for your website or blog.</p>
+          <p>
+            It automates the process of planning, writing, and publishing simple
+            blog content.
+          </p>
+        </div>
+        <div className="shadow-lg my-4 px-8 py-4 rounded-xl leading-8">
+          <h4 className="font-semibold text-xl my-4">
+            Configure your AI Agent
+          </h4>
+          <p>Create an account and configure your AI agent's settings.</p>
+          <ul className="list-disc list-inside ">
+            <li>
+              Define the personality, writing style, and topics and topics for
+              your agent.
+            </li>
+            <li>Set a cadence for how often you want new content written.</li>
+            <li>Decide if and how your agent should respond to comments.</li>
+          </ul>
+        </div>
+        <div className="shadow-lg my-4 px-8 py-4 rounded-xl leading-8">
+          <h4 className="font-semibold text-xl my-4">Get your blog posts</h4>
+          <p>
+            Make requests to Autoblogger to retrieve and display your content.
+          </p>
+          <p>
+            You have control over how posts are displayed and formatted. If your
+            website allows commenting on posts, you should also use the
+            Autoblogger Comments endpoint.
+          </p>
+          <select onChange={handleLanguageChange} value={language}>
+            <option value="javascript">JavaScript</option>
+            <option value="curl">curl</option>
+          </select>
+          <SyntaxHighlighter language={language} style={ocean} className="">
+            {getPostsSnippet[language]}
+            {/* {getPostsJs} */}
+          </SyntaxHighlighter>
+        </div>
       </div>
     </SiteSection>
   );

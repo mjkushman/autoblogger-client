@@ -10,8 +10,8 @@ export const HomeRoute = () => {
     <>
       <Intro/>
       <GetStarted />
+    
       <HowItWorks />
-
       <BlogExamples />
     </>
   );

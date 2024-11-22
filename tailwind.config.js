@@ -7,19 +7,7 @@ export default {
       serif: ["Merriweather", "serif"],
     },
 
-    extend: {
-      typography: {
-        DEFAULT: {
-          css: {
-            p: {
-              fontSize: "1.2em",
-              lineHeight: 1.6,
-              marginBottom: "1.5em",
-            },
-          },
-        },
-      },
-    },
+    extend: {},
   },
   plugins: [],
 };

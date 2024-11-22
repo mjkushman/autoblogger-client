@@ -6,10 +6,10 @@ export const MainLayout = () => {
   console.log("Rendering MainLayout ");
 
   return (
-    <div className="bg-gray-50 p-0 text-gray-950">
+    <div className="bg-gray-50 p-0 text-gray-950 leading-relaxed">
       <div className="max-w-4xl mx-auto">
         <Navbar />
-        <main className="p-3 display-flex">
+        <main className="">
           <Outlet />
         </main>
       </div>
