@@ -49,7 +49,7 @@ export const BlogExamples = () => {
           </p>
           <div className="mt-3 flex items-center m-auto">
             <p className="text-gray-100">
-              <Link to="mailto:mikesextras11@gmail.com">
+              <Link to="mailto:blogs@autoblogger.dev">
                 <button className="py-2 px-4 rounded-lg border bg-violet-900">
                   Send me your blog
                 </button>

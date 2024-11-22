@@ -41,7 +41,7 @@ export const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-transparent dark:border-gray-700">
+    <nav className="bg-transparent dark:border-gray-700 max-w-4xl mx-auto">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <NavLink
           to="/"

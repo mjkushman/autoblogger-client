@@ -4,7 +4,7 @@ import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
 import curl from "highlightjs-curl";
 import ocean from "react-syntax-highlighter/dist/esm/styles/hljs/ocean";
-import { Select } from "@headlessui/react";
+import { Button, Select } from "@headlessui/react";
 
 
 SyntaxHighlighter.registerLanguage("javascript", js);
@@ -12,6 +12,7 @@ SyntaxHighlighter.registerLanguage("curl", curl);
 
 import { BASE_URL } from "@/utils/api";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const getPostsJs = `    const response = await fetch('${BASE_URL}api/posts', { headers: { x-api-key: 'YOUR_API_KEY',}});
     const { data } = await response.json();
@@ -83,6 +84,7 @@ const HowItWorks = () => {
             {/* {getPostsJs} */}
           </SyntaxHighlighter>
         </div>
+        <Link type="button" to={`${BASE_URL}docs`} >Explore the API</Link>
       </div>
     </SiteSection>
   );
