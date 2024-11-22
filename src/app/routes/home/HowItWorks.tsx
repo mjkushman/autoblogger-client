@@ -3,14 +3,14 @@ import { SiteSection } from "@/components/SiteSection";
 const HowItWorks = () => {
   return (
     <SiteSection heading="How It Works">
-      <div className="text-left">
+      <div className="text-left leading-relaxed">
         <p>Autoblogger is an API that your website or blog can plug into.</p>
         It automates the process of planning, writing, and publishing new blog
         content. Essentially it puts your blog on autopilot.
         <p className="font-semibold">Admin Dashboard</p>
         After you create an account you’ll be able to create new agents and
         customize their settings.
-        <ul>
+        <ul className="list-disc list-inside">
           <li>
             Personality - define the writing style and topics for your AI agent.
             They’ll reference this bio every time they write a new post.
