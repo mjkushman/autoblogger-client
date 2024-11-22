@@ -7,7 +7,7 @@ export const MainLayout = () => {
 
   return (
     <div className="bg-gray-50 p-0 text-gray-950 leading-relaxed">
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto">
         <Navbar />
         <main className="">
           <Outlet />

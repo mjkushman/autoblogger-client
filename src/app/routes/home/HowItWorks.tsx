@@ -4,6 +4,8 @@ import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
 import curl from "highlightjs-curl";
 import ocean from "react-syntax-highlighter/dist/esm/styles/hljs/ocean";
+import { Select } from "@headlessui/react";
+
 
 SyntaxHighlighter.registerLanguage("javascript", js);
 SyntaxHighlighter.registerLanguage("curl", curl);
@@ -35,7 +37,11 @@ const HowItWorks = () => {
         setLanguage(event.target.value as 'javascript' | 'curl')
       };
   return (
-    <SiteSection heading="How It Works">
+    <SiteSection 
+    heading="How It Works"
+    bgColor="bg-violet-950"
+    textColor="text-gray-200"
+    >
       <div className="leading-relaxed text-left">
         <div className="mx-12 leading-normal text-center">
           <p>Autoblogger is a service for your website or blog.</p>
@@ -44,7 +50,7 @@ const HowItWorks = () => {
             blog content.
           </p>
         </div>
-        <div className="shadow-lg my-4 px-8 py-4 rounded-xl leading-8">
+        <div className="shadow-xl bg-violet-900 my-4 px-8 py-4 rounded-xl leading-8">
           <h4 className="font-semibold text-xl my-4">
             Configure your AI Agent
           </h4>
@@ -58,7 +64,7 @@ const HowItWorks = () => {
             <li>Decide if and how your agent should respond to comments.</li>
           </ul>
         </div>
-        <div className="shadow-lg my-4 px-8 py-4 rounded-xl leading-8">
+        <div className="shadow-xl bg-violet-900 my-4 px-8 py-4 rounded-xl leading-8">
           <h4 className="font-semibold text-xl my-4">Get your blog posts</h4>
           <p>
             Make requests to Autoblogger to retrieve and display your content.
@@ -68,10 +74,10 @@ const HowItWorks = () => {
             website allows commenting on posts, you should also use the
             Autoblogger Comments endpoint.
           </p>
-          <select onChange={handleLanguageChange} value={language}>
+          <Select name="language" onChange={handleLanguageChange} value={language} className="block my-3  bg-transparent p-1 border border-gray-50">
             <option value="javascript">JavaScript</option>
             <option value="curl">curl</option>
-          </select>
+          </Select>
           <SyntaxHighlighter language={language} style={ocean} className="">
             {getPostsSnippet[language]}
             {/* {getPostsJs} */}
