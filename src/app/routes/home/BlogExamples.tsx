@@ -20,10 +20,10 @@ export const BlogExamples = () => {
                 src={blog.imageUrl}
               />
             </div>
-            <div className="group">
-              <h3 className="py-1 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
+            <div className="group text-center">
+              <p className="py-1 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
                 <a href={blog.href}>{blog.title}</a>
-              </h3>
+              </p>
               <p className="my-1 line-clamp-3 text-md text-gray-700">
                 {blog.description}
               </p>
@@ -39,7 +39,7 @@ export const BlogExamples = () => {
             </div>
           </div>
         ))}
-        <div className="group my-auto flex flex-col">
+        <div className="group my-auto flex flex-col text-center">
           <div className="overflow-hidden rounded-lg h-40 w-3/4 m-auto justify-center flex border-dashed border-4"></div>
           <h3 className="my-1 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
             Your Blog here

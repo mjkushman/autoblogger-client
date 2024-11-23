@@ -9,7 +9,6 @@ export const HomeRoute = () => {
   return (
     <>
       <Intro/>
-      <GetStarted />
     
       <HowItWorks />
       <BlogExamples />
