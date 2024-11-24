@@ -1,4 +1,4 @@
-import { AccountSettings } from "@/components/AccountSettings";
+import { AccountSettings } from "@/app/routes/account/AccountSettings";
 import { AgentSettingsForm } from "@/app/routes/account/AgentSettings";
 import { Loading } from "@/components/Loading";
 import {
@@ -42,8 +42,6 @@ export const AccountRoot = ({ user }: Props) => {
   }, [agents]);
 
   const updateAgent = async (formData: AgentFormData): Promise<void> => {
-    // console.log("Submitting form data:");
-    // console.dir(formData);
     // Invoke API call
     try {
       await api.patch<AgentFormData, AgentApiResponse>(`agents`, formData);
@@ -63,11 +61,13 @@ export const AccountRoot = ({ user }: Props) => {
   };
 
   return (
-    <>
+    <div className="px-10">
       <div className="my-10">
         <h1 className="text-5xl">Settings</h1>
       </div>
       <h1 className="pt-2 text-2xl font-semibold">Account</h1>
+      <span className="text-sm text-gray-800 bg-violet-200 px-3 my-1 rounded-full">{account.accountId}</span>
+      
       <div className="py-2 my-4">
         {account ? <AccountSettings account={account} /> : <Loading />}
       </div>
@@ -79,7 +79,7 @@ export const AccountRoot = ({ user }: Props) => {
           disabled={account?.Agents.length >= agentLimit}
           className="my-2 mx-4 px-4 py-2 rounded-xl bg-violet-800 text-gray-100 data-[disabled]:bg-gray-500"
         >
-          New
+          Create New Agent
         </Button>
       </div>
 
@@ -100,6 +100,6 @@ export const AccountRoot = ({ user }: Props) => {
         )}
       </div>
       <div className="flex flex-auto m-auto justify-center"></div>
-    </>
+    </div>
   );
 };

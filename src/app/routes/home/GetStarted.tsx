@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-import { BASE_URL } from "@/utils/api";
 import LinkButton from "@/components/LinkButton";
 
 export const GetStarted = () => {

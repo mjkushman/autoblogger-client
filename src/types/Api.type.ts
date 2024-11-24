@@ -1,3 +1,4 @@
+import { Account } from "./Account.type"
 import { Agent } from "./Agent.type"
 
 export type CreateAccountResponse = {
@@ -15,3 +16,4 @@ export type ApiResponse<T = string> = {
 
 export type AgentsApiResponse = ApiResponse<Agent[]>
 export type AgentApiResponse = ApiResponse<Agent>
+export type AccountApiResponse = ApiResponse<Account>
