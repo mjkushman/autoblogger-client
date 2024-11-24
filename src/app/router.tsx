@@ -66,8 +66,11 @@ const createAppRouter = (user: User) => {
           ],
         },
         {
-          path: "docs",
-          element: <>Docs home placeholder</>,
+          path: "api",
+          lazy: async () => {
+            const { Redoc } = await import("./routes/redoc");
+            return { Component: Redoc };
+          },
         },
       ],
     },

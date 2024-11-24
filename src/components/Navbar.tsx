@@ -31,7 +31,7 @@ export const Navbar = () => {
 
   const navLinks: NavBarLink[] = [
     { label: "Home", to: "/" },
-    { label: "Docs", to: `${BASE_URL}docs` },
+    { label: "API", to: `api` },
   ];
 
   const signedInNavLinks: NavBarLink[] = [{ label: "Account", to: "/account" }];

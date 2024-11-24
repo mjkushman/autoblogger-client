@@ -1,8 +1,8 @@
-
-import { blogs, Blog } from "@/app/fixtures/blogs";
+import { blogs } from "@/app/fixtures/blogs";
 
 import { Link } from "react-router-dom";
 import { SiteSection } from "@/components/SiteSection";
+import LinkButton from "@/components/LinkButton";
 
 export const BlogExamples = () => {
   return (
@@ -24,17 +24,17 @@ export const BlogExamples = () => {
               <p className="py-1 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
                 <a href={blog.href}>{blog.title}</a>
               </p>
-              <p className="my-1 line-clamp-3 text-md text-gray-700">
+              <p className="my-3 line-clamp-3 text-md text-gray-700">
                 {blog.description}
               </p>
             </div>
             <div className="mt-3 flex items-center m-auto">
               <p className="text-gray-100">
-                <Link to={blog.href}>
-                  <button className="py-2 px-4 rounded-lg border bg-violet-900">
-                    Visit {blog.title}
-                  </button>
-                </Link>
+                <LinkButton
+                  to={blog.href}
+                  text={blog.title}
+                  lightTheme={false}
+                />
               </p>
             </div>
           </div>
@@ -44,16 +44,16 @@ export const BlogExamples = () => {
           <h3 className="my-1 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
             Your Blog here
           </h3>
-          <p className="my-1 line-clamp-3 text-md text-gray-700">
+          <p className="my-3 line-clamp-3 text-md text-gray-700">
             I'd love to see what you create with Autoblogger.
           </p>
           <div className="mt-3 flex items-center m-auto">
             <p className="text-gray-100">
-              <Link to="mailto:blogs@autoblogger.dev">
-                <button className="py-2 px-4 rounded-lg border bg-violet-900">
-                  Send me your blog
-                </button>
-              </Link>
+              <LinkButton
+                to="mailto:blogs@autoblogger.dev"
+                text="Send me your blog"
+                lightTheme={false}
+              />
             </p>
           </div>
         </div>

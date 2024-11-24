@@ -9,7 +9,7 @@ export const GetStarted = () => {
         <div className="max-w-sm mx-auto py-4">
           <div className="grid grid-cols-2">
             <div>
-              <LinkButton to={`${BASE_URL}docs`} text="Explore the API" />
+              <LinkButton to={`api`} text="Explore the API" />
             </div>
             <div>
               <LinkButton

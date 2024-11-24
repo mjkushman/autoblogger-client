@@ -12,15 +12,8 @@ SyntaxHighlighter.registerLanguage("curl", curl);
 
 import { BASE_URL } from "@/utils/api";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import LinkButton from "@/components/LinkButton";
 
-const getPostsJs = `    const response = await fetch('${BASE_URL}api/posts', { headers: { x-api-key: 'YOUR_API_KEY',}});
-    const { data } = await response.json();
-`;
-const getPostsCurl = `    curl -X GET \
-  -H "x-api-key: YOUR_API_KEY" \
-  "https://${BASE_URL}api/posts"
-`;
 
 const getPostsSnippet = {
     javascript: `    const response = await fetch('${BASE_URL}api/posts', { headers: { x-api-key: 'YOUR_API_KEY',}});
@@ -81,10 +74,12 @@ const HowItWorks = () => {
           </Select>
           <SyntaxHighlighter language={language} style={ocean} className="">
             {getPostsSnippet[language]}
-            {/* {getPostsJs} */}
           </SyntaxHighlighter>
         </div>
-        <Link type="button" to={`${BASE_URL}docs`} >Explore the API</Link>
+        <div className="m-auto flex justify-center">
+        <LinkButton to={`api`} text="Explore the API"/>
+
+        </div>
       </div>
     </SiteSection>
   );
