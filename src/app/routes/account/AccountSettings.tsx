@@ -1,7 +1,12 @@
 import { Account } from "@/types";
-import { useContext, useEffect, useState } from "react";
+import React, {
+  ReactEventHandler,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import api from "@/utils/api";
-import { Navigate, useLoaderData, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 import { AuthService } from "@/utils/authService";
 import { UserContext } from "@/app/provider";
@@ -23,10 +28,10 @@ import { AccountApiResponse } from "@/types/Api.type";
 
 type Props = {
   account: Account;
+  updateAccount: (formData: AccountFormData) => Promise<void>;
 };
 
-
-export const AccountSettings = ({ account }: Props) => {
+export const AccountSettings = ({ account, updateAccount }: Props) => {
   const [isApiKeyVisibile, setIsApiKeyVisibile] = useState<boolean>(false);
   const [isOpenAIApiKeyVisibile, setIsOpenAIApiKeyVisibile] =
     useState<boolean>(false);
@@ -52,31 +57,32 @@ export const AccountSettings = ({ account }: Props) => {
     firstName: account.firstName,
     lastName: account.lastName,
     email: account.email,
-    apiKey: account.apiKey,
     openAiApiKey: account.openAiApiKey,
   };
 
+  const [accountFormData, setAccountFormData] = useState(
+    initialAccountFormData
+  );
 
-  
-
-  const [accountFormData, setAccountFormData] = useState(initialAccountFormData);
-
-  const isDataChanged = JSON.stringify(accountFormData) == JSON.stringify(initialAccountFormData);
+  const isDataChanged =
+    JSON.stringify(accountFormData) == JSON.stringify(initialAccountFormData);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    setAccountFormData((accountFormData) => ({ ...accountFormData, [name]: value }));
+    setAccountFormData((accountFormData) => ({
+      ...accountFormData,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit =  async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      console.log('Sending call with data', accountFormData)
-      await api.patch<AccountFormData, AccountApiResponse>('accounts', accountFormData)
+      await updateAccount(accountFormData);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   return (
     <>
@@ -167,7 +173,7 @@ export const AccountSettings = ({ account }: Props) => {
 
           <Button
             className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-4 data-[disabled]:bg-gray-200"
-            disabled={isDataChanged}
+            hidden={isDataChanged}
             formAction="submit"
             type="submit"
           >

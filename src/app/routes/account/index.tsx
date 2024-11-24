@@ -10,6 +10,8 @@ import {
   AgentFormData,
   ApiResponse,
 } from "@/types";
+import { AccountFormData } from "@/types/Account.type";
+import { AccountApiResponse } from "@/types/Api.type";
 import api from "@/utils/api";
 import { Button } from "@headlessui/react";
 import { useEffect, useState } from "react";
@@ -19,27 +21,35 @@ type Props = {
   user: User;
 };
 export const AccountRoot = ({ user }: Props) => {
-  const account = useLoaderData() as Account;
+  // const account = useLoaderData() as Account;
   const navigate = useNavigate();
   const agentLimit = 100;
 
   const [agents, setAgents] = useState<Agent[]>();
+  const [account, setAccount] = useState<Account>();
 
   // get agents
   const getAgents = async () => {
     const { data } = await api.get<AgentsApiResponse>("agents");
     setAgents(data);
-    // console.log("retrieved agents:");
-    // console.log(data);
+  };
+  // get Account
+  const getAccount = async () => {
+    const { data } = await api.get<AccountApiResponse>("accounts");
+    setAccount(data);
   };
 
   useEffect(() => {
     getAgents();
+    getAccount();
   }, [user]);
 
   useEffect(() => {
     setAgents(() => agents);
   }, [agents]);
+  useEffect(() => {
+    setAccount(() => account);
+  }, [account]);
 
   const updateAgent = async (formData: AgentFormData): Promise<void> => {
     // Invoke API call
@@ -53,10 +63,22 @@ export const AccountRoot = ({ user }: Props) => {
 
   const deleteAgent = async (agentId: string) => {
     try {
-      await api.delete<{agentId:string}, ApiResponse>("agents", { agentId });
+      await api.delete<{ agentId: string }, ApiResponse>("agents", { agentId });
       getAgents();
     } catch (error) {
       console.log("failed to delete:", error);
+    }
+  };
+
+  const updateAccount = async (formData: AccountFormData) => {
+    try {
+      const {data} = await api.patch<AccountFormData, AccountApiResponse>(
+        "accounts",
+        formData
+      );
+      setAccount( data);
+    } catch (error) {
+      console.log("failed to update account", error);
     }
   };
 
@@ -66,17 +88,23 @@ export const AccountRoot = ({ user }: Props) => {
         <h1 className="text-5xl">Settings</h1>
       </div>
       <h1 className="pt-2 text-2xl font-semibold">Account</h1>
-      <span className="text-sm text-gray-800 bg-violet-200 px-3 my-1 rounded-full">{account.accountId}</span>
-      
-      <div className="py-2 my-4">
-        {account ? <AccountSettings account={account} /> : <Loading />}
-      </div>
+      <span className="text-sm text-gray-800 bg-violet-200 px-3 my-1 rounded-full">
+        {account?.accountId}
+      </span>
+      {account ? (
+        <div className="py-2 my-4">
+          <AccountSettings account={account} updateAccount={updateAccount} />
+        </div>
+      ) : (
+        <Loading />
+      )}
+
       <div className="flex justify-between">
         <h1 className="pt-2 text-2xl font-semibold">Agents</h1>
 
         <Button
           onClick={() => navigate("new-agent")}
-          disabled={account?.Agents.length >= agentLimit}
+          disabled={account?.Agents?.length >= agentLimit}
           className="my-2 mx-4 px-4 py-2 rounded-xl bg-violet-800 text-gray-100 data-[disabled]:bg-gray-500"
         >
           Create New Agent

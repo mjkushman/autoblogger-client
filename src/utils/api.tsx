@@ -11,6 +11,7 @@ const api = {
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
+      console.log(`Sending GET to ${url}`);
       const response = await fetch(`${BASE_URL}${url}`, { headers });
       if (!response.ok) {
         throw new Error(`Error fetching data: ${response.statusText}}`);
@@ -29,7 +30,7 @@ const api = {
         "Content-Type": "application/json",
       };
       if(token) headers.Authorization = `Bearer ${token}`
-  
+      console.log(`Sending POST to ${url} with data ${JSON.stringify(data)}`);
       const response = await fetch(`${BASE_URL}${url}`, {
         method: "POST",
         headers,
@@ -51,6 +52,7 @@ const api = {
         "Content-Type": "application/json",
       };
       if(token) headers.Authorization = `Bearer ${token}`
+      console.log(`Sending PATCH to ${url} with data ${JSON.stringify(data)}`);
       const response = await fetch(`${BASE_URL}${url}`, {
         method: "PATCH",
         headers,
