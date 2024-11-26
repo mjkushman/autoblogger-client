@@ -9,9 +9,9 @@ import { MainLayout } from "./layouts/MainLayout";
 import { UserContext } from "./provider";
 import { User } from "@/types";
 import api from "@/utils/api";
-import { RequireAuth } from "./layouts/RequireAuth";
-import { AccountRoot } from "./routes/account";
-import { NewAgent } from "./routes/account/new-agent";
+import { RequireAuth } from "@/app/layouts/RequireAuth";
+import { AccountRoot } from "@/app/routes/account";
+import { NewAgent } from "@/app/routes/account/new-agent";
 import { ApiResponse } from "@/types/Api.type";
 import { Loading } from "@/components/Loading";
 

@@ -1,4 +1,5 @@
 export type NavBarLink = {
     label:string,
-    to:string
+    to:string,
+    key: number
 }

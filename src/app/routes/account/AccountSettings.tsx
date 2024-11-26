@@ -163,6 +163,8 @@ export const AccountSettings = ({ account, updateAccount }: Props) => {
                 {isOpenAIApiKeyVisibile ? "Hide" : "Show"}
               </Button>
               <Input
+                name="openAiApiKey"
+                id="openAiApiKey"
                 type={isOpenAIApiKeyVisibile ? "text" : "password"}
                 value={accountFormData?.openAiApiKey}
                 onChange={handleChange}

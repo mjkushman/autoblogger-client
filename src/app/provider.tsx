@@ -2,6 +2,7 @@ import { Suspense, createContext, useState, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { MainErrorFallback } from "@/components/ErrorFallback";
 import { User } from "@/types";
+import { Loading } from "@/components/Loading";
 
 import * as jose from "jose";
 
@@ -13,6 +14,8 @@ type UserContextType = {
   user: User | null;
   setToken: (token: string) => void;
 };
+
+const secret = new TextEncoder().encode(import.meta.env.VITE_JWT_SECRET);
 
 export const UserContext = createContext<UserContextType>({
   user: null,
@@ -29,14 +32,21 @@ export const AppProvider = ({ children }: AppProviderProps) => {
 
   useEffect(() => {
     console.log("PROVIDER effect running");
-    const updateUser = () => {
-      console.log("PROVIDER updating user with token:", token);
+    const updateUser = async () => {
       if (token) {
-        const { firstName, lastName, email, accountId } = jose.decodeJwt(
-          token
-        ) as User;
-        setUser({ firstName, lastName, email, accountId }); // decode token to set User
-        console.log(`set user to ${JSON.stringify(user)}`);
+        // verify and set user if good
+        jose.jwtVerify<User>(token, secret).then(
+          ({ payload }) => {
+            setUser(payload);
+            console.log("SETTING USER TO PAYLOAD:", payload);
+          },
+          (error: jose.errors.JOSEError) => {
+            if (error instanceof jose.errors.JWTExpired) {
+              // TODO: add logic to refresh token
+              // console.log("token expired. Do logic to refresh token.");
+            } else setUser(null);
+          }
+        );
       } else {
         setUser(null); // if no token, erase the user from context
       }
@@ -45,7 +55,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   }, [token]);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loading />}>
       <ErrorBoundary FallbackComponent={MainErrorFallback}>
         <UserContext.Provider value={{ user, setToken }}>
           {children}

@@ -1,7 +1,6 @@
 import api from "@/utils/api";
 import { ApiResponse, createAccountFormDataType, loginFormDataType } from "@/types";
 
-// const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3001";
 
 export const localStorageKey = "authToken";
 
@@ -27,17 +26,13 @@ export const AuthService = {
 };
 
 export const storeToken = (token: string) => {
-  localStorage.setItem(localStorageKey, JSON.stringify(token));
+  localStorage.setItem(localStorageKey, token);
 };
 
 export const retrieveToken = (): string | null => {
   return localStorage.getItem(localStorageKey);
 };
 
-// deprecate?
-// export const clearToken = () => {
-//   return localStorage.removeItem(localStorageKey);
-// };
 
 export const isAuthenticated = () => {
   const token = localStorage.getItem(localStorageKey);
