@@ -19,15 +19,16 @@ import { Agent } from "@/types";
 import { AgentFormData } from "@/types";
 
 type Props = {
-  agent: Agent,
-  updateAgent: (formData: AgentFormData) => Promise<void>
-  deleteAgent: (agentId:string) => Promise<void>
+  agent: Agent;
+  updateAgent: (formData: AgentFormData) => Promise<void>;
+  deleteAgent: (agentId: string) => Promise<void>;
 };
 
-export const AgentSettingsForm = ({ agent, updateAgent, deleteAgent }: Props) => {
-  // const agent = account.Agents[1];
-  // console.log("passed agent", agent);
-
+export const AgentSettingsForm = ({
+  agent,
+  updateAgent,
+  deleteAgent,
+}: Props) => {
   // I think I need to add a useEffect hook to update initial form data after submitting the form.
   const initialFormData: AgentFormData = {
     agentId: agent.agentId,
@@ -46,12 +47,15 @@ export const AgentSettingsForm = ({ agent, updateAgent, deleteAgent }: Props) =>
     },
   };
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   const [formData, setFormData] = useState(initialFormData);
 
   const [isEditable, setIsEditable] = useState(false);
   const [isDeleteVisible, setIsDeleteVisible] = useState(false);
+
+  const isDataChanged =
+    JSON.stringify(formData) == JSON.stringify(initialFormData);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     console.log("receiving:", e);
@@ -160,15 +164,13 @@ export const AgentSettingsForm = ({ agent, updateAgent, deleteAgent }: Props) =>
   const handleSubmit = async (): // e: React.FormEvent<HTMLFormElement>
   Promise<void> => {
     // e.preventDefault();
-   if(JSON.stringify(formData) !== JSON.stringify(initialFormData)) updateAgent(formData)
-    
+    if (JSON.stringify(formData) !== JSON.stringify(initialFormData))
+      updateAgent(formData);
   };
 
   const handleDelete = async () => {
     console.log(`deleting ${agent.firstName}`);
-    deleteAgent(agent.agentId)
-
-  
+    deleteAgent(agent.agentId);
   };
 
   return (
@@ -209,6 +211,14 @@ export const AgentSettingsForm = ({ agent, updateAgent, deleteAgent }: Props) =>
                 className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-4 mx-2 data-[disabled]:bg-gray-500"
               >
                 {isEditable ? "Save Edits" : "Edit Settings"}
+              </Button>
+              <Button
+                className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-4 data-[disabled]:bg-gray-200"
+                hidden={isDataChanged}
+                formAction="submit"
+                type="submit"
+              >
+                Save
               </Button>
             </div>
           </div>

@@ -23,15 +23,11 @@ export const UserContext = createContext<UserContextType>({
 });
 
 export const AppProvider = ({ children }: AppProviderProps) => {
-  console.log("rendering AppProvider");
-  // token state, and get initial token value (probably null)
-
   const [token, setToken] = useState(() => localStorage.getItem("authToken"));
 
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    console.log("PROVIDER effect running");
     const updateUser = async () => {
       if (token) {
         // verify and set user if good
