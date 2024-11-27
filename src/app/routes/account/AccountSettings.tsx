@@ -24,7 +24,7 @@ import {
   Textarea,
 } from "@headlessui/react";
 import { AccountFormData } from "@/types/Account.type";
-import { AccountApiResponse } from "@/types/Api.type";
+import { LabeledInput, Button as StyledButton } from "@/components";
 
 type Props = {
   account: Account;
@@ -32,6 +32,7 @@ type Props = {
 };
 
 export const AccountSettings = ({ account, updateAccount }: Props) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [isApiKeyVisibile, setIsApiKeyVisibile] = useState<boolean>(false);
   const [isOpenAIApiKeyVisibile, setIsOpenAIApiKeyVisibile] =
     useState<boolean>(false);
@@ -41,12 +42,14 @@ export const AccountSettings = ({ account, updateAccount }: Props) => {
   const navigate = useNavigate();
 
   const handleDelete = async () => {
+    setIsLoading(true);
     try {
       await api
         .delete("accounts")
         .then(() => AuthService.logout())
         .then(() => navigate("/"))
-        .then(() => setToken(null));
+        .then(() => setToken(null))
+        .then(() => setIsLoading(false));
     } catch (error) {
       console.log("failed to delete:", error);
     }
@@ -65,7 +68,7 @@ export const AccountSettings = ({ account, updateAccount }: Props) => {
   );
 
   const isDataChanged =
-    JSON.stringify(accountFormData) == JSON.stringify(initialAccountFormData);
+    JSON.stringify(accountFormData) !== JSON.stringify(initialAccountFormData);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -76,9 +79,11 @@ export const AccountSettings = ({ account, updateAccount }: Props) => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setIsLoading(true);
     e.preventDefault();
+
     try {
-      await updateAccount(accountFormData);
+      await updateAccount(accountFormData).then(() => setIsLoading(false));
     } catch (error) {
       console.log(error);
     }
@@ -88,35 +93,55 @@ export const AccountSettings = ({ account, updateAccount }: Props) => {
     <>
       <div className="col-span-8 overflow-hidden rounded-xl sm:bg-gray-50 sm:px-8 sm:drop-shadow-md border border-gray-300">
         <form onSubmit={handleSubmit}>
-          <Fieldset className="flex flex-wrap items-center my-2">
-            <Label className="text-xl font-semibold">Personal Info</Label>
-            <Input
-              name="firstName"
-              id="firstName"
-              type="text"
-              placeholder={accountFormData.firstName}
-              value={accountFormData.firstName}
-              onChange={handleChange}
-              className="bg-white rounded-xl m-2 p-2 data-[focus]:shadow-inner data-[focus]:border-hidden text-md text-gray-800"
-            />
-            <Input
-              name="lastName"
-              id="lastName"
-              type="text"
-              placeholder={accountFormData.lastName}
-              value={accountFormData.lastName}
-              onChange={handleChange}
-              className="bg-white rounded-xl m-2 p-2 data-[focus]:shadow-inner data-[focus]:border-hidden text-md text-gray-800"
-            />
-            <Input
-              name="email"
-              id="email"
-              type="email"
-              placeholder={accountFormData.email}
-              value={accountFormData.email}
-              onChange={handleChange}
-              className="bg-white rounded-xl m-2 p-2 data-[focus]:shadow-inner data-[focus]:border-hidden text-md text-gray-800"
-            />
+          <Fieldset className=" flex flex-wrap my-2 items-center  justify-between">
+            <div className="flex flex-wrap gap-1 items-center  ">
+              <Label className="text-xl mr-4 font-semibold">
+                Personal Info
+              </Label>
+              <Field className={"relative"}>
+                <LabeledInput
+                  name="firstName"
+                  id="firstName"
+                  label="First Name"
+                  type="text"
+                  placeholder={accountFormData.firstName}
+                  value={accountFormData.firstName}
+                  onChange={handleChange}
+                />
+              </Field>
+              <Field className={"relative"}>
+                <LabeledInput
+                  name="lastName"
+                  id="lastName"
+                  type="text"
+                  label="Last Name"
+                  placeholder={accountFormData.lastName}
+                  value={accountFormData.lastName}
+                  onChange={handleChange}
+                />
+              </Field>
+              <Field className={"relative"}>
+                <LabeledInput
+                  name="email"
+                  id="email"
+                  type="email"
+                  label="Email"
+                  placeholder={accountFormData.email}
+                  value={accountFormData.email}
+                  onChange={handleChange}
+                />
+              </Field>
+            </div>
+            <div>
+              <StyledButton
+                disabled={!isDataChanged || isLoading}
+                formAction="submit"
+                type="submit"
+                className="data-[disabled]:invisible shadow-2xl"
+              >
+                Save
+              </StyledButton>
+            </div>
           </Fieldset>
 
           <Field className="flex flex-wrap gap-2 items-center my-2">
@@ -128,59 +153,23 @@ export const AccountSettings = ({ account, updateAccount }: Props) => {
                 Never share your Autoblogger API key
               </Description>
             </span>
-            <span>
-              <Button
-                className="p-1 text-sm rounded-xl bg-gray-200"
-                onClick={() => setIsApiKeyVisibile(!isApiKeyVisibile)}
-              >
-                {isApiKeyVisibile ? "Hide" : "Show"}
-              </Button>
+            <Button
+              className="p-1 text-sm rounded-xl bg-gray-200"
+              onClick={() => setIsApiKeyVisibile(!isApiKeyVisibile)}
+            >
+              {isApiKeyVisibile ? "Hide" : "Show"}
+            </Button>
+            <span className="flex-grow">
               <Input
                 name="apiKey"
                 id="apiKey"
                 type={isApiKeyVisibile ? "text" : "password"} // Hold this in state so user can toggle visibility
                 value={account.apiKey}
                 disabled
-                className="bg-white w-fit rounded-xl m-2 p-2 data-[focus]:shadow-inner data-[focus]:border-hidden text-gray-800 text-sm"
+                className="bg-white w-full rounded-xl m-2 p-2 data-[focus]:shadow-inner data-[focus]:border-hidden text-gray-800 text-sm"
               />
             </span>
           </Field>
-
-          <Field className="flex flex-wrap gap-2 items-center my-2">
-            <span>
-              <Label className="text-xl font-semibold">OpenAI API Key</Label>
-              <Description className="text-sm text-gray-500">
-                Add your API key for Open API to get started.
-              </Description>
-            </span>
-            <span>
-              <Button
-                className="p-1 text-sm rounded-xl bg-gray-200"
-                onClick={() =>
-                  setIsOpenAIApiKeyVisibile(!isOpenAIApiKeyVisibile)
-                }
-              >
-                {isOpenAIApiKeyVisibile ? "Hide" : "Show"}
-              </Button>
-              <Input
-                name="openAiApiKey"
-                id="openAiApiKey"
-                type={isOpenAIApiKeyVisibile ? "text" : "password"}
-                value={accountFormData?.openAiApiKey}
-                onChange={handleChange}
-                className="bg-white w-fit rounded-xl m-2 p-2 data-[focus]:shadow-inner data-[focus]:border-hidden text-gray-800 text-sm"
-              />
-            </span>
-          </Field>
-
-          <Button
-            className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-4 data-[disabled]:bg-gray-200"
-            hidden={isDataChanged}
-            formAction="submit"
-            type="submit"
-          >
-            Save
-          </Button>
         </form>
         <hr className="my-6" />
 

@@ -1,8 +1,7 @@
 import { blogs } from "@/app/fixtures/blogs";
 
-import { Link } from "react-router-dom";
 import { SiteSection } from "@/components/SiteSection";
-import LinkButton from "@/components/LinkButton";
+import {LinkButton} from "@/components";
 
 export const BlogExamples = () => {
   return (

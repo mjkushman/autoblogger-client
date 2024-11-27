@@ -1,4 +1,4 @@
-import LinkButton from "@/components/LinkButton";
+import {LinkButton} from "@/components";
 
 export const GetStarted = () => {
   return (
@@ -7,14 +7,12 @@ export const GetStarted = () => {
         <div className="max-w-sm mx-auto py-4">
           <div className="grid grid-cols-2">
             <div>
-              <LinkButton to={`api`} text="Explore the API" />
+              <LinkButton to={`api`} variant="secondary">Explore the API</LinkButton>
             </div>
             <div>
               <LinkButton
                 to="auth/login"
-                lightTheme={false}
-                text="Get API key"
-              />
+              >Get API key</LinkButton>
             </div>
           </div>
         </div>

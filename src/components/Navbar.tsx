@@ -109,7 +109,7 @@ export const Navbar = () => {
                     className="font-normal py-2 text-sm text-gray-700 dark:text-gray-400 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 group-hover:block"
                   >
                     {signedInNavLinks.map(({ label, to, key }) => (
-                      <MenuItem>
+                      <MenuItem key={key}>
                         <NavLink
                           key={key}
                           to={to}

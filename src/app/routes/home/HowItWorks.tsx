@@ -12,7 +12,7 @@ SyntaxHighlighter.registerLanguage("curl", curl);
 
 import { BASE_URL } from "@/utils/api";
 import { useState } from "react";
-import LinkButton from "@/components/LinkButton";
+import {LinkButton} from "@/components";
 
 
 const getPostsSnippet = {

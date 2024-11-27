@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import {
   Checkbox,
-  Description,
   Field,
   Fieldset,
+  Button,
   Input,
   Label,
   Legend,
@@ -12,7 +12,7 @@ import {
   Textarea,
 } from "@headlessui/react";
 import {
-  Button,
+  Button as StyledButton,
   FloatingLabel,
   LabeledInput,
   Select,
@@ -108,18 +108,6 @@ export const AgentSettingsForm = ({
     };
   }
 
-  // const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { value } = e.target;
-  //   console.log("NEW TIME:", value);
-  //   setFormData((formData) => ({
-  //     ...formData,
-  //     postSettings: {
-  //       ...formData.postSettings,
-  //       time: value,
-  //     },
-  //   }));
-  // };
-
   const days: { abbr: string; value: string; enabled: boolean }[] = [
     { abbr: "M", value: "mon", enabled: false },
     { abbr: "T", value: "tue", enabled: false },
@@ -183,16 +171,6 @@ export const AgentSettingsForm = ({
     }
   };
 
-  // deprecated
-  //
-  // const handleTimezoneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const { value } = e.target;
-  //   setFormData((formData) => ({
-  //     ...formData,
-  //     postSettings: { ...formData.postSettings, timezone: value },
-  //   }));
-  // };
-
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
@@ -215,19 +193,17 @@ export const AgentSettingsForm = ({
         >
           {/* BASIC SETTINGS */}
           <div className=" flex flex-row justify-between items-center">
-            <h3 className="py-2 text-2xl font-semibold">
-              {agent.firstName}
-            </h3>
+            <h3 className="py-2 text-2xl font-semibold">{agent.firstName}</h3>
 
             <div>
-              <Button
+              <StyledButton
                 disabled={!isDataChanged || isLoading}
                 formAction="submit"
                 type="submit"
                 className="data-[disabled]:invisible shadow-2xl"
               >
                 Save
-              </Button>
+              </StyledButton>
             </div>
           </div>
 
@@ -333,8 +309,7 @@ export const AgentSettingsForm = ({
                 />
               </Field>
               <Button
-                variant="secondary"
-                className={"p-10"}
+                className="p-1 text-sm rounded-xl bg-gray-200"
                 onClick={() => setIsApiKeyVisibile(!isApiKeyVisibile)}
               >
                 {isApiKeyVisibile ? "Hide" : "Show"}
@@ -391,9 +366,10 @@ export const AgentSettingsForm = ({
                   return (
                     <Checkbox
                       key={agent.agentId + day.value}
-                      checked={formData.postSettings.daysOfWeek && formData.postSettings.daysOfWeek.includes(
-                        day.value
-                      )}
+                      checked={
+                        formData.postSettings.daysOfWeek &&
+                        formData.postSettings.daysOfWeek.includes(day.value)
+                      }
                       disabled={
                         formData.postSettings.daysOfWeek &&
                         formData.postSettings.daysOfWeek.length >= maxDays &&
