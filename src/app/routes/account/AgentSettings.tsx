@@ -1,6 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
-  Button,
   Checkbox,
   Description,
   Field,
@@ -8,11 +7,17 @@ import {
   Input,
   Label,
   Legend,
-  Select,
+  // Select,
   Switch,
   Textarea,
 } from "@headlessui/react";
-import api from "@/utils/api";
+import {
+  Button,
+  FloatingLabel,
+  InputField,
+  Select,
+  TimeInput,
+} from "@/components";
 
 import timezones from "@/app/fixtures/timezones";
 import { Agent } from "@/types";
@@ -36,6 +41,10 @@ export const AgentSettingsForm = ({
     firstName: agent.firstName,
     lastName: agent.lastName,
     email: agent.email,
+    llm: {
+      model: agent.llm.model,
+      apiKey: agent.llm.apiKey,
+    },
     username: agent.username,
     postSettings: {
       isEnabled: agent.postSettings.isEnabled,
@@ -47,48 +56,64 @@ export const AgentSettingsForm = ({
     },
   };
 
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState<AgentFormData>(initialFormData);
+  // console.log('FORM DATA ON MOUNT', formData)
 
   const [isEditable, setIsEditable] = useState(false);
   const [isDeleteVisible, setIsDeleteVisible] = useState(false);
 
   const isDataChanged =
-    JSON.stringify(formData) == JSON.stringify(initialFormData);
+    JSON.stringify(formData) !== JSON.stringify(initialFormData);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    console.log("receiving:", e);
-    const { name, value } = e.target;
-    console.log(`Updating ${name} to ${value}`);
-    setFormData((formData) => ({ ...formData, [name]: value }));
-    console.dir(formData);
-  };
 
-  const handlePersonalityChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const { value } = e.target;
-    setFormData((formData) => ({
-      ...formData,
-      postSettings: {
-        ...formData.postSettings,
-        personality: value,
-      },
-    }));
-  };
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    console.log("NEW TIME:", value);
-    setFormData((formData) => ({
-      ...formData,
-      postSettings: {
-        ...formData.postSettings,
-        time: value,
-      },
-    }));
-  };
+  function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    const { name, value } = event.target;
+    const namePath = name.split('.'); // e.g., 'postSettings.time' -> ['postSettings', 'time']
+  
+    setFormData((prevFormData: AgentFormData): AgentFormData => {
+      // Use a helper function to update the nested field
+      const updatedFormData = updateNestedField(prevFormData, namePath, value);
+      return updatedFormData;
+    });
+  }
+  
+  // Helper function to immutably update a nested field using recursion
+  function updateNestedField(
+    obj: Record<string | any>, // Generic object
+    keys: string[], // Path to the nested field
+    value: any // New value
+  ): Record<string, any> {
+    const [currentKey, ...remainingKeys] = keys;
+  
+    if (remainingKeys.length === 0) {
+      // Base case: update the final key
+      return { ...obj, [currentKey]: value };
+    }
+  
+    // Recursive case: traverse deeper
+    return {
+      ...obj,
+      [currentKey]: updateNestedField(obj[currentKey] || {}, remainingKeys, value),
+    };
+
+  }
+
+
+
+  // const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { value } = e.target;
+  //   console.log("NEW TIME:", value);
+  //   setFormData((formData) => ({
+  //     ...formData,
+  //     postSettings: {
+  //       ...formData.postSettings,
+  //       time: value,
+  //     },
+  //   }));
+  // };
 
   const days: { abbr: string; value: string; enabled: boolean }[] = [
     { abbr: "M", value: "mon", enabled: false },
@@ -106,7 +131,7 @@ export const AgentSettingsForm = ({
 
   const handleDaysChange = (dayValue: string, checked: boolean) => {
     // if it's already selected OR total days < max, proceed to either select or unselect
-    const currentSelectedCount = formData.postSettings.daysOfWeek.length;
+    const currentSelectedCount = formData?.postSettings?.daysOfWeek?.length;
     // check if we are already at max days
     if (checked && currentSelectedCount >= maxDays) {
       console.log("already at max days");
@@ -161,9 +186,9 @@ export const AgentSettingsForm = ({
     }));
   };
 
-  const handleSubmit = async (): // e: React.FormEvent<HTMLFormElement>
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>):  
   Promise<void> => {
-    // e.preventDefault();
+    e.preventDefault();
     if (JSON.stringify(formData) !== JSON.stringify(initialFormData))
       updateAgent(formData);
   };
@@ -175,290 +200,227 @@ export const AgentSettingsForm = ({
 
   return (
     <>
-      <div className="overflow-hidden my-4 rounded-xl sm:bg-gray-50 sm:px-8 sm:drop-shadow-md border border-gray-300">
+      <div className="overflow-hidden bg-violet-50 my-4 rounded-xl sm:px-8 sm:drop-shadow-md border border-gray-300">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-4xl my-2 px-8 text-gray-800"
+          className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800 "
         >
           {/* BASIC SETTINGS */}
           <div className=" flex flex-row justify-between items-center">
             <h3 className="py-2 text-2xl font-semibold">
-              {agent.firstName} {agent.lastName}
+              {agent.firstName} Settings
             </h3>
+
             <div>
               <Button
-                disabled={!isEditable}
-                onClick={() => {
-                  setFormData(initialFormData);
-                  setIsEditable(false);
-                }}
-                className="data-[disabled]:hidden rounded-lg bg-none my-4 px-2 mx-2 text-sm text-red-800"
-              >
-                Cancel
-              </Button>
-              <Button
-                disabled={isLoading}
-                formAction="submit"
-                // type="button"
-                onClick={() => {
-                  if (isEditable) {
-                    handleSubmit();
-                    setIsEditable(false);
-                  } else {
-                    setIsEditable(true);
-                  }
-                }}
-                className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-4 mx-2 data-[disabled]:bg-gray-500"
-              >
-                {isEditable ? "Save Edits" : "Edit Settings"}
-              </Button>
-              <Button
-                className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-4 data-[disabled]:bg-gray-200"
-                hidden={isDataChanged}
+                disabled={!isDataChanged || isLoading}
                 formAction="submit"
                 type="submit"
+                className="data-[disabled]:invisible shadow-2xl"
               >
                 Save
               </Button>
             </div>
           </div>
-          <Field
-            className="gap-3 items-center flex flex-row my-1"
-            disabled={!isEditable}
-          >
-            <Label className={"py-1 font-semibold"}>Enable Agent</Label>
-            <Switch
-              name="agentIsEnabled"
-              id={`${agent.agentId}-isEnabled`}
-              checked={formData.isEnabled}
-              onChange={(value) => handleEnableChange("agent", value)}
-              className={
-                "group inline-flex h-6 w-11 items-center rounded-full bg-gray-600 transition data-[checked]:bg-violet-600 data-[disabled]:opacity-50"
-              }
-            >
-              <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-            </Switch>
-          </Field>
+
+          {/* <Fieldset>
+            <Field className="gap-3 items-center flex flex-row my-1">
+              <Label className={"py-1 font-semibold"}>Enable Agent</Label>
+              <Switch
+                name="agentIsEnabled"
+                id={`${agent.agentId}-isEnabled`}
+                checked={formData.isEnabled}
+                onChange={(value) => handleEnableChange("agent", value)}
+                className={
+                  "group inline-flex h-6 w-11 items-center rounded-full bg-gray-600 transition data-[checked]:bg-violet-600 data-[disabled]:opacity-50"
+                }
+              >
+                <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
+              </Switch>
+            </Field>
+          </Fieldset> */}
+
           {/* BASIC INFO */}
-          <Fieldset
-            className={"flex flex-wrap gap-2 my-2"}
-            disabled={!isEditable}
-          >
-            <Field>
-              <Label className={"flex justify-start text-sm p-1 font-semibold"}>
-                First Name
-              </Label>
-              <Input
+          <Fieldset>
+            <Legend className={"block font-semibold"}>Basic Info</Legend>
+            <div className={"flex flex-wrap gap-1 my-0"}>
+              <InputField
                 type="text"
                 name="firstName"
+                label="First Name"
                 id={`${agent.agentId}-firstName`}
                 required
-                placeholder="Enter a first name"
                 autoComplete="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className={
-                  "border p-1 max-w-44 leading-tight focus:outline-solid 0 data-[disabled]:bg-transparent data-[disabled]:border-none"
-                }
               />
-            </Field>
-            <Field>
-              <Label className={"flex justify-start text-sm p-1 font-semibold"}>
-                Last Name
-              </Label>
-              <Input
+
+              <InputField
                 type="text"
                 name="lastName"
+                label="Last Name"
                 id={`${agent.agentId}-lastName`}
-                placeholder="Enter a last name"
                 autoComplete="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className={
-                  "border p-1 max-w-44 leading-tight focus:outline-solid 0 data-[disabled]:bg-transparent data-[disabled]:border-none"
-                }
               />
-            </Field>
-            <Field>
-              <Label className={"flex justify-start text-sm p-1 font-semibold"}>
-                Username
-              </Label>
-              <Input
+
+              <InputField
                 type="username"
                 name="username"
+                label="Username"
                 id={`${agent.agentId}-username`}
                 required
-                placeholder={initialFormData.username}
                 autoComplete="Username"
                 value={formData.username}
                 onChange={handleChange}
-                className={
-                  "border p-1 max-w-44 leading-tight focus:outline-solid 0 data-[disabled]:bg-transparent data-[disabled]:border-none"
-                }
               />
-            </Field>
-            <Field>
-              <Label className={"flex justify-start text-sm p-1 font-semibold"}>
-                Email
-              </Label>
-              <Input
+
+              <InputField
                 type="text"
                 name="email"
+                label="Email"
                 id={`${agent.agentId}-email`}
                 required
-                placeholder="Email address"
                 autoComplete="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={
-                  "border p-1 max-w-44 leading-tight focus:outline-solid 0 data-[disabled]:bg-transparent data-[disabled]:border-none"
-                }
               />
-            </Field>
+            </div>
           </Fieldset>
 
-          {/* ENABLED POSTING */}
-          <Field
-            className="flex flex-row py-2 gap-3 items-center font-semibold"
-            disabled={!isEditable}
-          >
-            <Label className={""}>Enable Posting</Label>
-            <Switch
-              name="postIsEnabled"
-              id={`${agent.agentId}-postIsEnabled`}
-              checked={formData.postSettings.isEnabled}
-              onChange={(value) => handleEnableChange("post", value)}
-              className={
-                "group inline-flex h-6 w-11 items-center rounded-full bg-gray-600 transition data-[checked]:bg-violet-600 data-[disabled]:opacity-50"
-              }
-            >
-              <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-            </Switch>
-          </Field>
-          {/* SCHEDULE section */}
-          <Fieldset
-            className="flex flex-wrap py-2 items-center"
-            disabled={!isEditable}
-          >
-            <Legend className="font-semibold">Post Schedule</Legend>
-            <div className="flex flex-wrap">
-              <Field className="ml-2">
-                {/* Time */}
-                <Input
-                  type="time"
-                  name="time"
-                  id={`${agent.agentId}-time`}
-                  required
-                  value={formData.postSettings.time}
-                  onChange={handleTimeChange}
-                  min="00:00"
-                  max="23:59"
-                  className="flex-shrink-0 h-10 rounded-none border rounded-s-lg border-e-1  focus:ring-blue-500 focus:border-blue-500 text-sm border-gray-500 px-3 block bg-white"
-                />
-              </Field>
-              {/* TIMEZONE */}
-              <Field className="mr-2">
-                <Select
-                  name="timezone"
-                  id={`${agent.agentId}-timezone`}
-                  required
-                  onChange={handleTimezoneChange}
-                  value={formData.postSettings.timezone}
-                  className={
-                    "h-10 border border-s-0 border-gray-500 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block px-3 "
-                  }
-                >
-                  {timezones.map((timezone) => (
-                    <option key={timezone.timezone} value={timezone.timezone}>
-                      {timezone.label}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
+          {/* POSTING SETTINGS*/}
+          <Fieldset className={"my-4"}>
+            <Legend className={"block font-semibold"}>Post settings</Legend>
+            <Field className="flex flex-row py-2 gap-3 items-center text-sm">
+              <Label className={""}>Enable Posting</Label>
+              <Switch
+                name="postIsEnabled"
+                id={`${agent.agentId}-postIsEnabled`}
+                checked={formData.postSettings.isEnabled}
+                onChange={(value) => handleEnableChange("post", value)}
+                className={
+                  "group inline-flex h-6 w-11 items-center rounded-full bg-gray-600 transition data-[checked]:bg-violet-600 data-[disabled]:opacity-50"
+                }
+              >
+                <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
+              </Switch>
+            </Field>
+            {/* SCHEDULE section */}
+            <Fieldset className="py-2 items-center">
+              <Legend className="text-md block">Schedule</Legend>
+              <div className="flex flex-wrap items-center">
+                <div>
+                  {/* Time */}
+                  <TimeInput
+                    name="time"
+                    label="Time"
+                    id={`${agent.agentId}-time`}
+                    required
+                    value={formData.postSettings.time}
+                    onChange={handleChange}
+                    min="00:00"
+                    max="23:59"
+                    // className=""
+                  />
+                </div>
+                {/* TIMEZONE */}
 
-              {/* DAYS section */}
-              <div className="flex flex-row my-1 mx-2 gap-1">
-                {days.map((day) => {
-                  return (
-                    <Checkbox
-                      key={agent.agentId + day.value}
-                      checked={formData.postSettings.daysOfWeek.includes(
-                        day.value
-                      )}
-                      disabled={
-                        formData.postSettings.daysOfWeek.length >= maxDays &&
-                        !formData.postSettings.daysOfWeek.includes(day.value)
-                      }
-                      onChange={(checked) => {
-                        handleDaysChange(day.value, checked);
-                      }}
-                      className="group size-8 items-center justify-center flex rounded-full border-1  bg-white data-[checked]:bg-violet-500 data-[disabled]:opacity-70 data-[disabled]:bg-gray-100"
-                    >
-                      {day.abbr}
-                    </Checkbox>
-                  );
-                })}
+                <Field className="mr-2 relative">
+                  <Select
+                    name="timezone"
+                    id={`${agent.agentId}-timezone`}
+                    required
+                    onChange={handleTimezoneChange}
+                    value={formData.postSettings.timezone}
+                    className={"pt-5 pb-4 rounded-none"}
+                  >
+                    {timezones.map((timezone) => (
+                      <option key={timezone.timezone} value={timezone.timezone}>
+                        {timezone.label}
+                      </option>
+                    ))}
+                  </Select>
+                  <FloatingLabel htmlFor={`${agent.agentId}-timezone`}>
+                    Timezone
+                  </FloatingLabel>
+                </Field>
+
+                {/* DAYS section */}
+                <div className="flex flex-row my-1 mx-2 gap-1">
+                  {days.map((day) => {
+                    return (
+                      <Checkbox
+                        key={agent.agentId + day.value}
+                        checked={formData.postSettings.daysOfWeek.includes(
+                          day.value
+                        )}
+                        disabled={
+                          formData.postSettings.daysOfWeek.length >= maxDays &&
+                          !formData.postSettings.daysOfWeek.includes(day.value)
+                        }
+                        onChange={(checked) => {
+                          handleDaysChange(day.value, checked);
+                        }}
+                        className="group size-8 items-center justify-center flex rounded-full border-1  bg-white data-[checked]:bg-violet-500 data-[disabled]:opacity-70 data-[disabled]:bg-gray-100"
+                      >
+                        {day.abbr}
+                      </Checkbox>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-
-            <div className="flex flex-row justify-between">
-              <div className="flex"></div>
-            </div>
+            </Fieldset>
           </Fieldset>
           {/* PERSONALITY section */}
-          <Fieldset disabled={!isEditable} className={"flex flex-col gap-2 "}>
-            <Field
-              className={
-                "flex flex-row gap-4 items-center focus:outline-solid py-2"
-              }
-            >
-              <div className="flex flex-row justify-start gap-4 items-baseline">
-                <Label className={"py-1 font-semibold"}>
-                  <p>Max Words per Post</p>
-                </Label>
+
+          <Fieldset className={"my-4"}>
+            <Legend className={"block font-semibold"}>
+              Writing Personality
+            </Legend>
+            <div className="flex">
+              <Field className="relative">
+                <Input
+                  type="number"
+                  name="postSettings.maxWords"
+                  id={`${agent.agentId}-maxWords`}
+                  required
+                  min={minWordCount}
+                  max={maxWordCount}
+                  placeholder={String(formData.postSettings.maxWords) || " "}
+                  value={formData.postSettings.maxWords}
+                  onChange={handleChange}
+                  className="max-w-fit min-w-24 block w-full px-4 pt-5 pb-2.5 rounded-md font-medium focus:outline-none peer"
+                />
+                <FloatingLabel htmlFor={`${agent.agentId}-maxWords`}>
+                  Word Limit
+                </FloatingLabel>
+              </Field>
+
+              <div className="relative w-full">
+                <Field className="w-full">
+                  {/* <Description className={"text-sm/6"}>
+                    Describe the agent's writing style.
+                    </Description> */}
+
+                  <Textarea
+                    rows={5}
+                    name="postSettings.personality"
+                    id={`${agent.agentId}-personality`}
+                    placeholder={formData.postSettings.personality}
+                    maxLength={1000}
+                    value={formData.postSettings.personality}
+                    onChange={handleChange}
+                    className={
+                      "block w-full mx-2 pt-8 px-2 pb-2 rounded-md leading-tight peer"
+                    }
+                  />
+                  <FloatingLabel htmlFor={`${agent.agentId}-personality`} className="text-xl">
+                    Describe the writing style.
+                  </FloatingLabel>
+                </Field>
               </div>
-
-              <Input
-                type="number"
-                name="maxWords"
-                id={`${agent.agentId}-maxWords`}
-                required
-                min={minWordCount}
-                max={maxWordCount}
-                placeholder={String(formData.postSettings.maxWords) || "1500"}
-                value={formData.postSettings.maxWords}
-                onChange={handleChange}
-                className={
-                  "border data-[disabled]:border-none data-[disabled]:bg-transparent bg-white py-1 px-2 leading-tight focus:outline-none rounded-md max-h-10 data-[disabled]:text-gray-500"
-                }
-              />
-              <Description className={"text-sm/6 data-[disabled]:hidden"}>
-                Choose between {minWordCount} and {maxWordCount} words.
-              </Description>
-            </Field>
-
-            <Field className="py-2">
-              <div className="flex flex-row justify-start gap-4 items-baseline">
-                <Label className={"font-semibold"}>Personality</Label>
-                <Description className={"text-sm/6 data-[disabled]:hidden"}>
-                  Describe the agent's writing style.
-                </Description>
-              </div>
-
-              <Textarea
-                rows={5}
-                name="personality"
-                id={`${agent.agentId}-personality`}
-                placeholder={formData.postSettings.personality}
-                autoComplete="lastName"
-                maxLength={1000}
-                value={formData.postSettings.personality}
-                onChange={handlePersonalityChange}
-                className={
-                  "border w-full mr-3 py-1 px-2 leading-tight focus:outline-solid rounded-sm data-[disabled]:bg-transparent data-[disabled]:border-none"
-                }
-              />
-            </Field>
+            </div>
           </Fieldset>
           <Button
             onClick={() => setIsDeleteVisible(!isDeleteVisible)}

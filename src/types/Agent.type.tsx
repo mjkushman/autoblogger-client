@@ -6,6 +6,10 @@ export type Agent = {
   lastName: string;
   email: string;
   isEnabled: boolean;
+  llm: {
+    model: "chatgpt" | "claude";
+    apiKey: string;
+  },
   postSettings: {
     llm: string;
     maxWords: number;
@@ -29,6 +33,10 @@ export type AgentFormData = {
   lastName?: string;
   email?: string;
   username?: string;
+  llm: {
+    model: "chatgpt" | "claude";
+    apiKey: string;
+  },
   postSettings: {
     isEnabled?: boolean;
     personality?: string;
