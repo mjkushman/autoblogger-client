@@ -14,12 +14,13 @@ import {
 import {
   Button,
   FloatingLabel,
-  InputField,
+  LabeledInput,
   Select,
   TimeInput,
 } from "@/components";
 
 import timezones from "@/app/fixtures/timezones";
+import models from "@/app/fixtures/llmModels";
 import { Agent } from "@/types";
 import { AgentFormData } from "@/types";
 
@@ -63,23 +64,26 @@ export const AgentSettingsForm = ({
 
   const [isEditable, setIsEditable] = useState(false);
   const [isDeleteVisible, setIsDeleteVisible] = useState(false);
+  const [isApiKeyVisibile, setIsApiKeyVisibile] = useState<boolean>(false);
 
   const isDataChanged =
     JSON.stringify(formData) !== JSON.stringify(initialFormData);
 
-
-
-  function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  function handleChange(
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) {
     const { name, value } = event.target;
-    const namePath = name.split('.'); // e.g., 'postSettings.time' -> ['postSettings', 'time']
-  
+    const namePath = name.split("."); // e.g., 'postSettings.time' -> ['postSettings', 'time']
+
     setFormData((prevFormData: AgentFormData): AgentFormData => {
       // Use a helper function to update the nested field
       const updatedFormData = updateNestedField(prevFormData, namePath, value);
       return updatedFormData;
     });
   }
-  
+
   // Helper function to immutably update a nested field using recursion
   function updateNestedField(
     obj: Record<string | any>, // Generic object
@@ -87,21 +91,22 @@ export const AgentSettingsForm = ({
     value: any // New value
   ): Record<string, any> {
     const [currentKey, ...remainingKeys] = keys;
-  
+
     if (remainingKeys.length === 0) {
       // Base case: update the final key
       return { ...obj, [currentKey]: value };
     }
-  
+
     // Recursive case: traverse deeper
     return {
       ...obj,
-      [currentKey]: updateNestedField(obj[currentKey] || {}, remainingKeys, value),
+      [currentKey]: updateNestedField(
+        obj[currentKey] || {},
+        remainingKeys,
+        value
+      ),
     };
-
   }
-
-
 
   // const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   const { value } = e.target;
@@ -178,16 +183,19 @@ export const AgentSettingsForm = ({
     }
   };
 
-  const handleTimezoneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
-    setFormData((formData) => ({
-      ...formData,
-      postSettings: { ...formData.postSettings, timezone: value },
-    }));
-  };
+  // deprecated
+  //
+  // const handleTimezoneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const { value } = e.target;
+  //   setFormData((formData) => ({
+  //     ...formData,
+  //     postSettings: { ...formData.postSettings, timezone: value },
+  //   }));
+  // };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>):  
-  Promise<void> => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
     if (JSON.stringify(formData) !== JSON.stringify(initialFormData))
       updateAgent(formData);
@@ -208,7 +216,7 @@ export const AgentSettingsForm = ({
           {/* BASIC SETTINGS */}
           <div className=" flex flex-row justify-between items-center">
             <h3 className="py-2 text-2xl font-semibold">
-              {agent.firstName} Settings
+              {agent.firstName}
             </h3>
 
             <div>
@@ -244,96 +252,127 @@ export const AgentSettingsForm = ({
           <Fieldset>
             <Legend className={"block font-semibold"}>Basic Info</Legend>
             <div className={"flex flex-wrap gap-1 my-0"}>
-              <InputField
-                type="text"
-                name="firstName"
-                label="First Name"
-                id={`${agent.agentId}-firstName`}
-                required
-                autoComplete="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-              />
+              <Field className={"relative flex-grow"}>
+                <LabeledInput
+                  type="text"
+                  name="firstName"
+                  label="First Name"
+                  id={`${agent.agentId}-firstName`}
+                  required
+                  autoComplete="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                />
+              </Field>
 
-              <InputField
-                type="text"
-                name="lastName"
-                label="Last Name"
-                id={`${agent.agentId}-lastName`}
-                autoComplete="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-              />
+              <Field className={"relative flex-grow"}>
+                <LabeledInput
+                  type="text"
+                  name="lastName"
+                  label="Last Name"
+                  id={`${agent.agentId}-lastName`}
+                  autoComplete="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+              </Field>
+              <Field className={"relative flex-grow"}>
+                <LabeledInput
+                  type="text"
+                  name="username"
+                  label="Username"
+                  id={`${agent.agentId}-username`}
+                  required
+                  autoComplete="Username"
+                  value={formData.username}
+                  onChange={handleChange}
+                />
+              </Field>
+              <Field className={"relative flex-grow"}>
+                <LabeledInput
+                  type="text"
+                  name="email"
+                  label="Email"
+                  id={`${agent.agentId}-email`}
+                  required
+                  autoComplete="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </Field>
+              <Field className="relative flex-grow-0">
+                <Select
+                  name="llm.model"
+                  id={`${agent.agentId}-model`}
+                  required
+                  onChange={handleChange}
+                  value={formData.llm.model}
+                  className={"pt-5 pb-3 rounded-md text-sm"}
+                >
+                  {models.map((model) => (
+                    <option key={model.model} value={model.model}>
+                      {model.label}
+                    </option>
+                  ))}
+                </Select>
+                <FloatingLabel htmlFor={`${agent.agentId}-mdoel`}>
+                  LLM
+                </FloatingLabel>
+              </Field>
 
-              <InputField
-                type="username"
-                name="username"
-                label="Username"
-                id={`${agent.agentId}-username`}
-                required
-                autoComplete="Username"
-                value={formData.username}
-                onChange={handleChange}
-              />
-
-              <InputField
-                type="text"
-                name="email"
-                label="Email"
-                id={`${agent.agentId}-email`}
-                required
-                autoComplete="email"
-                value={formData.email}
-                onChange={handleChange}
-              />
+              <Field className={"relative flex-grow"}>
+                <LabeledInput
+                  type={isApiKeyVisibile ? "text" : "password"}
+                  name="llm.apiKey"
+                  label={`${formData.llm.model} API Key`}
+                  id={`${agent.agentId}-apiKey`}
+                  required
+                  value={formData.llm.apiKey}
+                  onChange={handleChange}
+                  className=""
+                />
+              </Field>
+              <Button
+                variant="secondary"
+                className={"p-10"}
+                onClick={() => setIsApiKeyVisibile(!isApiKeyVisibile)}
+              >
+                {isApiKeyVisibile ? "Hide" : "Show"}
+              </Button>
             </div>
           </Fieldset>
 
           {/* POSTING SETTINGS*/}
           <Fieldset className={"my-4"}>
             <Legend className={"block font-semibold"}>Post settings</Legend>
-            <Field className="flex flex-row py-2 gap-3 items-center text-sm">
-              <Label className={""}>Enable Posting</Label>
-              <Switch
-                name="postIsEnabled"
-                id={`${agent.agentId}-postIsEnabled`}
-                checked={formData.postSettings.isEnabled}
-                onChange={(value) => handleEnableChange("post", value)}
-                className={
-                  "group inline-flex h-6 w-11 items-center rounded-full bg-gray-600 transition data-[checked]:bg-violet-600 data-[disabled]:opacity-50"
-                }
-              >
-                <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-              </Switch>
-            </Field>
-            {/* SCHEDULE section */}
-            <Fieldset className="py-2 items-center">
-              <Legend className="text-md block">Schedule</Legend>
-              <div className="flex flex-wrap items-center">
-                <div>
-                  {/* Time */}
-                  <TimeInput
-                    name="time"
-                    label="Time"
-                    id={`${agent.agentId}-time`}
-                    required
-                    value={formData.postSettings.time}
-                    onChange={handleChange}
-                    min="00:00"
-                    max="23:59"
-                    // className=""
-                  />
-                </div>
+            <div className="flex gap-1 my-1 items-center">
+              {/* SCHEDULE section */}
+              {/* <Fieldset className="py-2 items-center"> */}
+              {/* <Legend className="text-md">Schedule</Legend> */}
+              <div className="flex flex-wrap">
+                {/* Time */}
+                <TimeInput
+                  name="time"
+                  label="Time"
+                  id={`${agent.agentId}-time`}
+                  required
+                  value={formData.postSettings.time}
+                  onChange={handleChange}
+                  min="00:00"
+                  max="23:59"
+                  // className=""
+                />
+
                 {/* TIMEZONE */}
 
                 <Field className="mr-2 relative">
                   <Select
-                    name="timezone"
+                    name="postSettings.timezone"
                     id={`${agent.agentId}-timezone`}
                     required
-                    onChange={handleTimezoneChange}
+                    onChange={handleChange}
                     value={formData.postSettings.timezone}
-                    className={"pt-5 pb-4 rounded-none"}
+                    className={"pt-5 pb-4 rounded-md"}
                   >
                     {timezones.map((timezone) => (
                       <option key={timezone.timezone} value={timezone.timezone}>
@@ -345,32 +384,48 @@ export const AgentSettingsForm = ({
                     Timezone
                   </FloatingLabel>
                 </Field>
-
-                {/* DAYS section */}
-                <div className="flex flex-row my-1 mx-2 gap-1">
-                  {days.map((day) => {
-                    return (
-                      <Checkbox
-                        key={agent.agentId + day.value}
-                        checked={formData.postSettings.daysOfWeek.includes(
-                          day.value
-                        )}
-                        disabled={
-                          formData.postSettings.daysOfWeek.length >= maxDays &&
-                          !formData.postSettings.daysOfWeek.includes(day.value)
-                        }
-                        onChange={(checked) => {
-                          handleDaysChange(day.value, checked);
-                        }}
-                        className="group size-8 items-center justify-center flex rounded-full border-1  bg-white data-[checked]:bg-violet-500 data-[disabled]:opacity-70 data-[disabled]:bg-gray-100"
-                      >
-                        {day.abbr}
-                      </Checkbox>
-                    );
-                  })}
-                </div>
               </div>
-            </Fieldset>
+              {/* DAYS section */}
+              <div className="flex flex-row flex-wrap gap-1">
+                {days.map((day) => {
+                  return (
+                    <Checkbox
+                      key={agent.agentId + day.value}
+                      checked={formData.postSettings.daysOfWeek && formData.postSettings.daysOfWeek.includes(
+                        day.value
+                      )}
+                      disabled={
+                        formData.postSettings.daysOfWeek &&
+                        formData.postSettings.daysOfWeek.length >= maxDays &&
+                        !formData.postSettings.daysOfWeek.includes(day.value)
+                      }
+                      onChange={(checked) => {
+                        handleDaysChange(day.value, checked);
+                      }}
+                      className="size-8 items-center justify-center flex rounded-full border-1  bg-white data-[checked]:bg-violet-500 data-[disabled]:opacity-70 data-[disabled]:bg-gray-100"
+                    >
+                      {day.abbr}
+                    </Checkbox>
+                  );
+                })}
+              </div>
+              <Field className="flex flex-row gap-3 items-center text-md mx-2">
+                <Label className={"font-bold"}>Enable Posting</Label>
+                <Switch
+                  name="postIsEnabled"
+                  id={`${agent.agentId}-postIsEnabled`}
+                  checked={formData.postSettings.isEnabled}
+                  onChange={(value) => handleEnableChange("post", value)}
+                  className={
+                    "group inline-flex h-6 w-11 items-center rounded-full bg-gray-600 transition data-[checked]:bg-violet-600 data-[disabled]:opacity-50"
+                  }
+                >
+                  <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
+                </Switch>
+              </Field>
+            </div>
+
+            {/* </Fieldset> */}
           </Fieldset>
           {/* PERSONALITY section */}
 
@@ -415,7 +470,10 @@ export const AgentSettingsForm = ({
                       "block w-full mx-2 pt-8 px-2 pb-2 rounded-md leading-tight peer"
                     }
                   />
-                  <FloatingLabel htmlFor={`${agent.agentId}-personality`} className="text-xl">
+                  <FloatingLabel
+                    htmlFor={`${agent.agentId}-personality`}
+                    className="text-xl"
+                  >
                     Describe the writing style.
                   </FloatingLabel>
                 </Field>
