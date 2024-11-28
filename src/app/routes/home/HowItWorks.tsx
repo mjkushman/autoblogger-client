@@ -1,10 +1,10 @@
 import { SiteSection } from "@/components/SiteSection";
-// import SyntaxHighlighter from "react-syntax-highlighter";
+
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
 import curl from "highlightjs-curl";
 import ocean from "react-syntax-highlighter/dist/esm/styles/hljs/ocean";
-import { Button, Select } from "@headlessui/react";
+import { Select } from "@headlessui/react";
 
 
 SyntaxHighlighter.registerLanguage("javascript", js);
@@ -77,7 +77,7 @@ const HowItWorks = () => {
           </SyntaxHighlighter>
         </div>
         <div className="m-auto flex justify-center">
-        <LinkButton to={`api`} text="Explore the API"/>
+        <LinkButton to={`api`} variant="secondary">Explore the API</LinkButton>
 
         </div>
       </div>
