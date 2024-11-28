@@ -1,7 +1,7 @@
 import { blogs } from "@/app/fixtures/blogs";
 
 import { SiteSection } from "@/components/SiteSection";
-import {LinkButton} from "@/components";
+import { LinkButton } from "@/components";
 
 export const BlogExamples = () => {
   return (
@@ -29,11 +29,7 @@ export const BlogExamples = () => {
             </div>
             <div className="mt-3 flex items-center m-auto">
               <p className="text-gray-100">
-                <LinkButton
-                  to={blog.href}
-                  text={blog.title}
-                  lightTheme={false}
-                />
+                <LinkButton to={blog.href}>{blog.title}</LinkButton>
               </p>
             </div>
           </div>
@@ -48,11 +44,9 @@ export const BlogExamples = () => {
           </p>
           <div className="mt-3 flex items-center m-auto">
             <p className="text-gray-100">
-              <LinkButton
-                to="mailto:blogs@autoblogger.dev"
-                text="Send me your blog"
-                lightTheme={false}
-              />
+              <LinkButton to="mailto:blogs@autoblogger.dev">
+                Send me your blog
+              </LinkButton>
             </p>
           </div>
         </div>

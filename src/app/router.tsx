@@ -1,10 +1,5 @@
 import { Suspense, useContext } from "react";
-import {
-  createBrowserRouter,
-  Navigate,
-  Outlet,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
 import { UserContext } from "./provider";
 import { User } from "@/types";
@@ -14,6 +9,7 @@ import { AccountRoot } from "@/app/routes/account";
 import { NewAgent } from "@/app/routes/account/new-agent";
 import { ApiResponse } from "@/types/Api.type";
 import { Loading } from "@/components/Loading";
+import { siteLinks } from "@/utils/siteLinks";
 
 // type Props = {
 //   user: User | null
@@ -66,7 +62,7 @@ const createAppRouter = (user: User) => {
           ],
         },
         {
-          path: "api",
+          path: siteLinks.api.path,
           lazy: async () => {
             const { Redoc } = await import("./routes/redoc");
             return { Component: Redoc };
@@ -75,21 +71,11 @@ const createAppRouter = (user: User) => {
       ],
     },
     {
-      path: "/auth",
-      element: <Outlet />,
-      children: [
-        {
-          path: "",
-          element: <Navigate to="/auth/login" replace />, // redirects home
-        },
-        {
-          path: "login",
-          lazy: async () => {
-            const { LoginRoute } = await import("./routes/auth/login");
-            return { Component: LoginRoute };
-          },
-        },
-      ],
+      path: siteLinks.auth.path,
+      lazy: async () => {
+        const { LoginRoute } = await import("./routes/auth");
+        return { Component: LoginRoute };
+      },
     },
 
     // catch all not found routes

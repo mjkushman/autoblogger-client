@@ -9,7 +9,7 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
-import { NavBarLink } from "@/types";
+import {navLinks, signedInNavLinks, signedOutNavLinks } from "@/utils/siteLinks";
 
 export const Navbar = () => {
   const { user, setToken } = useContext(UserContext);
@@ -28,18 +28,18 @@ export const Navbar = () => {
     setCurrentUser(user);
   }, [user]);
 
-  const navLinks: NavBarLink[] = [
-    { label: "Home", to: "/", key: 1 },
-    { label: "API", to: `api`, key: 2 },
-  ];
+  // const navLinks: NavBarLink[] = [
+  //   { label: "Home", to: "/", key: 1 },
+  //   { label: "API", to: `api`, key: 2 },
+  // ];
 
-  const signedInNavLinks: NavBarLink[] = [
-    { label: "Account", to: "/account", key: 3 },
-  ];
-  const signedOutNavLinks: NavBarLink[] = [
-    { label: "Get Started", to: "/auth/login", key: 4 },
-    { label: "Sign In", to: "/auth/login", key: 5 },
-  ];
+  // const signedInNavLinks: NavBarLink[] = [
+  //   { label: "Account", to: "/account", key: 3 },
+  // ];
+  // const signedOutNavLinks: NavBarLink[] = [
+  //   { label: "Get Started", to: "/auth/login", key: 4 },
+  //   { label: "Sign In", to: "/auth/login", key: 5 },
+  // ];
 
   return (
     <nav className="bg-transparent dark:border-gray-700 max-w-4xl mx-auto">
@@ -54,10 +54,10 @@ export const Navbar = () => {
         </NavLink>
 
         <div className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-inherit md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 ">
-          {navLinks.map(({ label, to, key }) => (
+          {navLinks.map(({ label, path, id }) => (
             <NavLink
-              key={key}
-              to={to}
+              key={id}
+              to={path}
               className={
                 "block py-2 px-3 rounded md:bg-transparent md:p-0 md:dark:bg-transparent aria-[current=page]:text-violet-700"
               }
@@ -67,10 +67,10 @@ export const Navbar = () => {
           ))}
 
           {!currentUser &&
-            signedOutNavLinks.map(({ label, to, key }) => (
+            signedOutNavLinks.map(({ label, path, id }) => (
               <NavLink
-                key={key}
-                to={to}
+                key={id}
+                to={path}
                 className={
                   "block py-2 px-3 rounded md:bg-transparent md:p-0 md:dark:bg-transparent aria-[current=page]:text-violet-700"
                 }
@@ -108,11 +108,11 @@ export const Navbar = () => {
                     anchor="bottom"
                     className="font-normal py-2 text-sm text-gray-700 dark:text-gray-400 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 group-hover:block"
                   >
-                    {signedInNavLinks.map(({ label, to, key }) => (
-                      <MenuItem key={key}>
+                    {signedInNavLinks.map(({ label, path, id }) => (
+                      <MenuItem key={id}>
                         <NavLink
-                          key={key}
-                          to={to}
+                          key={id}
+                          to={path}
                           className="block px-4 py-2 hover:bg-gray-100 aria-[current=page]:text-violet-700 text-center m-auto"
                         >
                           {label}

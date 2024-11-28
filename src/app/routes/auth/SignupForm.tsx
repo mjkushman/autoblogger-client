@@ -1,8 +1,9 @@
 import { useState, useContext } from "react";
-import { Field, Fieldset, Input, Label } from "@headlessui/react";
+import { Field, Fieldset } from "@headlessui/react";
 import { AuthService } from "@/utils/authService";
 import { UserContext } from "@/app/provider";
 import { useNavigate } from "react-router";
+import { Button, LabeledInput } from "@/components";
 
 export const SignupForm = () => {
   const { setToken } = useContext(UserContext);
@@ -58,115 +59,82 @@ export const SignupForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm my-2  rounded-md px-8"
+      className="w-full max-w-sm my-6  rounded-md px-8"
     >
       <Fieldset className={"flex flex-col gap-2"}>
-        <Field>
-          <Label
-            className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
-          >
-            First Name
-          </Label>
-          <Input
+        <Field className={"relative"}>
+          <LabeledInput
             type="text"
             name="firstName"
             id="firstName"
+            label="First Name"
             required
-            placeholder="Clark"
             autoComplete="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            className={
-              "bg-transparent border border-violet-900  w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg h-10 "
-            }
+            className={"border border-violet-900 text-lg"}
           />
         </Field>
 
-        <Field>
-          <Label
-            className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
-          >
-            Last Name
-          </Label>
-          <Input
+        <Field className={"relative"}>
+          <LabeledInput
             type="text"
             name="lastName"
             id="lastName"
-            placeholder="Kent"
+            label="Last Name"
             autoComplete="lastName"
             value={formData.lastName}
             onChange={handleChange}
-            className={
-              "bg-transparent border border-violet-900  w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg h-10 "
-            }
+            className={"border border-violet-900 text-lg"}
           />
         </Field>
-        <Field>
-          <Label
-            className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
-          >
-            Email
-          </Label>
-          <Input
+        <Field className={"relative"}>
+          <LabeledInput
             type="text"
             name="email"
             id="email"
-            required
+            label="Email"
             autoComplete="email"
-            placeholder="your@email.com"
+
             value={formData.email}
             onChange={handleChange}
-            className={
-              "bg-transparent border border-violet-900  w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg h-10"
-            }
+            className={"border border-violet-900 text-lg"}
           />
         </Field>
-        <Field>
-          <Label
-            className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
-          >
-            Password
-          </Label>
-          <Input
+        <Field className={"relative"}>
+
+          <LabeledInput
             type="password"
             name="password"
             id="password"
+            label="Password"
             required
-            placeholder="password"
+            
             autoComplete="new-password"
             value={formData.password}
             onChange={handleChange}
-            className={
-              "bg-transparent border border-violet-900  w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg h-10"
-            }
+            className={"border border-violet-900 text-lg"}
           />
         </Field>
-        <Field>
-          <Label
-            className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
-          >
-            Verify Password
-          </Label>
-          <Input
+        <Field className={"relative"}>
+          <LabeledInput
             type="password"
             name="verifyPassword"
             id="verifyPassword"
-            placeholder="verify password"
+            label="Verify Password"
             autoComplete="new-password"
             value={formData.verifyPassword}
             onChange={handleChange}
-            className={
-              "bg-transparent border border-violet-900  w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg h-10"
-            }
+            className={"border border-violet-900 text-lg"}
           />
         </Field>
       </Fieldset>
-      <button
+      <Button
         formAction="submit"
-        className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-8"
+        className="my-8"
       >
         Get API Key
-      </button>
+      </Button>
     </form>
   );
 };

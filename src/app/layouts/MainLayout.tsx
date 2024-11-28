@@ -3,8 +3,6 @@ import { Outlet } from "react-router";
 
 
 export const MainLayout = () => {
-  console.log("Rendering MainLayout ");
-
   return (
     <div className="bg-gray-50 p-0 text-gray-950 leading-relaxed">
       <div className="mx-auto">

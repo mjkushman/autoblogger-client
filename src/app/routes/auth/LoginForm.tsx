@@ -1,8 +1,9 @@
 import { useState, useContext } from "react";
-import { Field, Fieldset, Input, Label } from "@headlessui/react";
+import { Field, Fieldset} from "@headlessui/react";
 import { AuthService } from "@/utils/authService";
 import { useNavigate } from "react-router";
 import { UserContext } from "@/app/provider";
+import { Button, LabeledInput } from "@/components";
 
 export const LoginForm = (): React.ReactElement => {
   const initialFormData = {
@@ -14,7 +15,7 @@ export const LoginForm = (): React.ReactElement => {
   };
 
   const userContext = useContext(UserContext);
-  const setToken = userContext?.setToken
+  const setToken = userContext?.setToken;
 
   const navigate = useNavigate();
   const handleSubmit = async (
@@ -50,56 +51,44 @@ export const LoginForm = (): React.ReactElement => {
     <>
       <form
         onSubmit={handleSubmit}
-        className={"w-full max-w-sm my-2  rounded-md px-8"}
+        className={"w-full max-w-sm my-6 rounded-md px-8"}
       >
         <Fieldset className={"flex flex-col gap-2"}>
-          <Field>
-            <Label
-              className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
-            >
-              Email
-            </Label>
-            <Input
+          <Field className={"relative"}>
+            <LabeledInput
               type="text"
               name="email"
               id="email"
+              label="Email"
               required
               autoComplete="email"
-              placeholder="your@email.com"
               value={formData.email}
               onChange={handleChange}
               className={
-                "bg-transparent border border-violet-900  w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg h-10 "
+                " border border-violet-900  w-full text-lg "
               }
             />
           </Field>
-          <Field>
-            <Label
-              className={"flex justify-start text-sm text-gray-700 px-2 py-1"}
-            >
-              Password
-            </Label>
-            <Input
+          <Field className={"relative"}>
+            <LabeledInput
               type="password"
               name="password"
               id="password"
+              label="Password"
               required
-              placeholder="password"
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              className={
-                "bg-transparent border border-violet-900  w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none rounded-md text-lg h-10 "
-              }
+              className={"border border-violet-900 text-lg"}
             />
           </Field>
         </Fieldset>
-        <button
+        <Button
           formAction="submit"
           className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-8"
         >
           Sign in
-        </button>
+        </Button>
       </form>
     </>
   );
