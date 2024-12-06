@@ -1,8 +1,6 @@
 import { Account } from "@/types";
 import React, {
-  ReactEventHandler,
   useContext,
-  useEffect,
   useState,
 } from "react";
 import api from "@/utils/api";
@@ -12,16 +10,11 @@ import { AuthService } from "@/utils/authService";
 import { UserContext } from "@/app/provider";
 import {
   Button,
-  Checkbox,
   Description,
   Field,
   Fieldset,
   Input,
   Label,
-  Legend,
-  Select,
-  Switch,
-  Textarea,
 } from "@headlessui/react";
 import { AccountFormData } from "@/types/Account.type";
 import { LabeledInput, Button as StyledButton } from "@/components";
@@ -34,8 +27,6 @@ type Props = {
 export const AccountSettings = ({ account, updateAccount }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isApiKeyVisibile, setIsApiKeyVisibile] = useState<boolean>(false);
-  const [isOpenAIApiKeyVisibile, setIsOpenAIApiKeyVisibile] =
-    useState<boolean>(false);
   const [isDeleteVisible, setIsDeleteVisible] = useState(false);
   const { setToken } = useContext(UserContext);
 
@@ -60,7 +51,6 @@ export const AccountSettings = ({ account, updateAccount }: Props) => {
     firstName: account.firstName,
     lastName: account.lastName,
     email: account.email,
-    openAiApiKey: account.openAiApiKey,
   };
 
   const [accountFormData, setAccountFormData] = useState(

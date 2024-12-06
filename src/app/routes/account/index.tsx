@@ -15,7 +15,7 @@ import { AccountApiResponse } from "@/types/Api.type";
 import api from "@/utils/api";
 import { Button } from "@headlessui/react";
 import { useEffect, useState } from "react";
-import { useLoaderData, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 type Props = {
   user: User;
