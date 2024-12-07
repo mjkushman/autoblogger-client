@@ -80,9 +80,7 @@ export const LoginForm = (): React.ReactElement => {
           </Field>
         </Fieldset>
         <Button
-          // Wny won't this button submit the form?
           type="submit"
-          onClick={(e) => console.log("button click", formData)}
           className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-8"
         >
           Sign in

@@ -1,4 +1,5 @@
 import {LinkButton} from "@/components";
+import { siteLinks } from "@/utils/siteLinks";
 
 export const GetStarted = () => {
   return (
@@ -7,11 +8,11 @@ export const GetStarted = () => {
         <div className="max-w-sm mx-auto py-4">
           <div className="grid grid-cols-2">
             <div>
-              <LinkButton to={`api`} variant="secondary">Explore the API</LinkButton>
+              <LinkButton to={siteLinks.api.path} variant="secondary">Explore the API</LinkButton>
             </div>
             <div>
               <LinkButton
-                to="auth/login"
+                to={siteLinks.auth.path}
               >Get API key</LinkButton>
             </div>
           </div>
