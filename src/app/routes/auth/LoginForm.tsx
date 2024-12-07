@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { Field, Fieldset} from "@headlessui/react";
+import { Field, Fieldset } from "@headlessui/react";
 import { AuthService } from "@/utils/authService";
 import { useNavigate } from "react-router";
 import { UserContext } from "@/app/provider";
@@ -7,20 +7,18 @@ import { Button, LabeledInput } from "@/components";
 
 export const LoginForm = (): React.ReactElement => {
   const initialFormData = {
-    firstName: "",
-    lastName: "",
     email: "",
     password: "",
-    verifyPassword: "",
   };
 
   const userContext = useContext(UserContext);
   const setToken = userContext?.setToken;
-
   const navigate = useNavigate();
+
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
+    console.log("form submit");
     e.preventDefault();
     try {
       AuthService.login(formData)
@@ -64,9 +62,7 @@ export const LoginForm = (): React.ReactElement => {
               autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              className={
-                " border border-violet-900  w-full text-lg "
-              }
+              className={" border border-violet-900  w-full text-lg "}
             />
           </Field>
           <Field className={"relative"}>
@@ -84,7 +80,9 @@ export const LoginForm = (): React.ReactElement => {
           </Field>
         </Fieldset>
         <Button
-          formAction="submit"
+          // Wny won't this button submit the form?
+          type="submit"
+          onClick={(e) => console.log("button click", formData)}
           className="bg-violet-900 text-gray-100 py-2 px-4 rounded-lg my-8"
         >
           Sign in

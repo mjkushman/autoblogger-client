@@ -130,7 +130,7 @@ export const SignupForm = () => {
         </Field>
       </Fieldset>
       <Button
-        formAction="submit"
+        type="submit"
         className="my-8"
       >
         Get API Key
