@@ -9,14 +9,16 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
-import {navLinks, signedInNavLinks, signedOutNavLinks } from "@/utils/siteLinks";
+import {
+  navLinks,
+  signedInNavLinks,
+  signedOutNavLinks,
+} from "@/utils/siteLinks";
 
 export const Navbar = () => {
   const { user, setToken } = useContext(UserContext);
   const [currentUser, setCurrentUser] = useState(user);
   const navigate = useNavigate();
-
-  // const [isHovered, setIsHovered] = useState(false);
 
   const handleLogout = () => {
     navigate("/");
@@ -27,20 +29,6 @@ export const Navbar = () => {
   useEffect(() => {
     setCurrentUser(user);
   }, [user]);
-
-  // const navLinks: NavBarLink[] = [
-  //   { label: "Home", to: "/", key: 1 },
-  //   { label: "API", to: `api`, key: 2 },
-  // ];
-
-  // const signedInNavLinks: NavBarLink[] = [
-  //   { label: "Account", to: "/account", key: 3 },
-  // ];
-  // const signedOutNavLinks: NavBarLink[] = [
-  //   { label: "Get Started", to: "/auth/login", key: 4 },
-  //   { label: "Sign In", to: "/auth/login", key: 5 },
-  // ];
-
   return (
     <nav className="bg-transparent dark:border-gray-700 max-w-4xl mx-auto">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
