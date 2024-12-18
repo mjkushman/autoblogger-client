@@ -118,18 +118,12 @@ export const AgentSettingsForm = ({
     { abbr: "Su", value: "sun", enabled: false },
   ];
 
-  const maxDays = 2; // max number of days per week that can be selected
   const minWordCount = 100;
   const maxWordCount = 10000;
 
   const handleDaysChange = (dayValue: string, checked: boolean) => {
     // if it's already selected OR total days < max, proceed to either select or unselect
-    const currentSelectedCount = formData?.postSettings?.daysOfWeek?.length;
-    // check if we are already at max days
-    if (checked && currentSelectedCount >= maxDays) {
-      console.log("already at max days");
-      return; // returns without doing more.
-    }
+
     // And update formData
     setFormData((formData) => {
       let currentDays: string[] = [...formData.postSettings.daysOfWeek];
@@ -372,7 +366,6 @@ export const AgentSettingsForm = ({
                       }
                       disabled={
                         formData.postSettings.daysOfWeek &&
-                        formData.postSettings.daysOfWeek.length >= maxDays &&
                         !formData.postSettings.daysOfWeek.includes(day.value)
                       }
                       onChange={(checked) => {
