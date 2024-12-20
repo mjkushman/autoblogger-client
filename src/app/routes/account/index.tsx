@@ -11,7 +11,7 @@ import {
   ApiResponse,
 } from "@/types";
 import { AccountFormData } from "@/types/Account.type";
-import { AccountApiResponse } from "@/types/Api.type";
+import { AccountApiResponse, PostsApiResponse, Post } from "@/types";
 import api from "@/utils/api";
 import { Button } from "@headlessui/react";
 import { useEffect, useState } from "react";
@@ -27,21 +27,32 @@ export const AccountRoot = ({ user }: Props) => {
 
   const [agents, setAgents] = useState<Agent[]>();
   const [account, setAccount] = useState<Account>();
+  const [posts, setPosts] = useState<Post[]>();
 
-  // get agents
-  const getAgents = async () => {
+  // show or hide New Agent form
+  const [isNewAgentFormVisible, setIsNewAgentFormVisible] = useState(false);
+
+  // fetch agents
+  const fetchAgents = async () => {
     const { data } = await api.get<AgentsApiResponse>("agents");
     setAgents(data);
   };
-  // get Account
-  const getAccount = async () => {
+  // fetch Account
+  const fetchAccount = async () => {
     const { data } = await api.get<AccountApiResponse>("accounts");
     setAccount(data);
   };
+  // fetch Account
+  const fetchPosts = async () => {
+    const { data } = await api.get<PostsApiResponse>("posts");
+    console.log('post fetch result:', data)
+    setPosts(data);
+  };
 
   useEffect(() => {
-    getAgents();
-    getAccount();
+    fetchAgents();
+    fetchAccount();
+    fetchPosts()
   }, [user]);
 
   useEffect(() => {
@@ -55,16 +66,27 @@ export const AccountRoot = ({ user }: Props) => {
     // Invoke API call
     try {
       await api.patch<AgentFormData, AgentApiResponse>(`agents`, formData);
-      getAgents();
+      fetchAgents();
     } catch (error) {
       console.log(`Failed to submit: ${error}`);
+    }
+  };
+
+  const createAgent = async (formData: AgentFormData): Promise<void> => {
+    try {
+      await api
+        .post<AgentFormData, AgentApiResponse>(`agents`, formData)
+        .then(() => setIsNewAgentFormVisible(false));
+      fetchAgents();
+    } catch (error) {
+      console.log(`Failed to create Agent: ${error}`);
     }
   };
 
   const deleteAgent = async (agentId: string) => {
     try {
       await api.delete<{ agentId: string }, ApiResponse>("agents", { agentId });
-      getAgents();
+      fetchAgents();
     } catch (error) {
       console.log("failed to delete:", error);
     }
@@ -72,14 +94,18 @@ export const AccountRoot = ({ user }: Props) => {
 
   const updateAccount = async (formData: AccountFormData) => {
     try {
-      const {data} = await api.patch<AccountFormData, AccountApiResponse>(
+      const { data } = await api.patch<AccountFormData, AccountApiResponse>(
         "accounts",
         formData
       );
-      setAccount( data);
+      setAccount(data);
     } catch (error) {
       console.log("failed to update account", error);
     }
+  };
+
+  const handleCreateAgentBtn = () => {
+    setIsNewAgentFormVisible(!isNewAgentFormVisible);
   };
 
   return (
@@ -103,13 +129,24 @@ export const AccountRoot = ({ user }: Props) => {
         <h1 className="pt-2 text-2xl font-semibold">Agents</h1>
 
         <Button
-          onClick={() => navigate("new-agent")}
+          onClick={handleCreateAgentBtn}
           disabled={account?.Agents?.length >= agentLimit}
           className="my-2 mx-4 px-4 py-2 rounded-xl bg-violet-800 text-gray-100 data-[disabled]:bg-gray-500"
         >
-          Create New Agent
+          {isNewAgentFormVisible ? "Cancel" : "Create New Agent"}
         </Button>
       </div>
+
+      {isNewAgentFormVisible && (
+        <div className="outline outline-amber-500 outline-2">
+        <AgentSettingsForm
+          agent={null}
+          createAgent={createAgent}
+          updateAgent={updateAgent}
+          deleteAgent={deleteAgent}
+        />
+        </div>
+      )}
 
       <div className="py-2 my-4">
         {agents ? (
@@ -120,6 +157,7 @@ export const AccountRoot = ({ user }: Props) => {
                 updateAgent={updateAgent}
                 deleteAgent={deleteAgent}
                 key={agent.agentId}
+                posts= {posts?.filter(p => p.agentId == agent.agentId)}
               />
             );
           })
@@ -127,7 +165,10 @@ export const AccountRoot = ({ user }: Props) => {
           <Loading />
         )}
       </div>
-      <div className="flex flex-auto m-auto justify-center"></div>
+      <div className="flex flex-auto m-auto justify-center">
+        FETCHED POSTS
+
+      </div>
     </div>
   );
 };

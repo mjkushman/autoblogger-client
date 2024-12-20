@@ -6,10 +6,11 @@ import { User } from "@/types";
 import api from "@/utils/api";
 import { RequireAuth } from "@/app/layouts/RequireAuth";
 import { AccountRoot } from "@/app/routes/account";
-import { NewAgent } from "@/app/routes/account/new-agent";
 import { ApiResponse } from "@/types/Api.type";
 import { Loading } from "@/components/Loading";
 import { siteLinks } from "@/utils/siteLinks";
+import Post from "@/components/PostView";
+import { type RouteConfig } from "";
 
 // type Props = {
 //   user: User | null
@@ -49,13 +50,16 @@ const createAppRouter = (user: User) => {
               },
             },
             {
-              path: "new-agent",
-              element: <NewAgent />,
-              loader: async () => {
-                if (!user || !user.accountId) return null;
+              path: ":postId",
+              element: (
+                <Suspense fallback={<Loading />}>
+                  <Post />
+                </Suspense>
+              ),
+              loader: async ({ params }) => {
                 const { data } = await api.get<Promise<ApiResponse>>(
-                  `accounts/`
-                ); // passes accountId as part of token
+                  `posts/${params.postId}`
+                );
                 return data;
               },
             },

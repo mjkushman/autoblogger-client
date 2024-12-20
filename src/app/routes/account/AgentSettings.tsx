@@ -21,40 +21,69 @@ import {
 
 import timezones from "@/app/fixtures/timezones";
 import models from "@/app/fixtures/llmModels";
-import { Agent } from "@/types";
-import { AgentFormData } from "@/types";
+import { Agent,Post } from "@/types";
+import { CreateAgentFormData, UpdateAgentFormData } from "@/types";
+import { Link } from "react-router-dom";
 
 type Props = {
-  agent: Agent;
-  updateAgent: (formData: AgentFormData) => Promise<void>;
+  agent: Agent | null;
+  updateAgent: (formData: UpdateAgentFormData) => Promise<void>;
   deleteAgent: (agentId: string) => Promise<void>;
+  createAgent: (formdata: CreateAgentFormData) => Promise<void>;
+  posts?: Post[]
 };
 
 export const AgentSettingsForm = ({
   agent,
   updateAgent,
   deleteAgent,
+  createAgent,
+  posts,
 }: Props) => {
   // I think I need to add a useEffect hook to update initial form data after submitting the form.
-  const initialFormData: AgentFormData = {
-    agentId: agent.agentId,
-    isEnabled: agent.isEnabled,
-    firstName: agent.firstName,
-    lastName: agent.lastName,
-    email: agent.email,
-    llm: {
-      model: agent.llm.model,
-      apiKey: agent.llm.apiKey,
-    },
-    username: agent.username,
-    postSettings: {
-      isEnabled: agent.postSettings.isEnabled,
-      personality: agent.postSettings.personality,
-      maxWords: agent.postSettings.maxWords,
-      time: agent.postSettings.time || "12:00",
-      daysOfWeek: agent.postSettings.daysOfWeek || ["mon", "wed"],
-      timezone: agent.postSettings.timezone || "America/Los_Angeles",
-    },
+  const initialFormData: UpdateAgentFormData | CreateAgentFormData = () => {
+    if (agent) {
+      return {
+        agentId: agent.agentId,
+        isEnabled: agent.isEnabled,
+        firstName: agent.firstName,
+        lastName: agent.lastName,
+        email: agent.email,
+        llm: {
+          model: agent.llm.model,
+          apiKey: agent.llm.apiKey,
+        },
+        username: agent.username,
+        postSettings: {
+          isEnabled: agent.postSettings.isEnabled,
+          personality: agent.postSettings.personality,
+          maxWords: agent.postSettings.maxWords,
+          time: agent.postSettings.time || "12:00",
+          daysOfWeek: agent.postSettings.daysOfWeek || [],
+          timezone: agent.postSettings.timezone || "America/Los_Angeles",
+        },
+      };
+    } else {
+      return {
+        isEnabled: false,
+        firstName: "",
+        lastName: "",
+        email: "",
+        llm: {
+          model: "chatgpt",
+          apiKey: "",
+        },
+        username: "",
+        postSettings: {
+          isEnabled: false,
+          personality: "",
+          maxWords: 500,
+          time: "",
+          daysOfWeek: [],
+          timezone: "",
+        },
+      };
+    }
   };
 
   const [isLoading, setIsLoading] = useState(false);
@@ -76,7 +105,7 @@ export const AgentSettingsForm = ({
   ) {
     const { name, value } = event.target;
     const namePath = name.split("."); // e.g., 'postSettings.time' -> ['postSettings', 'time']
-
+    console.log("handling change:", name, value, typeof value);
     setFormData((prevFormData: AgentFormData): AgentFormData => {
       // Use a helper function to update the nested field
       const updatedFormData = updateNestedField(prevFormData, namePath, value);
@@ -169,25 +198,29 @@ export const AgentSettingsForm = ({
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
-    if (JSON.stringify(formData) !== JSON.stringify(initialFormData))
-      updateAgent(formData);
+    if (isDataChanged) {
+      let { agentId } = formData;
+      if (agentId) updateAgent(formData);
+      else createAgent(formData);
+    }
+    // if agent has an ID, then update. Otherwise, create
   };
 
   const handleDelete = async () => {
-    console.log(`deleting ${agent.firstName}`);
-    deleteAgent(agent.agentId);
+    console.log(`deleting ${agent?.firstName}`);
+    deleteAgent(agent?.agentId);
   };
 
   return (
     <>
-      <div className="overflow-hidden bg-violet-50 my-4 rounded-xl sm:px-8 sm:drop-shadow-md border border-gray-300">
+      <div className="overflow-hidden bg-violet-50 mb-4 rounded-sm sm:px-8 border border-gray-300 transition">
         <form
           onSubmit={handleSubmit}
           className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800 "
         >
           {/* BASIC SETTINGS */}
           <div className=" flex flex-row justify-between items-center">
-            <h3 className="py-2 text-2xl font-semibold">{agent.firstName}</h3>
+            <h3 className="py-2 text-2xl font-semibold">{agent?.firstName}</h3>
 
             <div>
               <StyledButton
@@ -201,23 +234,6 @@ export const AgentSettingsForm = ({
             </div>
           </div>
 
-          {/* <Fieldset>
-            <Field className="gap-3 items-center flex flex-row my-1">
-              <Label className={"py-1 font-semibold"}>Enable Agent</Label>
-              <Switch
-                name="agentIsEnabled"
-                id={`${agent.agentId}-isEnabled`}
-                checked={formData.isEnabled}
-                onChange={(value) => handleEnableChange("agent", value)}
-                className={
-                  "group inline-flex h-6 w-11 items-center rounded-full bg-gray-600 transition data-[checked]:bg-violet-600 data-[disabled]:opacity-50"
-                }
-              >
-                <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-              </Switch>
-            </Field>
-          </Fieldset> */}
-
           {/* BASIC INFO */}
           <Fieldset>
             <Legend className={"block font-semibold"}>Basic Info</Legend>
@@ -227,7 +243,7 @@ export const AgentSettingsForm = ({
                   type="text"
                   name="firstName"
                   label="First Name"
-                  id={`${agent.agentId}-firstName`}
+                  id={`${agent?.agentId}-firstName`}
                   required
                   autoComplete="firstName"
                   value={formData.firstName}
@@ -240,7 +256,7 @@ export const AgentSettingsForm = ({
                   type="text"
                   name="lastName"
                   label="Last Name"
-                  id={`${agent.agentId}-lastName`}
+                  id={`${agent?.agentId}-lastName`}
                   autoComplete="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
@@ -251,7 +267,7 @@ export const AgentSettingsForm = ({
                   type="text"
                   name="username"
                   label="Username"
-                  id={`${agent.agentId}-username`}
+                  id={`${agent?.agentId}-username`}
                   required
                   autoComplete="Username"
                   value={formData.username}
@@ -263,7 +279,7 @@ export const AgentSettingsForm = ({
                   type="text"
                   name="email"
                   label="Email"
-                  id={`${agent.agentId}-email`}
+                  id={`${agent?.agentId}-email`}
                   required
                   autoComplete="email"
                   value={formData.email}
@@ -273,7 +289,7 @@ export const AgentSettingsForm = ({
               <Field className="relative flex-grow-0">
                 <Select
                   name="llm.model"
-                  id={`${agent.agentId}-model`}
+                  id={`${agent?.agentId}-model`}
                   required
                   onChange={handleChange}
                   value={formData.llm.model}
@@ -285,7 +301,7 @@ export const AgentSettingsForm = ({
                     </option>
                   ))}
                 </Select>
-                <FloatingLabel htmlFor={`${agent.agentId}-mdoel`}>
+                <FloatingLabel htmlFor={`${agent?.agentId}-mdoel`}>
                   LLM
                 </FloatingLabel>
               </Field>
@@ -295,7 +311,7 @@ export const AgentSettingsForm = ({
                   type={isApiKeyVisibile ? "text" : "password"}
                   name="llm.apiKey"
                   label={`${formData.llm.model} API Key`}
-                  id={`${agent.agentId}-apiKey`}
+                  id={`${agent?.agentId}-apiKey`}
                   required
                   value={formData.llm.apiKey}
                   onChange={handleChange}
@@ -321,11 +337,12 @@ export const AgentSettingsForm = ({
               <div className="flex flex-wrap">
                 {/* Time */}
                 <TimeInput
-                  name="time"
+                  name="postSettings.time"
                   label="Time"
-                  id={`${agent.agentId}-time`}
+                  id={`${agent?.agentId}-time`}
                   required
                   value={formData.postSettings.time}
+                  // value={"12:54"}
                   onChange={handleChange}
                   min="00:00"
                   max="23:59"
@@ -337,7 +354,7 @@ export const AgentSettingsForm = ({
                 <Field className="mr-2 relative">
                   <Select
                     name="postSettings.timezone"
-                    id={`${agent.agentId}-timezone`}
+                    id={`${agent?.agentId}-timezone`}
                     required
                     onChange={handleChange}
                     value={formData.postSettings.timezone}
@@ -349,7 +366,7 @@ export const AgentSettingsForm = ({
                       </option>
                     ))}
                   </Select>
-                  <FloatingLabel htmlFor={`${agent.agentId}-timezone`}>
+                  <FloatingLabel htmlFor={`${agent?.agentId}-timezone`}>
                     Timezone
                   </FloatingLabel>
                 </Field>
@@ -359,14 +376,10 @@ export const AgentSettingsForm = ({
                 {days.map((day) => {
                   return (
                     <Checkbox
-                      key={agent.agentId + day.value}
+                      key={agent?.agentId + day.value}
                       checked={
                         formData.postSettings.daysOfWeek &&
                         formData.postSettings.daysOfWeek.includes(day.value)
-                      }
-                      disabled={
-                        formData.postSettings.daysOfWeek &&
-                        !formData.postSettings.daysOfWeek.includes(day.value)
                       }
                       onChange={(checked) => {
                         handleDaysChange(day.value, checked);
@@ -382,7 +395,7 @@ export const AgentSettingsForm = ({
                 <Label className={"font-bold"}>Enable Posting</Label>
                 <Switch
                   name="postIsEnabled"
-                  id={`${agent.agentId}-postIsEnabled`}
+                  id={`${agent?.agentId}-postIsEnabled`}
                   checked={formData.postSettings.isEnabled}
                   onChange={(value) => handleEnableChange("post", value)}
                   className={
@@ -407,7 +420,7 @@ export const AgentSettingsForm = ({
                 <Input
                   type="number"
                   name="postSettings.maxWords"
-                  id={`${agent.agentId}-maxWords`}
+                  id={`${agent?.agentId}-maxWords`}
                   required
                   min={minWordCount}
                   max={maxWordCount}
@@ -416,7 +429,7 @@ export const AgentSettingsForm = ({
                   onChange={handleChange}
                   className="max-w-fit min-w-24 block w-full px-4 pt-5 pb-2.5 rounded-md font-medium focus:outline-none peer"
                 />
-                <FloatingLabel htmlFor={`${agent.agentId}-maxWords`}>
+                <FloatingLabel htmlFor={`${agent?.agentId}-maxWords`}>
                   Word Limit
                 </FloatingLabel>
               </Field>
@@ -430,7 +443,7 @@ export const AgentSettingsForm = ({
                   <Textarea
                     rows={5}
                     name="postSettings.personality"
-                    id={`${agent.agentId}-personality`}
+                    id={`${agent?.agentId}-personality`}
                     placeholder={formData.postSettings.personality}
                     maxLength={1000}
                     value={formData.postSettings.personality}
@@ -440,7 +453,7 @@ export const AgentSettingsForm = ({
                     }
                   />
                   <FloatingLabel
-                    htmlFor={`${agent.agentId}-personality`}
+                    htmlFor={`${agent?.agentId}-personality`}
                     className="text-xl"
                   >
                     Describe the writing style.
@@ -466,6 +479,16 @@ export const AgentSettingsForm = ({
             </Button>
           </span>
         </form>
+        <div className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800 ">
+          <h3 className="text-lg">Recent Posts</h3>
+          {posts &&
+          posts.map((p) => (
+            <div className="flex flex-row">
+              <p> {p.titlePlaintext}</p>
+              <Link to={p.postId}>View</Link>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );

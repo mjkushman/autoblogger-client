@@ -26,8 +26,12 @@ export type Agent = {
   updatedAt: Date;
 };
 
-export type AgentFormData = {
+
+export type UpdateAgentFormData = CreateAgentFormData & {
   agentId: string;
+}
+
+export type CreateAgentFormData = {
   isEnabled?: boolean;
   firstName?: string;
   lastName?: string;
