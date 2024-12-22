@@ -7,17 +7,15 @@ import {
   User,
   AgentsApiResponse,
   AgentApiResponse,
-  AgentFormData,
   UpdateAgentFormData,
   ApiResponse,
   CreateAgentFormData,
 } from "@/types";
 import { AccountFormData } from "@/types/Account.type";
-import { AccountApiResponse, PostsApiResponse, Post } from "@/types";
+import { AccountApiResponse} from "@/types";
 import api from "@/utils/api";
 import { Button } from "@headlessui/react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import Posts from "@/components/Posts";
 
 type Props = {
@@ -25,11 +23,9 @@ type Props = {
 };
 export const AccountRoot = ({ user }: Props) => {
   // const account = useLoaderData() as Account;
-  const agentLimit = 100;
 
   const [agents, setAgents] = useState<Agent[]>();
   const [account, setAccount] = useState<Account>();
-  const [posts, setPosts] = useState<Post[]>();
   const [isLoading, setIsLoading] = useState(false);
 
   // show or hide New Agent form
@@ -141,7 +137,6 @@ export const AccountRoot = ({ user }: Props) => {
 
         <Button
           onClick={handleCreateAgentBtn}
-          disabled={account?.Agents?.length >= agentLimit}
           className="my-2 mx-4 px-4 py-2 rounded-xl bg-violet-800 text-gray-100 data-[disabled]:bg-gray-500"
         >
           {isNewAgentFormVisible ? "Cancel" : "Create New Agent"}

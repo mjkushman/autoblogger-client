@@ -1,5 +1,9 @@
 import { Suspense, useContext } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouteObject,
+  RouterProvider,
+} from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
 import { UserContext } from "./provider";
 import { User } from "@/types";
@@ -10,18 +14,19 @@ import { ApiResponse } from "@/types/Api.type";
 import { Loading } from "@/components/Loading";
 import { siteLinks } from "@/utils/siteLinks";
 import Post from "@/components/PostView";
-import { type RouteConfig } from "";
+import ErrorPage from "@/components/ErrorPage";
 
 // type Props = {
 //   user: User | null
 // }
 
 const createAppRouter = (user: User) => {
-  return createBrowserRouter([
+  const routes: RouteObject[] = [
     // each route goes here
     {
       path: "/",
       element: <MainLayout />,
+      errorElement: <ErrorPage />,
       children: [
         {
           path: "",
@@ -41,6 +46,7 @@ const createAppRouter = (user: User) => {
             {
               path: "",
               element: <AccountRoot user={user} />,
+              errorElement: <ErrorPage />,
               loader: async () => {
                 if (!user || !user.accountId) return null;
                 const { data } = await api.get<Promise<ApiResponse>>(
@@ -56,6 +62,7 @@ const createAppRouter = (user: User) => {
                   <Post />
                 </Suspense>
               ),
+              errorElement: <ErrorPage />,
               loader: async ({ params }) => {
                 const { data } = await api.get<Promise<ApiResponse>>(
                   `posts/${params.postId}`
@@ -90,7 +97,14 @@ const createAppRouter = (user: User) => {
         return { Component: NotFoundRoute };
       },
     },
-  ]);
+  ];
+
+  const router = createBrowserRouter(routes, {
+    future: {
+      v7_normalizeFormMethod: true,
+    },
+  });
+  return router;
 };
 
 export const AppRouter = () => {
