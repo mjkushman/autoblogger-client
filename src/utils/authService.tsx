@@ -33,6 +33,9 @@ export const retrieveToken = (): string | null => {
   return localStorage.getItem(localStorageKey);
 };
 
+export const validateToken = () => {
+  console.log('validating token')
+}
 
 export const isAuthenticated = () => {
   const token = localStorage.getItem(localStorageKey);

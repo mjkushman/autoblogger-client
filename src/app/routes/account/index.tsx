@@ -8,7 +8,9 @@ import {
   AgentsApiResponse,
   AgentApiResponse,
   AgentFormData,
+  UpdateAgentFormData,
   ApiResponse,
+  CreateAgentFormData,
 } from "@/types";
 import { AccountFormData } from "@/types/Account.type";
 import { AccountApiResponse, PostsApiResponse, Post } from "@/types";
@@ -16,43 +18,48 @@ import api from "@/utils/api";
 import { Button } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import Posts from "@/components/Posts";
 
 type Props = {
   user: User;
 };
 export const AccountRoot = ({ user }: Props) => {
   // const account = useLoaderData() as Account;
-  const navigate = useNavigate();
   const agentLimit = 100;
 
   const [agents, setAgents] = useState<Agent[]>();
   const [account, setAccount] = useState<Account>();
   const [posts, setPosts] = useState<Post[]>();
+  const [isLoading, setIsLoading] = useState(false);
 
   // show or hide New Agent form
   const [isNewAgentFormVisible, setIsNewAgentFormVisible] = useState(false);
 
   // fetch agents
   const fetchAgents = async () => {
-    const { data } = await api.get<AgentsApiResponse>("agents");
-    setAgents(data);
+    setIsLoading(true);
+    await api
+      .get<AgentsApiResponse>("agents")
+      .then(({ data }) => {
+        setAgents(data);
+      })
+      .finally(() => setIsLoading(false));
   };
   // fetch Account
   const fetchAccount = async () => {
-    const { data } = await api.get<AccountApiResponse>("accounts");
-    setAccount(data);
+    setIsLoading(true);
+    await api
+      .get<AccountApiResponse>("accounts")
+      .then(({ data }) => {
+        setAccount(data);
+      })
+      .finally(() => setIsLoading);
   };
-  // fetch Account
-  const fetchPosts = async () => {
-    const { data } = await api.get<PostsApiResponse>("posts");
-    console.log('post fetch result:', data)
-    setPosts(data);
-  };
+
 
   useEffect(() => {
     fetchAgents();
     fetchAccount();
-    fetchPosts()
   }, [user]);
 
   useEffect(() => {
@@ -62,22 +69,25 @@ export const AccountRoot = ({ user }: Props) => {
     setAccount(() => account);
   }, [account]);
 
-  const updateAgent = async (formData: AgentFormData): Promise<void> => {
+  const updateAgent = async (formData: UpdateAgentFormData): Promise<void> => {
     // Invoke API call
     try {
-      await api.patch<AgentFormData, AgentApiResponse>(`agents`, formData);
-      fetchAgents();
+      await api
+        .patch<UpdateAgentFormData, AgentApiResponse>(`agents`, formData)
+        .then(() => fetchAgents());
     } catch (error) {
       console.log(`Failed to submit: ${error}`);
     }
   };
 
-  const createAgent = async (formData: AgentFormData): Promise<void> => {
+  const createAgent = async (formData: CreateAgentFormData): Promise<void> => {
     try {
       await api
-        .post<AgentFormData, AgentApiResponse>(`agents`, formData)
-        .then(() => setIsNewAgentFormVisible(false));
-      fetchAgents();
+        .post<CreateAgentFormData, AgentApiResponse>(`agents`, formData)
+        .then(() => {
+          setIsNewAgentFormVisible(false);
+          fetchAgents();
+        });
     } catch (error) {
       console.log(`Failed to create Agent: ${error}`);
     }
@@ -85,8 +95,9 @@ export const AccountRoot = ({ user }: Props) => {
 
   const deleteAgent = async (agentId: string) => {
     try {
-      await api.delete<{ agentId: string }, ApiResponse>("agents", { agentId });
-      fetchAgents();
+      await api
+        .delete<{ agentId: string }, ApiResponse>("agents", { agentId })
+        .then(() => fetchAgents());
     } catch (error) {
       console.log("failed to delete:", error);
     }
@@ -139,12 +150,11 @@ export const AccountRoot = ({ user }: Props) => {
 
       {isNewAgentFormVisible && (
         <div className="outline outline-amber-500 outline-2">
-        <AgentSettingsForm
-          agent={null}
-          createAgent={createAgent}
-          updateAgent={updateAgent}
-          deleteAgent={deleteAgent}
-        />
+          <AgentSettingsForm
+            agent={null}
+            isLoading={isLoading}
+            createAgent={createAgent}
+          />
         </div>
       )}
 
@@ -156,19 +166,18 @@ export const AccountRoot = ({ user }: Props) => {
                 agent={agent}
                 updateAgent={updateAgent}
                 deleteAgent={deleteAgent}
-                key={agent.agentId}
-                posts= {posts?.filter(p => p.agentId == agent.agentId)}
-              />
+                isLoading={isLoading}
+                key={agent.agentId}>
+                  <Posts agentId={agent.agentId}/>
+                </AgentSettingsForm>
+
             );
           })
         ) : (
           <Loading />
         )}
       </div>
-      <div className="flex flex-auto m-auto justify-center">
-        FETCHED POSTS
 
-      </div>
     </div>
   );
 };

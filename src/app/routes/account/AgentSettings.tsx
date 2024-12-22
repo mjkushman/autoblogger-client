@@ -21,16 +21,17 @@ import {
 
 import timezones from "@/app/fixtures/timezones";
 import models from "@/app/fixtures/llmModels";
-import { Agent,Post } from "@/types";
+import { Agent, Post } from "@/types";
 import { CreateAgentFormData, UpdateAgentFormData } from "@/types";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 type Props = {
   agent: Agent | null;
-  updateAgent: (formData: UpdateAgentFormData) => Promise<void>;
-  deleteAgent: (agentId: string) => Promise<void>;
-  createAgent: (formdata: CreateAgentFormData) => Promise<void>;
-  posts?: Post[]
+  isLoading: boolean;
+  updateAgent?: (formData: UpdateAgentFormData) => Promise<void>;
+  deleteAgent?: (agentId: string) => Promise<void>;
+  createAgent?: (formdata: CreateAgentFormData) => Promise<void>;
+  children?: React.ReactNode;
 };
 
 export const AgentSettingsForm = ({
@@ -38,10 +39,11 @@ export const AgentSettingsForm = ({
   updateAgent,
   deleteAgent,
   createAgent,
-  posts,
+  isLoading,
+  children,
 }: Props) => {
   // I think I need to add a useEffect hook to update initial form data after submitting the form.
-  const initialFormData: UpdateAgentFormData | CreateAgentFormData = () => {
+  const initialFormData = (): UpdateAgentFormData | CreateAgentFormData => {
     if (agent) {
       return {
         agentId: agent.agentId,
@@ -49,18 +51,18 @@ export const AgentSettingsForm = ({
         firstName: agent.firstName,
         lastName: agent.lastName,
         email: agent.email,
+        username: agent.username,
         llm: {
           model: agent.llm.model,
           apiKey: agent.llm.apiKey,
         },
-        username: agent.username,
         postSettings: {
           isEnabled: agent.postSettings.isEnabled,
           personality: agent.postSettings.personality,
           maxWords: agent.postSettings.maxWords,
-          time: agent.postSettings.time || "12:00",
-          daysOfWeek: agent.postSettings.daysOfWeek || [],
-          timezone: agent.postSettings.timezone || "America/Los_Angeles",
+          time: agent.postSettings.time,
+          daysOfWeek: agent.postSettings.daysOfWeek,
+          timezone: agent.postSettings.timezone,
         },
       };
     } else {
@@ -68,12 +70,12 @@ export const AgentSettingsForm = ({
         isEnabled: false,
         firstName: "",
         lastName: "",
+        username: "",
         email: "",
         llm: {
           model: "chatgpt",
           apiKey: "",
         },
-        username: "",
         postSettings: {
           isEnabled: false,
           personality: "",
@@ -86,17 +88,16 @@ export const AgentSettingsForm = ({
     }
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [formData, setFormData] = useState<AgentFormData>(initialFormData);
+  const [formData, setFormData] = useState<
+    CreateAgentFormData | UpdateAgentFormData
+  >(initialFormData());
   // console.log('FORM DATA ON MOUNT', formData)
 
-  const [isEditable, setIsEditable] = useState(false);
   const [isDeleteVisible, setIsDeleteVisible] = useState(false);
   const [isApiKeyVisibile, setIsApiKeyVisibile] = useState<boolean>(false);
 
   const isDataChanged =
-    JSON.stringify(formData) !== JSON.stringify(initialFormData);
+    JSON.stringify(formData) !== JSON.stringify(initialFormData());
 
   function handleChange(
     event: React.ChangeEvent<
@@ -105,8 +106,8 @@ export const AgentSettingsForm = ({
   ) {
     const { name, value } = event.target;
     const namePath = name.split("."); // e.g., 'postSettings.time' -> ['postSettings', 'time']
-    console.log("handling change:", name, value, typeof value);
-    setFormData((prevFormData: AgentFormData): AgentFormData => {
+
+    setFormData((prevFormData) => {
       // Use a helper function to update the nested field
       const updatedFormData = updateNestedField(prevFormData, namePath, value);
       return updatedFormData;
@@ -154,7 +155,7 @@ export const AgentSettingsForm = ({
     // if it's already selected OR total days < max, proceed to either select or unselect
 
     // And update formData
-    setFormData((formData) => {
+    setFormData((formData: CreateAgentFormData | UpdateAgentFormData) => {
       let currentDays: string[] = [...formData.postSettings.daysOfWeek];
       if (checked) {
         currentDays = [...currentDays, dayValue];
@@ -199,16 +200,14 @@ export const AgentSettingsForm = ({
   ): Promise<void> => {
     e.preventDefault();
     if (isDataChanged) {
-      let { agentId } = formData;
-      if (agentId) updateAgent(formData);
-      else createAgent(formData);
+      if (agent && agent.agentId && updateAgent) updateAgent(formData);
+      else if (createAgent) createAgent(formData);
     }
-    // if agent has an ID, then update. Otherwise, create
   };
 
   const handleDelete = async () => {
     console.log(`deleting ${agent?.firstName}`);
-    deleteAgent(agent?.agentId);
+    if (deleteAgent && agent) deleteAgent(agent.agentId);
   };
 
   return (
@@ -464,8 +463,7 @@ export const AgentSettingsForm = ({
           </Fieldset>
           <Button
             onClick={() => setIsDeleteVisible(!isDeleteVisible)}
-            className="text-rose-700 text-sm  border-rose-700 border-b-2"
-            hidden={!isEditable}
+            className="text-gray-800 text-sm opacity-75"
           >
             {isDeleteVisible ? "Nevermind" : "Delete this agent"}
           </Button>
@@ -479,16 +477,7 @@ export const AgentSettingsForm = ({
             </Button>
           </span>
         </form>
-        <div className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800 ">
-          <h3 className="text-lg">Recent Posts</h3>
-          {posts &&
-          posts.map((p) => (
-            <div className="flex flex-row">
-              <p> {p.titlePlaintext}</p>
-              <Link to={p.postId}>View</Link>
-            </div>
-          ))}
-        </div>
+        {children}
       </div>
     </>
   );

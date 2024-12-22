@@ -133,7 +133,7 @@ export const SignupForm = () => {
         type="submit"
         className="my-8"
       >
-        Get API Key
+        Create Account
       </Button>
     </form>
   );
