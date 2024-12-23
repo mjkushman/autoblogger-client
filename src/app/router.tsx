@@ -5,7 +5,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
-import { UserContext } from "./provider";
+// import { UserContext } from "./provider";
+import UserContext from "@/app/contexts/UserContext";
 import { User } from "@/types";
 import api from "@/utils/api";
 import { RequireAuth } from "@/app/layouts/RequireAuth";
@@ -16,11 +17,11 @@ import { siteLinks } from "@/utils/siteLinks";
 import Post from "@/components/PostView";
 import ErrorPage from "@/components/ErrorPage";
 
-// type Props = {
-//   user: User | null
-// }
+export const AppRouter = () => {
+  const context = useContext(UserContext);
+  const user: User | null = context ? context.user : null;
+  console.log("user in AppRouter", user);
 
-const createAppRouter = (user: User) => {
   const routes: RouteObject[] = [
     // each route goes here
     {
@@ -104,13 +105,6 @@ const createAppRouter = (user: User) => {
       v7_normalizeFormMethod: true,
     },
   });
-  return router;
-};
-
-export const AppRouter = () => {
-  const context = useContext(UserContext);
-  const user = context ? context.user : null;
-  const router = createAppRouter(user);
 
   return <RouterProvider router={router} />;
 };

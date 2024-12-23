@@ -7,7 +7,7 @@ import api from "@/utils/api";
 import { useNavigate } from "react-router";
 
 import { AuthService } from "@/utils/authService";
-import { UserContext } from "@/app/provider";
+import  UserContext  from "@/app/contexts/UserContext";
 import {
   Button,
   Description,

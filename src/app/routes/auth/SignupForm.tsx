@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { Field, Fieldset } from "@headlessui/react";
 import { AuthService } from "@/utils/authService";
-import { UserContext } from "@/app/provider";
+import  UserContext  from "@/app/contexts/UserContext";
 import { useNavigate } from "react-router";
 import { Button, LabeledInput } from "@/components";
 

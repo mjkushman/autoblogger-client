@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { UserContext } from "@/app/provider";
+import  UserContext  from "@/app/contexts/UserContext";
 import { AuthService } from "@/utils/authService";
 import {
   Button,

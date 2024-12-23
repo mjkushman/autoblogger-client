@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { Field, Fieldset } from "@headlessui/react";
 import { AuthService } from "@/utils/authService";
 import { useNavigate } from "react-router";
-import { UserContext } from "@/app/provider";
+import  UserContext  from "@/app/contexts/UserContext";
 import { Button, LabeledInput } from "@/components";
 
 export const LoginForm = (): React.ReactElement => {
