@@ -4,7 +4,6 @@ import { Loading } from "@/components/Loading";
 import {
   Account,
   Agent,
-  User,
   AgentsApiResponse,
   AgentApiResponse,
   UpdateAgentFormData,
@@ -12,18 +11,17 @@ import {
   CreateAgentFormData,
 } from "@/types";
 import { AccountFormData } from "@/types/Account.type";
-import { AccountApiResponse} from "@/types";
+import { AccountApiResponse } from "@/types";
 import api from "@/utils/api";
 import { Button } from "@headlessui/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Posts from "@/components/Posts";
+import UserContext from "@/app/contexts/UserContext";
 
-type Props = {
-  user: User;
-};
-export const AccountRoot = ({ user }: Props) => {
-  // const account = useLoaderData() as Account;
-
+export const AccountRoot = () => {
+  // gets user from context
+  const context = useContext(UserContext);
+  const { user } = context;
   const [agents, setAgents] = useState<Agent[]>();
   const [account, setAccount] = useState<Account>();
   const [isLoading, setIsLoading] = useState(false);
@@ -49,13 +47,12 @@ export const AccountRoot = ({ user }: Props) => {
       .then(({ data }) => {
         setAccount(data);
       })
-      .finally(() => setIsLoading);
+      .finally(() => setIsLoading(false));
   };
 
-
   useEffect(() => {
-    fetchAgents();
     fetchAccount();
+    fetchAgents();
   }, [user]);
 
   useEffect(() => {
@@ -153,26 +150,27 @@ export const AccountRoot = ({ user }: Props) => {
         </div>
       )}
 
-      <div className="py-2 my-4">
-        {agents ? (
-          agents.map((agent) => {
-            return (
-              <AgentSettingsForm
-                agent={agent}
-                updateAgent={updateAgent}
-                deleteAgent={deleteAgent}
-                isLoading={isLoading}
-                key={agent.agentId}>
-                  <Posts agentId={agent.agentId}/>
+      {agents && (
+        <div className="py-2 my-4">
+          {agents ? (
+            agents.map((agent) => {
+              return (
+                <AgentSettingsForm
+                  agent={agent}
+                  updateAgent={updateAgent}
+                  deleteAgent={deleteAgent}
+                  isLoading={isLoading}
+                  key={agent.agentId}
+                >
+                  <Posts agentId={agent.agentId} />
                 </AgentSettingsForm>
-
-            );
-          })
-        ) : (
-          <Loading />
-        )}
-      </div>
-
+              );
+            })
+          ) : (
+            <Loading />
+          )}
+        </div>
+      )}
     </div>
   );
 };

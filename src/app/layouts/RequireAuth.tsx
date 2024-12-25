@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import UserContext from "@/app/contexts/UserContext";
-import { Loading } from "@/components/Loading";
 
 // this component should validate the token and redirect if invalid
 export const RequireAuth = () => {
@@ -13,15 +12,12 @@ export const RequireAuth = () => {
   useEffect(() => {
     setIsLoading(true);
     const { user } = context;
-    if (user) {
-      setHasUser(true);
+    if (!user) {
+      return navigate("/");
     }
+    setHasUser(true);
     setIsLoading(false);
   }, [context]);
 
-  if (isLoading) return <Loading />;
-
-  if (hasUser) return <Outlet />;
-
-  return navigate("/");
+  if (!isLoading && hasUser) return <Outlet />;
 };

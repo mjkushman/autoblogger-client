@@ -23,7 +23,8 @@ const Posts = ({ agentId }: { agentId: string }) => {
     fetchPosts();
 
   }, []);
-
+  console.log(`posts for ${agentId}`)
+  // console.dir(posts)
   return (
     <div className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800 ">
       <h3 className="text-lg">Recent Posts</h3>

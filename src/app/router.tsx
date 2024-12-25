@@ -20,7 +20,6 @@ import ErrorPage from "@/components/ErrorPage";
 export const AppRouter = () => {
   const context = useContext(UserContext);
   const user: User | null = context ? context.user : null;
-  console.log("user in AppRouter", user);
 
   const routes: RouteObject[] = [
     // each route goes here
@@ -46,7 +45,7 @@ export const AppRouter = () => {
           children: [
             {
               path: "",
-              element: <AccountRoot user={user} />,
+              element: <AccountRoot />,
               errorElement: <ErrorPage />,
               loader: async () => {
                 if (!user || !user.accountId) return null;
