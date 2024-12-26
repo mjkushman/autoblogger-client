@@ -2,7 +2,7 @@ import api from "@/utils/api";
 import { ApiResponse, createAccountFormDataType, loginFormDataType } from "@/types";
 
 
-export const localStorageKey = "authToken";
+export const localStorageKey = "autoblogger";
 
 export const AuthService = {
   createAccount: async (formData: createAccountFormDataType): Promise<string> => {

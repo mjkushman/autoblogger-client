@@ -9,7 +9,7 @@ type Props = {
 };
 
 const UserProvider = ({ children }: Props) => {
-  const [token, setToken] = useState(() => localStorage.getItem("authToken"));
+  const [token, setToken] = useState(() => localStorage.getItem("autoblogger"));
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
