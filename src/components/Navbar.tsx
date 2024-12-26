@@ -21,9 +21,9 @@ export const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    navigate("/");
-    AuthService.logout();
     setToken(null);
+    // navigate("/");
+    AuthService.logout();
   };
 
   useEffect(() => {

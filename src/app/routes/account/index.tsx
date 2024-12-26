@@ -51,8 +51,10 @@ export const AccountRoot = () => {
   };
 
   useEffect(() => {
-    fetchAccount();
-    fetchAgents();
+    if (user) {
+      fetchAccount();
+      fetchAgents();
+    }
   }, [user]);
 
   useEffect(() => {

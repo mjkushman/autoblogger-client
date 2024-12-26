@@ -12,8 +12,9 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     <Suspense fallback={<Loading />}>
       <ErrorBoundary FallbackComponent={MainErrorFallback}>
         <UserProvider>
-          <Suspense fallback={<Loading />}></Suspense>
+          <Suspense fallback={<Loading />}>
           {children}
+          </Suspense>
         </UserProvider>
       </ErrorBoundary>
     </Suspense>
