@@ -1,15 +1,26 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
-}
+    "compilerOptions": {
+      "target": "ES2020", // Aligns with app target
+      "useDefineForClassFields": true,
+      "lib": ["ES2020", "DOM", "DOM.Iterable"], // For modern browsers and DOM APIs
+      "module": "ESNext", // For Vite's ES module-based environment
+      "skipLibCheck": true,
+      "baseUrl": ".", // Base directory for resolving paths
+      "paths": {
+        "@/*": ["src/*"] // Alias for "src" folder
+      },
+      "outDir": "./dist", // Output directory for builds
+      "moduleResolution": "bundler", // Required for Vite
+      "allowImportingTsExtensions": true, // Useful for ESM
+      "isolatedModules": true, // Recommended for bundlers like Vite
+      "moduleDetection": "force", // Enforce module-style imports
+      "noEmit": true, // Prevent output from the TypeScript compiler
+      "jsx": "react-jsx", // For React with JSX
+      "strict": true, // Enable all strict type-checking options
+      "noUnusedLocals": true, // Linting: flag unused local variables
+      "noUnusedParameters": true, // Linting: flag unused parameters
+      "noFallthroughCasesInSwitch": true // Linting: flag unintentional fallthrough
+    },
+    "include": ["src/**/*", "vite.config.ts"], // Include source and Vite config
+    "exclude": ["node_modules", "dist"] // Exclude build output and dependencies
+  }

@@ -1,9 +1,7 @@
 import { Post, PostsApiResponse } from "@/types";
 import api from "@/utils/api";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-type Props = {};
 
 const Posts = ({ agentId }: { agentId: string }) => {
   const [posts, setPosts] = useState<Post[]>();
@@ -19,11 +17,9 @@ const Posts = ({ agentId }: { agentId: string }) => {
   };
 
   useEffect(() => {
-
     fetchPosts();
-
   }, []);
-  console.log(`posts for ${agentId}`)
+  console.log(`posts for ${agentId}`);
   // console.dir(posts)
   return (
     <div className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800 ">

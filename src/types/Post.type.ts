@@ -1,5 +1,7 @@
 // todo: updates types to reference Models
 
+import { Account } from "./Account.type";
+
 export type Post = {
     postId: string;
     agentId: string;
@@ -12,7 +14,6 @@ export type Post = {
     isPublished: boolean,
     createdAt: Date;
     updatedAt: Date;
-    comments?;
-    account?;
+    account?: Account;
   };
   

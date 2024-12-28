@@ -21,7 +21,7 @@ import {
 
 import timezones from "@/app/fixtures/timezones";
 import models from "@/app/fixtures/llmModels";
-import { Agent, Post } from "@/types";
+import { Agent } from "@/types";
 import { CreateAgentFormData, UpdateAgentFormData } from "@/types";
 // import { Link } from "react-router-dom";
 
@@ -110,13 +110,15 @@ export const AgentSettingsForm = ({
     setFormData((prevFormData) => {
       // Use a helper function to update the nested field
       const updatedFormData = updateNestedField(prevFormData, namePath, value);
-      return updatedFormData;
+      if(updatedFormData.agentId) return updatedFormData as UpdateAgentFormData;
+      else return updatedFormData as CreateAgentFormData;
+
     });
   }
 
   // Helper function to immutably update a nested field using recursion
   function updateNestedField(
-    obj: Record<string | any>, // Generic object
+    obj: Record<string, any>, // Generic object
     keys: string[], // Path to the nested field
     value: any // New value
   ): Record<string, any> {
@@ -152,11 +154,9 @@ export const AgentSettingsForm = ({
   const maxWordCount = 10000;
 
   const handleDaysChange = (dayValue: string, checked: boolean) => {
-    // if it's already selected OR total days < max, proceed to either select or unselect
-
     // And update formData
     setFormData((formData: CreateAgentFormData | UpdateAgentFormData) => {
-      let currentDays: string[] = [...formData.postSettings.daysOfWeek];
+      let currentDays: string[] = [...(formData.postSettings.daysOfWeek || [])];
       if (checked) {
         currentDays = [...currentDays, dayValue];
       } else {
@@ -200,7 +200,8 @@ export const AgentSettingsForm = ({
   ): Promise<void> => {
     e.preventDefault();
     if (isDataChanged) {
-      if (agent && agent.agentId && updateAgent) updateAgent(formData);
+      if (agent && agent.agentId && updateAgent)
+        updateAgent(formData as UpdateAgentFormData);
       else if (createAgent) createAgent(formData);
     }
   };

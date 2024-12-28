@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import  UserContext  from "@/app/contexts/UserContext";
 import { AuthService } from "@/utils/authService";
@@ -18,11 +18,11 @@ import {
 export const Navbar = () => {
   const { user, setToken } = useContext(UserContext);
   const [currentUser, setCurrentUser] = useState(user);
-  const navigate = useNavigate();
+
 
   const handleLogout = () => {
     setToken(null);
-    // navigate("/");
+
     AuthService.logout();
   };
 

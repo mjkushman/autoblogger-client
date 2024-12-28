@@ -2,13 +2,13 @@ import { SiteSection } from "@/components/SiteSection";
 
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
-import curl from "highlightjs-curl";
+import shell from "react-syntax-highlighter/dist/esm/languages/hljs/shell";
 import ocean from "react-syntax-highlighter/dist/esm/styles/hljs/ocean";
 import { Select } from "@headlessui/react";
 
 
 SyntaxHighlighter.registerLanguage("javascript", js);
-SyntaxHighlighter.registerLanguage("curl", curl);
+SyntaxHighlighter.registerLanguage("shell", shell);
 
 import { BASE_URL } from "@/utils/api";
 import { useState } from "react";
@@ -19,16 +19,16 @@ const getPostsSnippet = {
     javascript: `    const response = await fetch('${BASE_URL}api/posts', { headers: { x-api-key: 'YOUR_API_KEY',}});
     const { data } = await response.json();`,
     
-    curl:
+    shell:
     ` curl -X GET -H "x-api-key: YOUR_API_KEY" "https://${BASE_URL}api/posts"`
 }
 
 
 const HowItWorks = () => {
-    const [language, setLanguage] = useState<'javascript' | 'curl'>('javascript');
+    const [language, setLanguage] = useState<'javascript' | 'shell'>('javascript');
 
     const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setLanguage(event.target.value as 'javascript' | 'curl')
+        setLanguage(event.target.value as 'javascript' | 'shell')
       };
   return (
     <SiteSection 
@@ -70,7 +70,7 @@ const HowItWorks = () => {
           </p>
           <Select name="language" onChange={handleLanguageChange} value={language} className="block my-3  bg-transparent p-1 border border-gray-50">
             <option value="javascript">JavaScript</option>
-            <option value="curl">curl</option>
+            <option value="shell">Shell</option>
           </Select>
           <SyntaxHighlighter language={language} style={ocean} className="">
             {getPostsSnippet[language]}

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useLoaderData } from "react-router";
 
 const PostView = () => {
-  const post: Post = useLoaderData();
+  const post: Post = useLoaderData() as Post;
 
   const postJson = JSON.stringify(post, null, 2);
   const [format, setFormat] = useState(false);
