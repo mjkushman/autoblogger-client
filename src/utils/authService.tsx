@@ -4,12 +4,8 @@ import {
   createAccountFormDataType,
   loginFormDataType,
 } from "@/types";
-import { useEffect, useState } from "react";
 import * as jose from "jose";
-import { NavigateFunction, useNavigate, Navigate } from "react-router";
-
 import { DecodedJwt } from "@/types/Auth.type";
-import { set } from "mobx";
 
 const secret = new TextEncoder().encode(import.meta.env.VITE_JWT_SECRET);
 export const localStorageKey = "autoblogger";
