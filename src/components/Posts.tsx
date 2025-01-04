@@ -8,7 +8,7 @@ const Posts = ({ agentId }: { agentId: string }) => {
   const [isLoading, setIsLoading] = useState(false);
   // fetch Posts
   const fetchPosts = async () => {
-    console.log("fetching posts for ", agentId);
+    // console.log("fetching posts for ", agentId);
     setIsLoading(true);
     await api
       .get<PostsApiResponse>(`posts?agentId=${agentId}`)
@@ -19,7 +19,7 @@ const Posts = ({ agentId }: { agentId: string }) => {
   useEffect(() => {
     fetchPosts();
   }, []);
-  console.log(`posts for ${agentId}`);
+  // console.log(`posts for ${agentId}`);
   // console.dir(posts)
   return (
     <div className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800 ">

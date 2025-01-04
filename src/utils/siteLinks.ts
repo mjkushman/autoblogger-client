@@ -28,7 +28,7 @@ export type SiteLink = {
   ];
 
   export const signedInNavLinks: SiteLink[] = [
-    { label: "Account", path: "/account", id:"account" },
+    { label: "Dashboard", path: "/account", id:"account" },
   ];
   export const signedOutNavLinks: SiteLink[] = [
     { label: "Get Started", path: siteLinks.auth.path, id:'get-started' },

@@ -1,7 +1,9 @@
 import { NavLink } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState,  } from "react";
 import  UserContext  from "@/app/contexts/UserContext";
 import { AuthService } from "@/utils/authService";
+import { Navigate ,useNavigate} from "react-router";
+
 import {
   Button,
   Menu,
@@ -16,14 +18,16 @@ import {
 } from "@/utils/siteLinks";
 
 export const Navbar = () => {
+
   const { user, setToken } = useContext(UserContext);
   const [currentUser, setCurrentUser] = useState(user);
+  const navigate = useNavigate()
 
 
   const handleLogout = () => {
     setToken(null);
-
     AuthService.logout();
+    navigate("/", { replace: true })
   };
 
   useEffect(() => {
@@ -72,7 +76,7 @@ export const Navbar = () => {
               {({ open }) => (
                 <>
                   <MenuButton className="flex items-center justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 hover:text-violet-700 md:p-0 md:w-auto ">
-                    {currentUser?.firstName ? currentUser.firstName : "User"}
+                    Account
                     <svg
                       className={`w-2.5 h-2.5 ms-2.5 transform transition duration-150 ease-in-out ${
                         open ? "rotate-180" : ""

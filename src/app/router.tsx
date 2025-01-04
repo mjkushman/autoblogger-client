@@ -1,13 +1,11 @@
-import { Suspense, useContext } from "react";
+import { Suspense } from "react";
 import {
   createBrowserRouter,
   RouteObject,
   RouterProvider,
 } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
-// import { UserContext } from "./provider";
-import UserContext from "@/app/contexts/UserContext";
-import { User } from "@/types";
+
 import api from "@/utils/api";
 import { RequireAuth } from "@/app/layouts/RequireAuth";
 import { AccountRoot } from "@/app/routes/account";
@@ -18,8 +16,7 @@ import Post from "@/components/PostView";
 import ErrorPage from "@/components/ErrorPage";
 
 export const AppRouter = () => {
-  const context = useContext(UserContext);
-  const user: User | null = context ? context.user : null;
+  
 
   const routes: RouteObject[] = [
     // each route goes here
@@ -37,23 +34,17 @@ export const AppRouter = () => {
         },
         {
           path: "account",
-          element: (
-            <Suspense fallback={<Loading />}>
-              <RequireAuth />
-            </Suspense>
-          ),
+          element: <RequireAuth />,
           children: [
             {
               path: "",
-              element: <AccountRoot />,
+              element: (
+                <Suspense fallback={<Loading />}>
+                  <AccountRoot />
+                </Suspense>
+              ),
               errorElement: <ErrorPage />,
-              loader: async () => {
-                if (!user || !user.accountId) return null;
-                const { data } = await api.get<Promise<ApiResponse>>(
-                  `accounts/`
-                ); // passes accountId as part of token
-                return data;
-              },
+
             },
             {
               path: ":postId",

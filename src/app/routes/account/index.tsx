@@ -21,6 +21,7 @@ import UserContext from "@/app/contexts/UserContext";
 export const AccountRoot = () => {
   // gets user from context
   const context = useContext(UserContext);
+
   const { user } = context;
   const [agents, setAgents] = useState<Agent[]>();
   const [account, setAccount] = useState<Account>();

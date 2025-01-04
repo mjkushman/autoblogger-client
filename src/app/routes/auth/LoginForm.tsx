@@ -18,13 +18,12 @@ export const LoginForm = (): React.ReactElement => {
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
-    console.log("form submit");
+    
     e.preventDefault();
     try {
       AuthService.login(formData)
         .then(
           (value) => {
-            console.log("entering .then. value: ", value); // if request succeeds
             setToken(value); // updates token, triggering update of user
           },
           () => console.log("Request failed") // if request fails
