@@ -9,11 +9,11 @@ export const SignupForm = () => {
   const { setToken } = useContext(UserContext);
 
   const initialFormData = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    verifyPassword: "",
+    firstName: import.meta.env.VITE_DEV_SIGNUP_FIRSTNAME ?? "",
+    lastName: import.meta.env.VITE_DEV_SIGNUP_LASTNAME ?? "",
+    email: import.meta.env.VITE_DEV_SIGNUP_EMAIL ?? "",
+    password: import.meta.env.VITE_DEV_SIGNUP_PASSWORD ?? "",
+    verifyPassword: import.meta.env.VITE_DEV_SIGNUP_VERIFYPASSWORD ?? "",
   };
   const [formData, setFormData] = useState(initialFormData);
   const navigate = useNavigate();
@@ -43,7 +43,6 @@ export const SignupForm = () => {
         password: formData.password,
       }).then(
         (value) => {
-          console.log("Entering .then with value:", value); // if request succeeds
           setToken(value);
           navigate("/account");
         },

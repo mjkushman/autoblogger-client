@@ -8,7 +8,7 @@ import { Button, LabeledInput } from "@/components";
 export const LoginForm = (): React.ReactElement => {
   const initialFormData = {
     email: import.meta.env.VITE_DEV_LOGIN_EMAIL ?? "",
-    password: import.meta.env.VITE_DEV_LOGIN_PW ?? "",
+    password: import.meta.env.VITE_DEV_LOGIN_PASSWORD ?? "",
   };
 
   const userContext = useContext(UserContext);
