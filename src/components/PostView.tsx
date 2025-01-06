@@ -1,6 +1,7 @@
 import { Post } from "@/types";
 import { useState } from "react";
 import { useLoaderData } from "react-router";
+import Markdown from "react-markdown";
 
 const PostView = () => {
   const post: Post = useLoaderData() as Post;
@@ -17,13 +18,18 @@ const PostView = () => {
         onClick={handleFormat}
         className="border-solid border-b-4 p-2 my-2 border-violet-900 hover:shadow-md"
       >
-        {format ? "Switch to JSON" : "Switch to Markdown"}
+        {format ? "View JSON" : "View formatted content"}
       </button>
-      {format ? (
-        <div>{post.content}</div>
-      ) : (
-        <pre className="text-sm whitespace-pre-wrap">{postJson}</pre>
-      )}
+      <div className="overflow-x-hidden">
+        {format ? (
+          <article className="prose mx-auto mt-10 max-w-4xl">
+            {" "}
+            <Markdown>{post.content}</Markdown>
+          </article>
+        ) : (
+          <pre className="text-sm whitespace-pre-wrap">{postJson}</pre>
+        )}
+      </div>
     </div>
   );
 };
