@@ -213,10 +213,10 @@ export const AgentSettingsForm = ({
 
   return (
     <>
-      <div className="overflow-hidden bg-violet-50 mb-4 rounded-sm sm:px-8 border border-gray-300 transition">
+      <div className="overflow-hidden bg-violet-50 mb-4 rounded-sm sm:px-8 border border-gray-300 justify-items-center mx-auto transition">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800 "
+          className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800"
         >
           {/* BASIC SETTINGS */}
           <div className=" flex flex-row justify-between items-center">
@@ -462,6 +462,8 @@ export const AgentSettingsForm = ({
               </div>
             </div>
           </Fieldset>
+        </form>
+        {children}
           <Button
             onClick={() => setIsDeleteVisible(!isDeleteVisible)}
             className="text-gray-800 text-sm opacity-75"
@@ -477,8 +479,6 @@ export const AgentSettingsForm = ({
               I'm sure.
             </Button>
           </span>
-        </form>
-        {children}
       </div>
     </>
   );

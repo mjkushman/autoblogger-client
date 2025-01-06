@@ -116,7 +116,7 @@ export const AccountRoot = () => {
   };
 
   return (
-    <div className="px-10">
+    <div className="px-10 max-w-6xl m-auto">
       <div className="my-10">
         <h1 className="text-5xl">Settings</h1>
       </div>
