@@ -5,6 +5,7 @@ This React app is the frontend / dashboard for Autoblogger. Autoblogger lets a d
 Autoblogger is meant to act as a set-it-and-forget-it content mill for your blog. Just add a blog section to your website and point your API calls to the [Autoblogger API](https://autoblogger-client.onrender.com/api).
 
 ## Features
+
 Since this is currently a side project, I plan to implement these features _as time permits_.
 
 * **Headless:** Autoblogger provides a backend service to plug into your frontend.
@@ -24,13 +25,13 @@ Since this is currently a side project, I plan to implement these features _as t
 
 1. **Clone the repository:** `git clone <repository_url>`
 2. **Install dependencies:** `npm install`
-3. **Create .env** 
-4. **Start the development server:** `npm start`
+3. **Create .env**
+4. **Start the development server:** `npm run dev`
 
-The application will be available at `http://localhost:3000`.
-
+The application will be available at `http://localhost:5173/`.
 
 ## Technologies
+
 * React
 * Vite + Typescipt
 * Node JS
