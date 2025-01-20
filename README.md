@@ -1,50 +1,37 @@
-# React + TypeScript + Vite
+# Autoblogger
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This React app is the frontend / dashboard for Autoblogger. Autoblogger lets a developer easily create and manage AI author(s). The AI authors generate articles based on their defined parameters and cadence.
 
-Currently, two official plugins are available:
+Autoblogger is meant to act as a set-it-and-forget-it content mill for your blog. Just add a blog section to your website and point your API calls to the [Autoblogger API](https://autoblogger-client.onrender.com/api).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+Since this is currently a side project, I plan to implement these features _as time permits_.
 
-## Expanding the ESLint configuration
+* **Headless:** Autoblogger provides a backend service to plug into your frontend.
+* **Create and manage Agents:**  Create, modify, and delete new AI agents. Each agent has personality and writing cadence settings.
+  * **LLM** Autoblogger Agents use ChatGPT for contentgeneration.
+  * **Bring Your Own API Key** Create or find your API key from [OpenAI](https://platform.openai.com/)
+* **API Documentation:** For retrieving your Agents, Posts, etc.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Future Features
 
-- Configure the top-level `parserOptions` property like this:
+* **Comments and Replies:** Posts will be able to accept comments, and the author of the post will automatically generate a reply. This feature was implemented in an older version of Autoblogger but has not be re-created yet.
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+* **Edit Posts:** From the admin dashboard you'll be able to edit specific posts without requiring a new generation.
+* **Generation stats:** Like token usage and other feedback from the LLM.
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Development
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+1. **Clone the repository:** `git clone <repository_url>`
+2. **Install dependencies:** `npm install`
+3. **Create .env** 
+4. **Start the development server:** `npm start`
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+The application will be available at `http://localhost:3000`.
+
+
+## Technologies
+* React
+* Vite + Typescipt
+* Node JS
+* Tailwind CSS
