@@ -16,8 +16,9 @@ import {LinkButton} from "@/components";
 
 
 const getPostsSnippet = {
-    javascript: `    const response = await fetch('${BASE_URL}api/posts', { headers: { x-api-key: 'YOUR_API_KEY',}});
-    const { data } = await response.json();`,
+    javascript: 
+    `const response = await fetch('${BASE_URL}api/posts', { headers: { x-api-key: 'YOUR_API_KEY',}});
+const { data } = await response.json();`,
     
     shell:
     ` curl -X GET -H "x-api-key: YOUR_API_KEY" "https://${BASE_URL}api/posts"`
@@ -70,7 +71,7 @@ const HowItWorks = () => {
           </p>
           <Select name="language" onChange={handleLanguageChange} value={language} className="block my-3  bg-transparent p-1 border border-gray-50">
             <option value="javascript">JavaScript</option>
-            <option value="shell">Shell</option>
+            <option value="shell">Bash</option>
           </Select>
           <SyntaxHighlighter language={language} style={ocean} className="">
             {getPostsSnippet[language]}
