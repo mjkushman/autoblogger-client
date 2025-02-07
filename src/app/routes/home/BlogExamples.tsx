@@ -44,7 +44,7 @@ export const BlogExamples = () => {
           </p>
           <div className="mt-3 flex items-center m-auto">
             <p className="text-gray-100">
-              <LinkButton to="mailto:blogs@autoblogger.dev">
+              <LinkButton to="mailto:me@mikesextras11+autoblogger@gmail.com?subject=Check%20out%20my%20blog">
                 Send me your blog
               </LinkButton>
             </p>
