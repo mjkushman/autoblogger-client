@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router";
 
 import { Loading } from "@/components/Loading";
-import {
-  getAuthStatus,
-  localStorageKey,
-} from "@/utils/authService";
+import { getAuthStatus, localStorageKey } from "@/utils/authService";
 
 // this component should validate the token and redirect if invalid
 export const RequireAuth = () => {

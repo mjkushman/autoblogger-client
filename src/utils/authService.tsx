@@ -8,6 +8,7 @@ import * as jose from "jose";
 import { DecodedJwt } from "@/types/Auth.type";
 
 const secret = new TextEncoder().encode(import.meta.env.VITE_JWT_SECRET);
+
 export const localStorageKey = "autoblogger";
 
 export const AuthService = {
@@ -50,6 +51,7 @@ export const getAuthStatus = async (): Promise<boolean> => {
 
   try {
     const { payload } = await jose.jwtVerify<DecodedJwt>(token, secret);
+
     return !!payload.accountId; // returns true
   } catch (error) {
     if (error instanceof jose.errors.JWTExpired) {
