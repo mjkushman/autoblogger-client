@@ -4,6 +4,7 @@ import UserProvider from "@/providers/UserProvider";
 import { Loading } from "@/components/Loading";
 import { ErrorBoundary } from "react-error-boundary";
 import { MainErrorFallback } from "@/components/ErrorFallback";
+
 // import { useContext } from "react";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {

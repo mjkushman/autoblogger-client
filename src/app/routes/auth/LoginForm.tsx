@@ -7,8 +7,12 @@ import { Button, LabeledInput } from "@/components";
 
 export const LoginForm = (): React.ReactElement => {
   const initialFormData = {
-    email: import.meta.env.VITE_DEV_LOGIN_EMAIL ?? "",
-    password: import.meta.env.VITE_DEV_LOGIN_PASSWORD ?? "",
+    // Dev-only prefill; import.meta.env.DEV is false in production builds,
+    // so the VITE_DEV_LOGIN_* values are tree-shaken out of the bundle.
+    email: import.meta.env.DEV ? import.meta.env.VITE_DEV_LOGIN_EMAIL ?? "" : "",
+    password: import.meta.env.DEV
+      ? import.meta.env.VITE_DEV_LOGIN_PASSWORD ?? ""
+      : "",
   };
 
   const userContext = useContext(UserContext);
