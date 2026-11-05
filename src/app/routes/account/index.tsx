@@ -1,6 +1,5 @@
 import { AccountSettings } from "@/app/routes/account/AccountSettings";
 import { AgentSettingsForm } from "@/app/routes/account/AgentSettings";
-import { Loading } from "@/components/Loading";
 import {
   Account,
   Agent,
@@ -13,7 +12,7 @@ import {
 import { AccountFormData } from "@/types/Account.type";
 import { AccountApiResponse } from "@/types";
 import api from "@/utils/api";
-import { Button } from "@headlessui/react";
+import { Button, Message } from "@/components";
 import { useContext, useEffect, useState } from "react";
 import Posts from "@/components/Posts";
 import UserContext from "@/app/contexts/UserContext";
@@ -29,6 +28,7 @@ export const AccountRoot = () => {
 
   // show or hide New Agent form
   const [isNewAgentFormVisible, setIsNewAgentFormVisible] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   // fetch agents
   const fetchAgents = async () => {
@@ -38,6 +38,7 @@ export const AccountRoot = () => {
       .then(({ data }) => {
         setAgents(data);
       })
+      .catch(() => setLoadError(true))
       .finally(() => setIsLoading(false));
   };
   // fetch Account
@@ -48,6 +49,7 @@ export const AccountRoot = () => {
       .then(({ data }) => {
         setAccount(data);
       })
+      .catch(() => setLoadError(true))
       .finally(() => setIsLoading(false));
   };
 
@@ -57,13 +59,6 @@ export const AccountRoot = () => {
       fetchAgents();
     }
   }, [user]);
-
-  useEffect(() => {
-    setAgents(() => agents);
-  }, [agents]);
-  useEffect(() => {
-    setAccount(() => account);
-  }, [account]);
 
   const updateAgent = async (formData: UpdateAgentFormData): Promise<void> => {
     // Invoke API call
@@ -98,6 +93,7 @@ export const AccountRoot = () => {
         .then(() => fetchAgents());
     } catch (error) {
       console.log("failed to delete:", error);
+      throw error; // let the dialog show the error
     }
   };
 
@@ -110,6 +106,7 @@ export const AccountRoot = () => {
       setAccount(data);
     } catch (error) {
       console.log("failed to update account", error);
+      throw error; // let the form show the error
     }
   };
 
@@ -117,65 +114,86 @@ export const AccountRoot = () => {
     setIsNewAgentFormVisible(!isNewAgentFormVisible);
   };
 
+  const skeleton = (
+    <div className="space-y-4" aria-hidden="true">
+      <div className="h-48 animate-pulse rounded-2xl bg-gray-200/70" />
+      <div className="h-64 animate-pulse rounded-2xl bg-gray-200/70" />
+    </div>
+  );
+
   return (
-    <div className="px-10 max-w-6xl m-auto">
-      <div className="my-10">
-        <h1 className="text-5xl">Settings</h1>
-      </div>
-      <h1 className="pt-2 text-2xl font-semibold">Account</h1>
-      <span className="text-sm text-gray-800 bg-violet-200 px-3 my-1 rounded-full">
-        {account?.accountId}
-      </span>
-      {account ? (
-        <div className="py-2 my-4">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 animate-fade-in">
+      <h1 className="text-3xl font-semibold tracking-tight text-violet-950">Dashboard</h1>
+      <p className="mt-1 text-gray-600">Manage your account and the AI authors writing for your site.</p>
+
+      {loadError && (
+        <div role="alert" className="mt-6">
+          <Message inline title="We couldn't load your dashboard">
+            Check your connection, then refresh the page to try again.
+          </Message>
+        </div>
+      )}
+
+      <section className="mt-10" aria-labelledby="account-heading">
+        <h2 id="account-heading" className="mb-3 text-xl font-semibold text-gray-900">
+          Account
+        </h2>
+        {account ? (
           <AccountSettings account={account} updateAccount={updateAccount} />
+        ) : (
+          !loadError && <div className="h-64 animate-pulse rounded-2xl bg-gray-200/70" aria-hidden="true" />
+        )}
+      </section>
+
+      <section className="mt-12" aria-labelledby="agents-heading">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <h2 id="agents-heading" className="text-xl font-semibold text-gray-900">
+              Agents
+            </h2>
+            <p className="text-sm text-gray-500">Each agent is an AI author with its own voice and schedule.</p>
+          </div>
+          <Button
+            variant={isNewAgentFormVisible ? "secondary" : "primary"}
+            onClick={handleCreateAgentBtn}
+            aria-expanded={isNewAgentFormVisible}
+          >
+            {isNewAgentFormVisible ? "Cancel" : "Create new agent"}
+          </Button>
         </div>
-      ) : (
-        <Loading />
-      )}
 
-      <div className="flex justify-between">
-        <h1 className="pt-2 text-2xl font-semibold">Agents</h1>
-
-        <Button
-          onClick={handleCreateAgentBtn}
-          className="my-2 mx-4 px-4 py-2 rounded-xl bg-violet-800 text-gray-100 data-[disabled]:bg-gray-500"
-        >
-          {isNewAgentFormVisible ? "Cancel" : "Create New Agent"}
-        </Button>
-      </div>
-
-      {isNewAgentFormVisible && (
-        <div className="outline outline-amber-500 outline-2">
-          <AgentSettingsForm
-            agent={null}
-            isLoading={isLoading}
-            createAgent={createAgent}
-          />
-        </div>
-      )}
-
-      {agents && (
-        <div className="py-2 my-4">
-          {agents ? (
-            agents.map((agent) => {
-              return (
-                <AgentSettingsForm
-                  agent={agent}
-                  updateAgent={updateAgent}
-                  deleteAgent={deleteAgent}
-                  isLoading={isLoading}
-                  key={agent.agentId}
-                >
-                  <Posts agentId={agent.agentId} />
-                </AgentSettingsForm>
-              );
-            })
-          ) : (
-            <Loading />
+        <div className="space-y-6">
+          {isNewAgentFormVisible && (
+            <div className="rounded-2xl ring-2 ring-violet-300 animate-fade-in-up">
+              <AgentSettingsForm agent={null} isLoading={isLoading} createAgent={createAgent} />
+            </div>
           )}
+
+          {!agents && !loadError && skeleton}
+
+          {agents && agents.length === 0 && !isNewAgentFormVisible && (
+            <Message
+              inline
+              title="You don't have any agents yet"
+              action={<Button onClick={handleCreateAgentBtn}>Create your first agent</Button>}
+            >
+              An agent is an AI author. Set its voice and schedule and it starts writing posts for your site.
+            </Message>
+          )}
+
+          {agents?.map((agent) => (
+            <AgentSettingsForm
+              agent={agent}
+              updateAgent={updateAgent}
+              deleteAgent={deleteAgent}
+              isLoading={isLoading}
+              key={agent.agentId}
+            >
+              <Posts agentId={agent.agentId} />
+            </AgentSettingsForm>
+          ))}
         </div>
-      )}
+      </section>
     </div>
   );
 };

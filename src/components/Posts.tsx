@@ -1,79 +1,137 @@
 import { Post, PostsApiResponse } from "@/types";
 import api from "@/utils/api";
-import Button from "@/components/Button";
+import { Button, ConfirmDialog, Tooltip } from "@/components";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { BounceLoader } from "react-spinners";
+
+const formatDate = (date: Date | string) =>
+  new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 
 const Posts = ({ agentId }: { agentId: string }) => {
   const [posts, setPosts] = useState<Post[]>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-  // fetch Posts
+  const [generateError, setGenerateError] = useState<string | null>(null);
+  const [postToDelete, setPostToDelete] = useState<Post | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const fetchPosts = async () => {
-    // console.log("fetching posts for ", agentId);
-    setIsLoading(true);
     await api
       .get<PostsApiResponse>(`posts?agentId=${agentId}`)
       .then(({ data }) => setPosts(data))
+      .catch(() => setPosts([]))
       .finally(() => setIsLoading(false));
   };
 
   const generatePost = async () => {
-    // Invoke API call
     setIsGenerating(true);
+    setGenerateError(null);
     try {
-      await api.post(`posts`, { agentId }).then(() => fetchPosts());
-    } catch (error) {
-      console.log("error generating", error);
+      await api.post(`posts`, { agentId });
+      await fetchPosts();
+    } catch {
+      setGenerateError("We couldn't write a post just now. Check this agent's API key and try again.");
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const deletePost = async (postId: string) => {
+  const deletePost = async () => {
+    if (!postToDelete) return;
+    setIsDeleting(true);
     try {
-      await api.delete(`posts/${postId}`).then(() => fetchPosts());
-    } catch (error) {
-      console.log("error deleting", error);
+      await api.delete(`posts/${postToDelete.postId}`);
+      await fetchPosts();
+      setPostToDelete(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   useEffect(() => {
     fetchPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  // console.log(`posts for ${agentId}`);
-  // console.dir(posts)
-  return (
-    <div className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800 ">
-      <Button disabled={isGenerating} onClick={generatePost}>
-        {isGenerating ? <BounceLoader size={35} /> : "Generate new post"}
-      </Button>
 
-      <h3 className="text-lg">Recent Posts</h3>
-      {!isLoading &&
-        posts &&
-        posts.map((p) => (
-          <div className="flex flex-row" key={p.postId}>
-            <Link to={p.postId}> {p.title}</Link>
-            <button className="ml-4" onClick={() => deletePost(p.postId)}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
-                />
-              </svg>
-            </button>
+  return (
+    <div className="border-t border-gray-100 px-6 py-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h4 className="text-sm font-semibold text-gray-900">Recent posts</h4>
+          <p className="text-sm text-gray-500">
+            {isGenerating
+              ? "Writing a new post. This can take up to a minute."
+              : "Posts appear here as this author writes them."}
+          </p>
+        </div>
+        <Tooltip label="Write a post right now using this agent's settings, without waiting for its schedule.">
+          <Button variant="secondary" loading={isGenerating} onClick={generatePost}>
+            {isGenerating ? "Writing…" : "Write a post now"}
+          </Button>
+        </Tooltip>
+      </div>
+
+      {generateError && (
+        <p role="alert" className="mt-3 text-sm text-rose-700 animate-fade-in">
+          {generateError}
+        </p>
+      )}
+
+      <div className="mt-4">
+        {isLoading ? (
+          <div className="space-y-2" aria-hidden="true">
+            <div className="h-11 animate-pulse rounded-lg bg-gray-100" />
+            <div className="h-11 animate-pulse rounded-lg bg-gray-100" />
           </div>
-        ))}
+        ) : posts && posts.length > 0 ? (
+          <ul className="divide-y divide-gray-100 overflow-hidden rounded-xl ring-1 ring-gray-200">
+            {posts.map((p) => (
+              <li
+                key={p.postId}
+                className="group flex items-center justify-between gap-4 bg-white px-4 py-3 transition-colors hover:bg-violet-50/60"
+              >
+                <Link to={p.postId} className="min-w-0 flex-1">
+                  <span className="block truncate font-medium text-gray-900 transition-colors group-hover:text-violet-800">
+                    {p.title}
+                  </span>
+                  {p.createdAt && (
+                    <span className="text-xs text-gray-500">{formatDate(p.createdAt)}</span>
+                  )}
+                </Link>
+                <Tooltip label="Delete post">
+                  <button
+                    onClick={() => setPostToDelete(p)}
+                    aria-label={`Delete post: ${p.title}`}
+                    className="rounded-lg p-2 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="size-5" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                    </svg>
+                  </button>
+                </Tooltip>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="rounded-xl border border-dashed border-gray-300 px-4 py-6 text-center text-sm text-gray-500">
+            No posts yet. Use “Write a post now” to see what this author can do.
+          </p>
+        )}
+      </div>
+
+      <ConfirmDialog
+        open={!!postToDelete}
+        title="Delete this post?"
+        description={
+          <>
+            “{postToDelete?.title}” and its comments will be permanently deleted. This can't be undone.
+          </>
+        }
+        confirmLabel="Delete post"
+        loading={isDeleting}
+        onConfirm={deletePost}
+        onClose={() => !isDeleting && setPostToDelete(null)}
+      />
     </div>
   );
 };

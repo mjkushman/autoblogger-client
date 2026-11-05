@@ -1,23 +1,28 @@
 import React, { useState } from "react";
 import {
   Checkbox,
+  Description,
   Field,
   Fieldset,
-  Button,
   Input,
   Label,
   Legend,
-  // Select,
   Switch,
   Textarea,
 } from "@headlessui/react";
 import {
-  Button as StyledButton,
+  Button,
+  ConfirmDialog,
   FloatingLabel,
+  InfoTip,
   LabeledInput,
+  SaveStatus,
   Select,
   TimeInput,
+  Tooltip,
+  fieldStyles,
 } from "@/components";
+import { useSaveStatus } from "@/app/hooks/useSaveStatus";
 
 import timezones from "@/app/fixtures/timezones";
 import models, {
@@ -27,7 +32,6 @@ import models, {
 } from "@/app/fixtures/llmModels";
 import { Agent } from "@/types";
 import { CreateAgentFormData, UpdateAgentFormData } from "@/types";
-// import { Link } from "react-router-dom";
 
 type Props = {
   agent: Agent | null;
@@ -38,6 +42,39 @@ type Props = {
   children?: React.ReactNode;
 };
 
+const days = [
+  { abbr: "M", name: "Monday", value: "mon" },
+  { abbr: "T", name: "Tuesday", value: "tue" },
+  { abbr: "W", name: "Wednesday", value: "wed" },
+  { abbr: "Th", name: "Thursday", value: "thu" },
+  { abbr: "F", name: "Friday", value: "fri" },
+  { abbr: "Sa", name: "Saturday", value: "sat" },
+  { abbr: "Su", name: "Sunday", value: "sun" },
+];
+
+const minWordCount = 100;
+const maxWordCount = 10000;
+const maxPersonalityLength = 1000;
+
+/** One titled group of fields: heading on the left, controls on the right */
+const Section = ({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) => (
+  <Fieldset className="grid gap-4 py-6 md:grid-cols-[13rem_1fr] md:gap-8">
+    <div>
+      <Legend className="text-sm font-semibold text-gray-900">{title}</Legend>
+      <p className="mt-1 text-sm leading-relaxed text-gray-500">{description}</p>
+    </div>
+    <div className="space-y-4">{children}</div>
+  </Fieldset>
+);
+
 export const AgentSettingsForm = ({
   agent,
   updateAgent,
@@ -46,7 +83,6 @@ export const AgentSettingsForm = ({
   isLoading,
   children,
 }: Props) => {
-  // I think I need to add a useEffect hook to update initial form data after submitting the form.
   const initialFormData = (): UpdateAgentFormData | CreateAgentFormData => {
     if (agent) {
       return {
@@ -69,436 +105,412 @@ export const AgentSettingsForm = ({
           timezone: agent.postSettings.timezone,
         },
       };
-    } else {
-      return {
-        isEnabled: false,
-        firstName: "",
-        lastName: "",
-        username: "",
-        email: "",
-        llm: {
-          model: DEFAULT_MODEL,
-          apiKey: "",
-        },
-        postSettings: {
-          isEnabled: false,
-          personality: "",
-          maxWords: 500,
-          time: "",
-          daysOfWeek: [],
-          timezone: timezones[0].timezone, // select shows the first option, so state must match
-        },
-      };
     }
+    return {
+      isEnabled: false,
+      firstName: "",
+      lastName: "",
+      username: "",
+      email: "",
+      llm: {
+        model: DEFAULT_MODEL,
+        apiKey: "",
+      },
+      postSettings: {
+        isEnabled: false,
+        personality: "",
+        maxWords: 500,
+        time: "",
+        daysOfWeek: [],
+        timezone: timezones[0].timezone, // select shows the first option, so state must match
+      },
+    };
   };
 
-  const [formData, setFormData] = useState<
-    CreateAgentFormData | UpdateAgentFormData
-  >(initialFormData());
-  // console.log('FORM DATA ON MOUNT', formData)
-
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [isDeleteVisible, setIsDeleteVisible] = useState(false);
+  const [formData, setFormData] = useState<CreateAgentFormData | UpdateAgentFormData>(
+    initialFormData()
+  );
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isApiKeyVisibile, setIsApiKeyVisibile] = useState<boolean>(false);
+  const { isSaving, isSaved, error, run } = useSaveStatus();
 
-  const isDataChanged =
-    JSON.stringify(formData) !== JSON.stringify(initialFormData());
-
-  function handleChange(
-    event: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) {
-    const { name, value } = event.target;
-    const namePath = name.split("."); // e.g., 'postSettings.time' -> ['postSettings', 'time']
-
-    setFormData((prevFormData) => {
-      // Use a helper function to update the nested field
-      const updatedFormData = updateNestedField(prevFormData, namePath, value);
-      if(updatedFormData.agentId) return updatedFormData as UpdateAgentFormData;
-      else return updatedFormData as CreateAgentFormData;
-
-    });
-  }
+  const isDataChanged = JSON.stringify(formData) !== JSON.stringify(initialFormData());
+  const provider = providerName(formData.llm.model);
+  const agentName = agent ? `${agent.firstName} ${agent.lastName ?? ""}`.trim() : "New agent";
 
   // Helper function to immutably update a nested field using recursion
   function updateNestedField(
-    obj: Record<string, any>, // Generic object
-    keys: string[], // Path to the nested field
-    value: any // New value
+    obj: Record<string, any>,
+    keys: string[], // Path to the nested field, e.g. ['postSettings', 'time']
+    value: any
   ): Record<string, any> {
     const [currentKey, ...remainingKeys] = keys;
-
-    if (remainingKeys.length === 0) {
-      // Base case: update the final key
-      return { ...obj, [currentKey]: value };
-    }
-
-    // Recursive case: traverse deeper
+    if (remainingKeys.length === 0) return { ...obj, [currentKey]: value };
     return {
       ...obj,
-      [currentKey]: updateNestedField(
-        obj[currentKey] || {},
-        remainingKeys,
-        value
-      ),
+      [currentKey]: updateNestedField(obj[currentKey] || {}, remainingKeys, value),
     };
   }
 
-  const days: { abbr: string; value: string; enabled: boolean }[] = [
-    { abbr: "M", value: "mon", enabled: false },
-    { abbr: "T", value: "tue", enabled: false },
-    { abbr: "W", value: "wed", enabled: false },
-    { abbr: "Th", value: "thu", enabled: false },
-    { abbr: "F", value: "fri", enabled: false },
-    { abbr: "Sa", value: "sat", enabled: false },
-    { abbr: "Su", value: "sun", enabled: false },
-  ];
-
-  const minWordCount = 100;
-  const maxWordCount = 10000;
+  function handleChange(
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) {
+    const { name, value, type } = event.target;
+    const parsed = type === "number" && value !== "" ? Number(value) : value;
+    setFormData((prevFormData) => {
+      const updatedFormData = updateNestedField(prevFormData, name.split("."), parsed);
+      if (updatedFormData.agentId) return updatedFormData as UpdateAgentFormData;
+      return updatedFormData as CreateAgentFormData;
+    });
+  }
 
   const handleDaysChange = (dayValue: string, checked: boolean) => {
-    // And update formData
     setFormData((formData: CreateAgentFormData | UpdateAgentFormData) => {
-      let currentDays: string[] = [...(formData.postSettings.daysOfWeek || [])];
-      if (checked) {
-        currentDays = [...currentDays, dayValue];
-      } else {
-        currentDays = [...currentDays].filter((day) => day !== dayValue);
-      }
-
+      const currentDays: string[] = formData.postSettings.daysOfWeek || [];
       return {
         ...formData,
         postSettings: {
           ...formData.postSettings,
-          daysOfWeek: currentDays,
+          daysOfWeek: checked
+            ? [...currentDays, dayValue]
+            : currentDays.filter((day) => day !== dayValue),
         },
       };
     });
-    console.log(
-      "formData.postSettings.daysOfWeek:",
-      formData.postSettings.daysOfWeek
-    );
   };
 
-  const handleEnableChange = (field: "post" | "agent", value: boolean) => {
-    if (field === "agent") {
-      setFormData((formData) => ({ ...formData, isEnabled: value }));
-      if (value === false) {
-        // if turning off, turn off off Post too
-        setFormData((formData) => ({
-          ...formData,
-          postSettings: { ...formData.postSettings, isEnabled: value },
-        }));
-      }
-    } else if (field === "post") {
-      setFormData((formData) => ({
-        ...formData,
-        postSettings: { ...formData.postSettings, isEnabled: value },
-      }));
-    }
+  const handlePostingChange = (value: boolean) => {
+    setFormData((formData) => ({
+      ...formData,
+      postSettings: { ...formData.postSettings, isEnabled: value },
+    }));
   };
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     if (!isDataChanged) return;
-    setIsSaving(true);
-    setSaveError(null);
-    try {
-      if (agent && agent.agentId && updateAgent)
-        await updateAgent(formData as UpdateAgentFormData);
+    await run(async () => {
+      if (agent && agent.agentId && updateAgent) await updateAgent(formData as UpdateAgentFormData);
       else if (createAgent) await createAgent(formData);
-    } catch {
-      setSaveError("Couldn't save this agent. Please check your settings and try again.");
-    } finally {
-      setIsSaving(false);
-    }
+    }, "We couldn't save this agent. Please check the details and try again.");
   };
 
   const handleDelete = async () => {
-    console.log(`deleting ${agent?.firstName}`);
-    if (deleteAgent && agent) deleteAgent(agent.agentId);
+    if (!deleteAgent || !agent) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteAgent(agent.agentId);
+      setIsDeleteOpen(false);
+    } catch {
+      setDeleteError("We couldn't delete this agent. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
+  const id = (field: string) => `${agent?.agentId ?? "new"}-${field}`;
+  const isPosting = agent?.postSettings.isEnabled;
+
   return (
-    <>
-      <div className="overflow-hidden bg-violet-50 mb-4 rounded-sm sm:px-8 border border-gray-300 justify-items-center mx-auto transition">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-4xl my-2 px-8 py-4 text-gray-800"
-        >
-          {/* BASIC SETTINGS */}
-          <div className=" flex flex-row justify-between items-center">
-            <h3 className="py-2 text-2xl font-semibold">{agent?.firstName}</h3>
-
+    <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 transition-shadow duration-200 hover:shadow-md">
+      <form onSubmit={handleSubmit}>
+        {/* HEADER */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <span className="grid size-10 place-items-center rounded-full bg-violet-100 text-sm font-semibold text-violet-800">
+              {agent ? agentName.charAt(0).toUpperCase() : "+"}
+            </span>
             <div>
-              <StyledButton
-                disabled={!isDataChanged || isLoading || isSaving}
-                formAction="submit"
-                type="submit"
-                className="data-[disabled]:invisible shadow-2xl"
-              >
-                {isSaving ? "Saving..." : "Save"}
-              </StyledButton>
+              <h3 className="font-semibold leading-tight text-gray-900">{agentName}</h3>
+              {agent && <p className="text-sm text-gray-500">@{agent.username}</p>}
             </div>
+            {agent && (
+              <span
+                className={
+                  isPosting
+                    ? "rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200"
+                    : "rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200"
+                }
+              >
+                {isPosting ? "Posting on schedule" : "Paused"}
+              </span>
+            )}
           </div>
+          <div className="flex items-center gap-3">
+            <SaveStatus isSaving={isSaving} isSaved={isSaved} error={error} />
+            <Button type="submit" disabled={!isDataChanged || isLoading} loading={isSaving}>
+              {agent ? "Save changes" : "Create agent"}
+            </Button>
+          </div>
+        </div>
 
-          {saveError && (
-            <p role="alert" className="text-rose-700 text-sm py-1">
-              {saveError}
-            </p>
-          )}
-
-          {/* BASIC INFO */}
-          <Fieldset>
-            <Legend className={"block font-semibold"}>Basic Info</Legend>
-            <div className={"flex flex-wrap gap-1 my-0"}>
-              <Field className={"relative flex-grow"}>
+        <div className="divide-y divide-gray-100 px-6">
+          {/* PROFILE */}
+          <Section title="Profile" description="Who this author is, as readers will meet them.">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field className="relative">
                 <LabeledInput
                   type="text"
                   name="firstName"
-                  label="First Name"
-                  id={`${agent?.agentId}-firstName`}
+                  label="First name"
+                  id={id("firstName")}
                   required
-                  autoComplete="firstName"
+                  autoComplete="off"
                   value={formData.firstName}
                   onChange={handleChange}
                 />
               </Field>
-
-              <Field className={"relative flex-grow"}>
+              <Field className="relative">
                 <LabeledInput
                   type="text"
                   name="lastName"
-                  label="Last Name"
-                  id={`${agent?.agentId}-lastName`}
-                  autoComplete="lastName"
+                  label="Last name"
+                  id={id("lastName")}
+                  autoComplete="off"
                   value={formData.lastName}
                   onChange={handleChange}
                 />
               </Field>
-              <Field className={"relative flex-grow"}>
+              <Field className="relative">
                 <LabeledInput
                   type="text"
                   name="username"
                   label="Username"
-                  id={`${agent?.agentId}-username`}
+                  id={id("username")}
                   required
-                  autoComplete="Username"
+                  autoComplete="off"
+                  tip="A short, unique handle for this author. It can't be shared with another author on your account."
                   value={formData.username}
                   onChange={handleChange}
                 />
               </Field>
-              <Field className={"relative flex-grow"}>
+              <Field className="relative">
                 <LabeledInput
-                  type="text"
+                  type="email"
                   name="email"
                   label="Email"
-                  id={`${agent?.agentId}-email`}
+                  id={id("email")}
                   required
-                  autoComplete="email"
+                  autoComplete="off"
                   value={formData.email}
                   onChange={handleChange}
                 />
               </Field>
-              <Field className="relative flex-grow-0">
+            </div>
+          </Section>
+
+          {/* MODEL */}
+          <Section
+            title="AI model"
+            description="Which model writes the posts, and the key it uses to do it."
+          >
+            <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+              <Field className="relative">
                 <Select
                   name="llm.model"
-                  id={`${agent?.agentId}-model`}
+                  id={id("model")}
                   required
                   onChange={handleChange}
                   value={formData.llm.model}
-                  className={"pt-5 pb-3 rounded-md text-sm"}
                 >
-                  {models.map((model) => (
-                    <option key={model.model} value={model.model}>
-                      {model.label}
-                    </option>
-                  ))}
+                  <optgroup label="OpenAI">
+                    {models
+                      .filter((m) => m.provider === "openai")
+                      .map((m) => (
+                        <option key={m.model} value={m.model}>
+                          {m.label}
+                        </option>
+                      ))}
+                  </optgroup>
+                  <optgroup label="Anthropic">
+                    {models
+                      .filter((m) => m.provider === "anthropic")
+                      .map((m) => (
+                        <option key={m.model} value={m.model}>
+                          {m.label}
+                        </option>
+                      ))}
+                  </optgroup>
                 </Select>
-                <FloatingLabel htmlFor={`${agent?.agentId}-model`}>
-                  Model
-                </FloatingLabel>
+                <FloatingLabel htmlFor={id("model")}>Model</FloatingLabel>
+                <span className="absolute end-9 top-3.5 z-20">
+                  <InfoTip label="The AI model that writes this author's posts. Larger models usually write better, but cost more per post." />
+                </span>
               </Field>
-
-              <Field className={"relative flex-grow"}>
+            </div>
+            <div className="flex items-start gap-2">
+              <Field className="relative flex-1">
                 <LabeledInput
                   type={isApiKeyVisibile ? "text" : "password"}
                   name="llm.apiKey"
-                  label={`${providerName(formData.llm.model)} API Key`}
-                  id={`${agent?.agentId}-apiKey`}
+                  label={`${provider} API key`}
+                  id={id("apiKey")}
                   required
+                  autoComplete="off"
+                  tip={`Your own ${provider} API key. Autoblogger uses it to write posts, and ${provider} bills your usage to your account there.`}
                   value={formData.llm.apiKey}
                   onChange={handleChange}
-                  className=""
                 />
               </Field>
               <Button
-                className="p-1 text-sm rounded-xl bg-gray-200"
+                variant="secondary"
+                className="h-[3.125rem] w-20"
+                aria-pressed={isApiKeyVisibile}
                 onClick={() => setIsApiKeyVisibile(!isApiKeyVisibile)}
               >
                 {isApiKeyVisibile ? "Hide" : "Show"}
               </Button>
             </div>
-          </Fieldset>
+          </Section>
 
-          {/* POSTING SETTINGS*/}
-          <Fieldset className={"my-4"}>
-            <Legend className={"block font-semibold"}>Post settings</Legend>
-            <div className="flex gap-1 my-1 items-center">
-              {/* SCHEDULE section */}
-              {/* <Fieldset className="py-2 items-center"> */}
-              {/* <Legend className="text-md">Schedule</Legend> */}
-              <div className="flex flex-wrap">
-                {/* Time */}
-                <TimeInput
-                  name="postSettings.time"
-                  label="Time"
-                  id={`${agent?.agentId}-time`}
+          {/* SCHEDULE */}
+          <Section
+            title="Schedule"
+            description="When this author should publish a new post."
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              <TimeInput
+                name="postSettings.time"
+                label="Time"
+                id={id("time")}
+                required
+                tip="The time of day a new post is written and published, in the timezone you choose."
+                value={formData.postSettings.time}
+                onChange={handleChange}
+                min="00:00"
+                max="23:59"
+              />
+              <Field className="relative">
+                <Select
+                  name="postSettings.timezone"
+                  id={id("timezone")}
                   required
-                  value={formData.postSettings.time}
-                  // value={"12:54"}
                   onChange={handleChange}
-                  min="00:00"
-                  max="23:59"
-                  // className=""
-                />
+                  value={formData.postSettings.timezone}
+                >
+                  {timezones.map((timezone) => (
+                    <option key={timezone.timezone} value={timezone.timezone}>
+                      {timezone.label}
+                    </option>
+                  ))}
+                </Select>
+                <FloatingLabel htmlFor={id("timezone")}>Timezone</FloatingLabel>
+              </Field>
+            </div>
 
-                {/* TIMEZONE */}
-
-                <Field className="mr-2 relative">
-                  <Select
-                    name="postSettings.timezone"
-                    id={`${agent?.agentId}-timezone`}
-                    required
-                    onChange={handleChange}
-                    value={formData.postSettings.timezone}
-                    className={"pt-5 pb-4 rounded-md"}
-                  >
-                    {timezones.map((timezone) => (
-                      <option key={timezone.timezone} value={timezone.timezone}>
-                        {timezone.label}
-                      </option>
-                    ))}
-                  </Select>
-                  <FloatingLabel htmlFor={`${agent?.agentId}-timezone`}>
-                    Timezone
-                  </FloatingLabel>
-                </Field>
-              </div>
-              {/* DAYS section */}
-              <div className="flex flex-row flex-wrap gap-1">
-                {days.map((day) => {
-                  return (
+            <div>
+              <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-gray-700" id={id("days-label")}>
+                Publish on
+                <InfoTip label="Pick the days of the week that get a new post. Pick none to pause." />
+              </p>
+              <div role="group" aria-labelledby={id("days-label")} className="flex flex-wrap gap-2">
+                {days.map((day) => (
+                  <Tooltip key={day.value} label={day.name}>
                     <Checkbox
-                      key={agent?.agentId + day.value}
-                      checked={
-                        formData.postSettings.daysOfWeek &&
-                        formData.postSettings.daysOfWeek.includes(day.value)
-                      }
-                      onChange={(checked) => {
-                        handleDaysChange(day.value, checked);
-                      }}
-                      className="size-8 items-center justify-center flex rounded-full border-1  bg-white data-[checked]:bg-violet-500 data-[disabled]:opacity-70 data-[disabled]:bg-gray-100"
+                      checked={formData.postSettings.daysOfWeek?.includes(day.value) ?? false}
+                      onChange={(checked) => handleDaysChange(day.value, checked)}
+                      aria-label={day.name}
+                      className="grid size-10 cursor-pointer place-items-center rounded-full bg-white text-sm font-medium text-gray-600 ring-1 ring-inset ring-gray-300 transition duration-150 hover:bg-violet-50 hover:ring-violet-400 active:scale-95 data-[checked]:bg-violet-700 data-[checked]:text-white data-[checked]:ring-violet-700 data-[checked]:hover:bg-violet-800"
                     >
                       {day.abbr}
                     </Checkbox>
-                  );
-                })}
-              </div>
-              <Field className="flex flex-row gap-3 items-center text-md mx-2">
-                <Label className={"font-bold"}>Enable Posting</Label>
-                <Switch
-                  name="postIsEnabled"
-                  id={`${agent?.agentId}-postIsEnabled`}
-                  checked={formData.postSettings.isEnabled}
-                  onChange={(value) => handleEnableChange("post", value)}
-                  className={
-                    "group inline-flex h-6 w-11 items-center rounded-full bg-gray-600 transition data-[checked]:bg-violet-600 data-[disabled]:opacity-50"
-                  }
-                >
-                  <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-                </Switch>
-              </Field>
-            </div>
-
-            {/* </Fieldset> */}
-          </Fieldset>
-          {/* PERSONALITY section */}
-
-          <Fieldset className={"my-4"}>
-            <Legend className={"block font-semibold"}>
-              Writing Personality
-            </Legend>
-            <div className="flex">
-              <Field className="relative">
-                <Input
-                  type="number"
-                  name="postSettings.maxWords"
-                  id={`${agent?.agentId}-maxWords`}
-                  required
-                  min={minWordCount}
-                  max={maxWordCount}
-                  placeholder={String(formData.postSettings.maxWords) || " "}
-                  value={formData.postSettings.maxWords}
-                  onChange={handleChange}
-                  className="max-w-fit min-w-24 block w-full px-4 pt-5 pb-2.5 rounded-md font-medium focus:outline-none peer"
-                />
-                <FloatingLabel htmlFor={`${agent?.agentId}-maxWords`}>
-                  Word Limit
-                </FloatingLabel>
-              </Field>
-
-              <div className="relative w-full">
-                <Field className="w-full">
-                  {/* <Description className={"text-sm/6"}>
-                    Describe the agent's writing style.
-                    </Description> */}
-
-                  <Textarea
-                    rows={5}
-                    name="postSettings.personality"
-                    id={`${agent?.agentId}-personality`}
-                    placeholder={formData.postSettings.personality}
-                    maxLength={1000}
-                    value={formData.postSettings.personality}
-                    onChange={handleChange}
-                    className={
-                      "block w-full mx-2 pt-8 px-2 pb-2 rounded-md leading-tight peer"
-                    }
-                  />
-                  <FloatingLabel
-                    htmlFor={`${agent?.agentId}-personality`}
-                    className="text-xl"
-                  >
-                    Describe the writing style.
-                  </FloatingLabel>
-                </Field>
+                  </Tooltip>
+                ))}
               </div>
             </div>
-          </Fieldset>
-        </form>
-        {children}
-          <Button
-            onClick={() => setIsDeleteVisible(!isDeleteVisible)}
-            className="text-gray-800 text-sm opacity-75"
+
+            <Field className="flex items-center justify-between gap-4 rounded-xl bg-gray-50 px-4 py-3 ring-1 ring-inset ring-gray-200">
+              <div>
+                <Label className="text-sm font-medium text-gray-900">Publish on schedule</Label>
+                <Description className="text-sm text-gray-500">
+                  Turn off to pause posting without losing your settings.
+                </Description>
+              </div>
+              <Switch
+                name="postIsEnabled"
+                checked={formData.postSettings.isEnabled ?? false}
+                onChange={handlePostingChange}
+                className="group relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full bg-gray-300 transition-colors duration-200 data-[checked]:bg-violet-700 data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-violet-500"
+              >
+                <span className="size-4 translate-x-1 rounded-full bg-white shadow transition-transform duration-200 group-data-[checked]:translate-x-6" />
+              </Switch>
+            </Field>
+          </Section>
+
+          {/* WRITING STYLE */}
+          <Section
+            title="Writing style"
+            description="How long each post is, and the voice it's written in."
           >
-            {isDeleteVisible ? "Nevermind" : "Delete this agent"}
+            <Field className="relative max-w-44">
+              <Input
+                type="number"
+                name="postSettings.maxWords"
+                id={id("maxWords")}
+                required
+                min={minWordCount}
+                max={maxWordCount}
+                placeholder=" "
+                value={formData.postSettings.maxWords}
+                onChange={handleChange}
+                className={fieldStyles}
+              />
+              <FloatingLabel htmlFor={id("maxWords")}>Words per post</FloatingLabel>
+            </Field>
+            <Field className="relative">
+              <Textarea
+                rows={5}
+                name="postSettings.personality"
+                id={id("personality")}
+                placeholder=" "
+                maxLength={maxPersonalityLength}
+                value={formData.postSettings.personality}
+                onChange={handleChange}
+                className={`${fieldStyles} min-h-28 resize-y pt-6 leading-snug`}
+              />
+              <FloatingLabel htmlFor={id("personality")}>Personality and style</FloatingLabel>
+              <div className="mt-1.5 flex items-start justify-between gap-4 text-xs text-gray-500">
+                <span>
+                  Describe the voice, tone, topics and audience. The author uses this to choose what to
+                  write about and how.
+                </span>
+                <span className="shrink-0 tabular-nums">
+                  {formData.postSettings.personality?.length ?? 0}/{maxPersonalityLength}
+                </span>
+              </div>
+            </Field>
+          </Section>
+        </div>
+      </form>
+
+      {children}
+
+      {agent && (
+        <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
+          <p className="text-sm text-gray-500">No longer need this author?</p>
+          <Button variant="ghost" size="sm" className="text-rose-700 hover:bg-rose-50 hover:text-rose-800" onClick={() => setIsDeleteOpen(true)}>
+            Delete agent
           </Button>
-          <span hidden={!isDeleteVisible} className="m-2 text-sm ">
-            Are you sure? This action cannot be undone.
-            <Button
-              onClick={() => handleDelete()}
-              className="text-rose-700 text-sm  border-rose-700 p-1 rounded-lg underline"
-            >
-              I'm sure.
-            </Button>
-          </span>
-      </div>
-    </>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={isDeleteOpen}
+        title={`Delete ${agentName}?`}
+        description={
+          <>
+            <p>This permanently deletes this agent and all of the posts it has written. This can't be undone.</p>
+            {deleteError && <p className="mt-3 text-rose-700">{deleteError}</p>}
+          </>
+        }
+        confirmLabel="Delete agent"
+        loading={isDeleting}
+        onConfirm={handleDelete}
+        onClose={() => !isDeleting && setIsDeleteOpen(false)}
+      />
+    </div>
   );
 };
