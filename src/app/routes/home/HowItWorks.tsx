@@ -1,89 +1,126 @@
-import { SiteSection } from "@/components/SiteSection";
-
+import { useState } from "react";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
 import shell from "react-syntax-highlighter/dist/esm/languages/hljs/shell";
 import ocean from "react-syntax-highlighter/dist/esm/styles/hljs/ocean";
-import { Select } from "@headlessui/react";
 
+import { SiteSection } from "@/components/SiteSection";
+import { LinkButton, Tooltip } from "@/components";
+import { BASE_URL } from "@/utils/api";
 
 SyntaxHighlighter.registerLanguage("javascript", js);
 SyntaxHighlighter.registerLanguage("shell", shell);
 
-import { BASE_URL } from "@/utils/api";
-import { useState } from "react";
-import {LinkButton} from "@/components";
-
-
-const getPostsSnippet = {
-    javascript: 
-    `const response = await fetch('${BASE_URL}api/posts', { headers: { x-api-key: 'YOUR_API_KEY',}});
+const snippets = [
+  {
+    label: "JavaScript",
+    language: "javascript",
+    code: `const response = await fetch('${BASE_URL}api/v1/posts', {
+  headers: { 'x-api-key': 'YOUR_API_KEY' },
+});
 const { data } = await response.json();`,
-    
-    shell:
-    ` curl -X GET -H "x-api-key: YOUR_API_KEY" "https://${BASE_URL}api/posts"`
-}
+  },
+  {
+    label: "cURL",
+    language: "shell",
+    code: `curl -H "x-api-key: YOUR_API_KEY" "${BASE_URL}api/v1/posts"`,
+  },
+];
 
-
-const HowItWorks = () => {
-    const [language, setLanguage] = useState<'javascript' | 'shell'>('javascript');
-
-    const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setLanguage(event.target.value as 'javascript' | 'shell')
-      };
+const CopyButton = ({ text }: { text: string }) => {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   return (
-    <SiteSection 
-    heading="How It Works"
-    bgColor="bg-violet-950"
-    textColor="text-gray-200"
-    >
-      <div className="leading-relaxed text-left">
-        <div className="mx-12 leading-normal text-center">
-          <p>Autoblogger is a service for your website or blog.</p>
-          <p>
-            It automates the process of planning, writing, and publishing simple
-            blog content.
-          </p>
-        </div>
-        <div className="shadow-xl bg-violet-900 my-4 px-8 py-4 rounded-xl leading-8">
-          <h4 className="font-semibold text-xl my-4">
-            Configure your AI Agent
-          </h4>
-          <p>Create an account and configure your AI agent's settings.</p>
-          <ul className="list-disc list-inside ">
-            <li>
-              Define the personality, writing style, and topics and topics for
-              your agent.
-            </li>
-            <li>Set a cadence for how often you want new content written.</li>
-            <li>Decide if and how your agent should respond to comments.</li>
-          </ul>
-        </div>
-        <div className="shadow-xl bg-violet-900 my-4 px-8 py-4 rounded-xl leading-8">
-          <h4 className="font-semibold text-xl my-4">Get your blog posts</h4>
-          <p>
-            Make requests to Autoblogger to retrieve and display your content.
-          </p>
-          <p>
-            You have control over how posts are displayed and formatted. If your
-            website allows commenting on posts, you should also use the
-            Autoblogger Comments endpoint.
-          </p>
-          <Select name="language" onChange={handleLanguageChange} value={language} className="block my-3  bg-transparent p-1 border border-gray-50">
-            <option value="javascript">JavaScript</option>
-            <option value="shell">Bash</option>
-          </Select>
-          <SyntaxHighlighter language={language} style={ocean} className="">
-            {getPostsSnippet[language]}
-          </SyntaxHighlighter>
-        </div>
-        <div className="m-auto flex justify-center">
-        <LinkButton to={`api`} variant="secondary">Explore the API</LinkButton>
-
-        </div>
-      </div>
-    </SiteSection>
+    <Tooltip label={copied ? "Copied!" : "Copy to clipboard"}>
+      <button
+        onClick={copy}
+        aria-label="Copy code"
+        className="rounded-md px-2.5 py-1 text-xs font-medium text-violet-200 transition hover:bg-white/10 hover:text-white"
+      >
+        {copied ? "Copied" : "Copy"}
+      </button>
+    </Tooltip>
   );
 };
+
+const Step = ({ number, title, children }: { number: number; title: string; children: React.ReactNode }) => (
+  <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-sm transition hover:border-white/20 sm:p-8">
+    <div className="flex items-center gap-3">
+      <span className="grid size-8 place-items-center rounded-full bg-violet-500 text-sm font-semibold text-white">
+        {number}
+      </span>
+      <h3 className="text-xl font-semibold text-white">{title}</h3>
+    </div>
+    <div className="mt-4 leading-7 text-violet-100">{children}</div>
+  </div>
+);
+
+const HowItWorks = () => (
+  <SiteSection
+    heading="How it works"
+    subheading="Set up an author once. Fetch its posts whenever you like."
+    bgColor="bg-violet-950"
+    textColor="text-gray-100"
+  >
+    <div className="mx-auto max-w-3xl space-y-6">
+      <Step number={1} title="Set up your AI author">
+        <p>Create an account, then give your author a personality and a schedule.</p>
+        <ul className="mt-3 list-disc space-y-1 pl-5 marker:text-violet-400">
+          <li>Describe its voice, writing style and the topics it should cover.</li>
+          <li>Choose how often new posts are written.</li>
+          <li>Decide whether it should reply to reader comments.</li>
+        </ul>
+      </Step>
+
+      <Step number={2} title="Show its posts on your site">
+        <p>
+          Request your posts from the Autoblogger API and display them however you like. If your
+          site has comments, use the Comments endpoint too.
+        </p>
+        <TabGroup className="mt-5 overflow-hidden rounded-xl bg-[#1b2631] ring-1 ring-white/10">
+          <div className="flex items-center justify-between border-b border-white/10 px-2 py-1.5">
+            <TabList className="flex gap-1">
+              {snippets.map(({ label }) => (
+                <Tab
+                  key={label}
+                  className="rounded-md px-3 py-1 text-sm font-medium text-violet-200 outline-none transition hover:text-white data-[selected]:bg-white/10 data-[selected]:text-white data-[focus]:ring-2 data-[focus]:ring-violet-400"
+                >
+                  {label}
+                </Tab>
+              ))}
+            </TabList>
+          </div>
+          <TabPanels>
+            {snippets.map(({ label, language, code }) => (
+              <TabPanel key={label} className="relative p-4 text-sm">
+                <div className="absolute right-2 top-2">
+                  <CopyButton text={code} />
+                </div>
+                <SyntaxHighlighter
+                  language={language}
+                  style={ocean}
+                  customStyle={{ background: "transparent", margin: 0, padding: 0 }}
+                >
+                  {code}
+                </SyntaxHighlighter>
+              </TabPanel>
+            ))}
+          </TabPanels>
+        </TabGroup>
+      </Step>
+
+      <div className="flex justify-center pt-2">
+        <LinkButton to="/api" variant="secondary" size="lg">
+          Explore the API
+        </LinkButton>
+      </div>
+    </div>
+  </SiteSection>
+);
 
 export default HowItWorks;

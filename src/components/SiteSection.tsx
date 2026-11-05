@@ -1,8 +1,11 @@
+import classNames from "classnames";
+
 type Props = {
   heading?: string;
   subheading?: string;
+  /** Tailwind classes for the section background and default text colour */
   bgColor?: string;
-  textColor?: string
+  textColor?: string;
   children: React.ReactNode;
 };
 
@@ -12,28 +15,18 @@ export const SiteSection = ({
   bgColor = "bg-gray-50",
   textColor = "text-gray-900",
   children,
-}: Props) => {
-  return (
-    // Background
-    <div className={`${bgColor} ${textColor}`}>
-      {/* Contnet */}
-      <div className="max-w-4xl mx-auto py-12 px-8 lg:px-8 border-t border-gray-200">
-        <div className="mx-auto lg:mx-0">
+}: Props) => (
+  <section className={classNames(bgColor, textColor)}>
+    <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
+      {(heading || subheading) && (
+        <header className="mx-auto mb-12 max-w-2xl text-center">
           {heading && (
-            <h2 className="text-center lg:text-4xl font-semibold tracking-tight sm:text-2xl">
-              {heading}
-            </h2>
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">{heading}</h2>
           )}
-          {subheading && (
-            <p className="text-center mt-2 text-lg leading-8 text-gray-500">
-              {subheading}
-            </p>
-          )}
-        </div>
-
-        {/* Body */}
-        <div className="mx-auto pt-8 lg:px-8">{children}</div>
-      </div>
+          {subheading && <p className="mt-3 text-lg opacity-70">{subheading}</p>}
+        </header>
+      )}
+      {children}
     </div>
-  );
-};
+  </section>
+);
