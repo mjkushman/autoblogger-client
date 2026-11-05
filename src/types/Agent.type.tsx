@@ -33,6 +33,7 @@ export type UpdateAgentFormData = CreateAgentFormData & {
 
 export type CreateAgentFormData = {
   isEnabled?: boolean;
+  imageUrl?: string;
   firstName?: string;
   lastName?: string;
   email?: string;

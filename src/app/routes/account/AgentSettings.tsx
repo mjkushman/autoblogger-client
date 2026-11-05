@@ -23,6 +23,7 @@ import {
   fieldStyles,
 } from "@/components";
 import { useSaveStatus } from "@/app/hooks/useSaveStatus";
+import { AvatarPicker } from "./AvatarPicker";
 
 import timezones from "@/app/fixtures/timezones";
 import models, {
@@ -88,6 +89,7 @@ export const AgentSettingsForm = ({
       return {
         agentId: agent.agentId,
         isEnabled: agent.isEnabled,
+        imageUrl: agent.imageUrl,
         firstName: agent.firstName,
         lastName: agent.lastName,
         email: agent.email,
@@ -220,9 +222,11 @@ export const AgentSettingsForm = ({
         {/* HEADER */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-6 py-4">
           <div className="flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-full bg-violet-100 text-sm font-semibold text-violet-800">
-              {agent ? agentName.charAt(0).toUpperCase() : "+"}
-            </span>
+            <AvatarPicker
+              imageUrl={formData.imageUrl}
+              initial={agent ? agentName.charAt(0).toUpperCase() : "+"}
+              onChange={(imageUrl) => setFormData((prev) => ({ ...prev, imageUrl }))}
+            />
             <div>
               <h3 className="font-semibold leading-tight text-gray-900">{agentName}</h3>
               {agent && <p className="text-sm text-gray-500">@{agent.username}</p>}
