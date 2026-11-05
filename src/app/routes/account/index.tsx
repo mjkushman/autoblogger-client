@@ -73,6 +73,7 @@ export const AccountRoot = () => {
         .then(() => fetchAgents());
     } catch (error) {
       console.log(`Failed to submit: ${error}`);
+      throw error; // let the form show the error
     }
   };
 
@@ -86,6 +87,7 @@ export const AccountRoot = () => {
         });
     } catch (error) {
       console.log(`Failed to create Agent: ${error}`);
+      throw error; // let the form show the error
     }
   };
 

@@ -20,7 +20,11 @@ import {
 } from "@/components";
 
 import timezones from "@/app/fixtures/timezones";
-import models from "@/app/fixtures/llmModels";
+import models, {
+  DEFAULT_MODEL,
+  providerName,
+  resolveModel,
+} from "@/app/fixtures/llmModels";
 import { Agent } from "@/types";
 import { CreateAgentFormData, UpdateAgentFormData } from "@/types";
 // import { Link } from "react-router-dom";
@@ -53,7 +57,7 @@ export const AgentSettingsForm = ({
         email: agent.email,
         username: agent.username,
         llm: {
-          model: agent.llm.model,
+          model: resolveModel(agent.llm.model), // maps legacy "chatgpt"/"claude" values
           apiKey: agent.llm.apiKey,
         },
         postSettings: {
@@ -73,7 +77,7 @@ export const AgentSettingsForm = ({
         username: "",
         email: "",
         llm: {
-          model: "chatgpt",
+          model: DEFAULT_MODEL,
           apiKey: "",
         },
         postSettings: {
@@ -82,7 +86,7 @@ export const AgentSettingsForm = ({
           maxWords: 500,
           time: "",
           daysOfWeek: [],
-          timezone: "",
+          timezone: timezones[0].timezone, // select shows the first option, so state must match
         },
       };
     }
@@ -93,6 +97,8 @@ export const AgentSettingsForm = ({
   >(initialFormData());
   // console.log('FORM DATA ON MOUNT', formData)
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [isDeleteVisible, setIsDeleteVisible] = useState(false);
   const [isApiKeyVisibile, setIsApiKeyVisibile] = useState<boolean>(false);
 
@@ -199,10 +205,17 @@ export const AgentSettingsForm = ({
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
-    if (isDataChanged) {
+    if (!isDataChanged) return;
+    setIsSaving(true);
+    setSaveError(null);
+    try {
       if (agent && agent.agentId && updateAgent)
-        updateAgent(formData as UpdateAgentFormData);
-      else if (createAgent) createAgent(formData);
+        await updateAgent(formData as UpdateAgentFormData);
+      else if (createAgent) await createAgent(formData);
+    } catch {
+      setSaveError("Couldn't save this agent. Please check your settings and try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -224,15 +237,21 @@ export const AgentSettingsForm = ({
 
             <div>
               <StyledButton
-                disabled={!isDataChanged || isLoading}
+                disabled={!isDataChanged || isLoading || isSaving}
                 formAction="submit"
                 type="submit"
                 className="data-[disabled]:invisible shadow-2xl"
               >
-                Save
+                {isSaving ? "Saving..." : "Save"}
               </StyledButton>
             </div>
           </div>
+
+          {saveError && (
+            <p role="alert" className="text-rose-700 text-sm py-1">
+              {saveError}
+            </p>
+          )}
 
           {/* BASIC INFO */}
           <Fieldset>
@@ -301,8 +320,8 @@ export const AgentSettingsForm = ({
                     </option>
                   ))}
                 </Select>
-                <FloatingLabel htmlFor={`${agent?.agentId}-mdoel`}>
-                  LLM
+                <FloatingLabel htmlFor={`${agent?.agentId}-model`}>
+                  Model
                 </FloatingLabel>
               </Field>
 
@@ -310,7 +329,7 @@ export const AgentSettingsForm = ({
                 <LabeledInput
                   type={isApiKeyVisibile ? "text" : "password"}
                   name="llm.apiKey"
-                  label={`${formData.llm.model} API Key`}
+                  label={`${providerName(formData.llm.model)} API Key`}
                   id={`${agent?.agentId}-apiKey`}
                   required
                   value={formData.llm.apiKey}

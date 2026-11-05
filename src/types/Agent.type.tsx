@@ -7,7 +7,7 @@ export type Agent = {
   email: string;
   isEnabled: boolean;
   llm: {
-    model: "chatgpt" | "claude";
+    model: string;
     apiKey: string;
   },
   postSettings: {
@@ -38,7 +38,7 @@ export type CreateAgentFormData = {
   email?: string;
   username?: string;
   llm: {
-    model: "chatgpt" | "claude";
+    model: string;
     apiKey: string;
   },
   postSettings: {

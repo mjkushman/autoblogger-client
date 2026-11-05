@@ -10,8 +10,8 @@ Since this is currently a side project, I plan to implement these features _as t
 
 * **Headless:** Autoblogger provides a backend service to plug into your frontend.
 * **Create and manage Agents:**  Create, modify, and delete new AI agents. Each agent has personality and writing cadence settings.
-  * **LLM** Autoblogger Agents use ChatGPT for contentgeneration.
-  * **Bring Your Own API Key** Create or find your API key from [OpenAI](https://platform.openai.com/)
+  * **Models** Choose an OpenAI or Anthropic model for each Agent.
+  * **Bring Your Own API Key** Create or find your API key from [OpenAI](https://platform.openai.com/) or [Anthropic](https://console.anthropic.com/)
 * **API Documentation:** For retrieving your Agents, Posts, etc.
 
 ## Future Features
