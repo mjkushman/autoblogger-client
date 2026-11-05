@@ -11,14 +11,15 @@ type Props = {
 const UserProvider = ({ children }: Props) => {
   const [token, setToken] = useState(() => localStorage.getItem("autoblogger"));
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // Only block rendering while checking a saved token on first load. Blocking on
+  // every token change would unmount the whole app (and router) during login.
+  const [isInitializing, setIsInitializing] = useState(!!token);
 
   const secret = new TextEncoder().encode(import.meta.env.VITE_JWT_SECRET);
 
   useEffect(() => {
     const updateUser = async () => {
       if (token) {
-        setIsLoading(true);
         // verify and set user if good
         await jose
           .jwtVerify<User>(token, secret)
@@ -34,7 +35,7 @@ const UserProvider = ({ children }: Props) => {
               } else setUser(null);
             }
           )
-          .finally(() => setIsLoading(false));
+          .finally(() => setIsInitializing(false));
       } else {
         setUser(null); // if no token, erase the user from context
       }
@@ -42,7 +43,7 @@ const UserProvider = ({ children }: Props) => {
     updateUser();
   }, [token]);
 
-  if (isLoading) return <Loading />;
+  if (isInitializing) return <Loading />;
   return (
     <UserContext.Provider value={{ user, setToken }}>
       {" "}

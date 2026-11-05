@@ -1,92 +1,51 @@
-import { localStorageKey} from "@/utils/authService";
+import { localStorageKey } from "@/utils/authService";
 
 export const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-const api = {
-  get: async <T,>(url: string): Promise<T> => {
-    try {
-      const token = localStorage.getItem(localStorageKey); // Get token from localStorage
+/** Thrown for any non-2xx response, so callers can react to the status code */
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
 
-      const headers: HeadersInit = {};
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-      // console.log(`Sending GET to ${url}`);
-      const response = await fetch(`${BASE_URL}${url}`, { headers });
-      if (!response.ok) {
-        throw new Error(`Error fetching data: ${response.statusText}}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  },
+const request = async <Response,>(
+  method: "GET" | "POST" | "PATCH" | "DELETE",
+  url: string,
+  data?: unknown
+): Promise<Response> => {
+  const headers: HeadersInit = {};
+  const token = localStorage.getItem(localStorageKey);
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (method !== "GET") headers["Content-Type"] = "application/json";
 
-  post: async <T, Response>(url: string, data: T): Promise<Response> => {
-    try {
-      const token = localStorage.getItem(localStorageKey);
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
-      if(token) headers.Authorization = `Bearer ${token}`
-      // console.log(`Sending POST to ${url} with data ${JSON.stringify(data)}`);
-      const response = await fetch(`${BASE_URL}${url}`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`Error sending data: ${response.statusText}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error("Error sending data:", error);
-      throw error;
+  try {
+    const response = await fetch(`${BASE_URL}${url}`, {
+      method,
+      headers,
+      body: method === "GET" ? undefined : JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new ApiError(response.status, `Request failed: ${response.statusText}`);
     }
-  },
-  patch: async <T, Response>(url: string, data: T): Promise<Response> => {
-    try {
-      const token = localStorage.getItem(localStorageKey)
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
-      if(token) headers.Authorization = `Bearer ${token}`
-      // console.log(`Sending PATCH to ${url} with data ${JSON.stringify(data)}`);
-      const response = await fetch(`${BASE_URL}${url}`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`Error sending data: ${response.statusText}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error("Error sending data:", error);
-      throw error;
-    }
-  },
-  delete: async <T,Response>(url: string, data?: T): Promise<Response> => {
-    try {
-      const token = localStorage.getItem(localStorageKey)
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
-      if(token) headers.Authorization = `Bearer ${token}`
-      const response = await fetch(`${BASE_URL}${url}`, {
-        method: "DELETE",
-        headers,
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`Error sending data: ${response.statusText}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error("Error sending data:", error);
-      throw error;
-    }
-  },
+    return await response.json();
+  } catch (error) {
+    console.error(`${method} ${url} failed:`, error);
+    throw error;
+  }
 };
+
+const api = {
+  get: <T,>(url: string): Promise<T> => request<T>("GET", url),
+  post: <T, Response>(url: string, data: T): Promise<Response> =>
+    request<Response>("POST", url, data),
+  patch: <T, Response>(url: string, data: T): Promise<Response> =>
+    request<Response>("PATCH", url, data),
+  delete: <T, Response>(url: string, data?: T): Promise<Response> =>
+    request<Response>("DELETE", url, data),
+};
+
 export default api;
