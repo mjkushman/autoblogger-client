@@ -31,7 +31,7 @@ import models, {
   providerName,
   resolveModel,
 } from "@/app/fixtures/llmModels";
-import { Agent } from "@/types";
+import { Agent, CommentSettings } from "@/types";
 import { CreateAgentFormData, UpdateAgentFormData } from "@/types";
 
 type Props = {
@@ -53,9 +53,12 @@ const days = [
   { abbr: "Su", name: "Sunday", value: "sun" },
 ];
 
+const defaultCommentSettings: CommentSettings = { isEnabled: true, maxWords: 100, personality: null };
+
 const minWordCount = 100;
 const maxWordCount = 10000;
 const maxPersonalityLength = 1000;
+const maxBannedTopicsLength = 500;
 
 /** One titled group of fields: heading on the left, controls on the right */
 const Section = ({
@@ -101,11 +104,13 @@ export const AgentSettingsForm = ({
         postSettings: {
           isEnabled: agent.postSettings.isEnabled,
           personality: agent.postSettings.personality,
+          bannedTopics: (agent.postSettings.bannedTopics ?? []).join(", "),
           maxWords: agent.postSettings.maxWords,
           time: agent.postSettings.time,
           daysOfWeek: agent.postSettings.daysOfWeek,
           timezone: agent.postSettings.timezone,
         },
+        commentSettings: agent.commentSettings ?? defaultCommentSettings,
       };
     }
     return {
@@ -121,11 +126,13 @@ export const AgentSettingsForm = ({
       postSettings: {
         isEnabled: false,
         personality: "",
+        bannedTopics: "",
         maxWords: 500,
         time: "",
         daysOfWeek: [],
         timezone: timezones[0].timezone, // select shows the first option, so state must match
       },
+      commentSettings: defaultCommentSettings,
     };
   };
 
@@ -187,6 +194,13 @@ export const AgentSettingsForm = ({
     setFormData((formData) => ({
       ...formData,
       postSettings: { ...formData.postSettings, isEnabled: value },
+    }));
+  };
+
+  const handleCommentRepliesChange = (value: boolean) => {
+    setFormData((formData) => ({
+      ...formData,
+      commentSettings: { ...formData.commentSettings, isEnabled: value },
     }));
   };
 
@@ -485,6 +499,49 @@ export const AgentSettingsForm = ({
                   {formData.postSettings.personality?.length ?? 0}/{maxPersonalityLength}
                 </span>
               </div>
+            </Field>
+            <Field className="relative">
+              <Textarea
+                rows={2}
+                name="postSettings.bannedTopics"
+                id={id("bannedTopics")}
+                placeholder=" "
+                maxLength={maxBannedTopicsLength}
+                value={formData.postSettings.bannedTopics}
+                onChange={handleChange}
+                className={`${fieldStyles} min-h-16 resize-y pe-9 pt-6 leading-snug`}
+              />
+              <FloatingLabel htmlFor={id("bannedTopics")}>Banned topics</FloatingLabel>
+              <span className="absolute end-2.5 top-3.5 z-20">
+                <InfoTip label="Subjects this author will never write about or discuss, in posts or in replies to comments." />
+              </span>
+              <p className="mt-1.5 text-xs text-gray-500">
+                Separate topics with commas, for example: politics, religion, cats.
+              </p>
+            </Field>
+          </Section>
+
+          {/* COMMENTS */}
+          <Section
+            title="Comments"
+            description="Whether this author answers readers who comment on their posts."
+          >
+            <Field className="flex items-center justify-between gap-4 rounded-xl bg-gray-50 px-4 py-3 ring-1 ring-inset ring-gray-200">
+              <div>
+                <Label className="text-sm font-medium text-gray-900">Reply to comments</Label>
+                <Description className="text-sm text-gray-500">
+                  When a reader comments on a post, this author writes a short, thoughtful reply in
+                  their own voice.
+                </Description>
+              </div>
+              <Switch
+                name="commentRepliesEnabled"
+                checked={formData.commentSettings.isEnabled}
+                onChange={handleCommentRepliesChange}
+                className="group relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full bg-gray-300 transition-colors duration-200 data-[checked]:bg-violet-700 data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-violet-500"
+              >
+                <span className="size-4 translate-x-1 rounded-full bg-white shadow transition-transform duration-200 group-data-[checked]:translate-x-6" />
+              </Switch>
             </Field>
           </Section>
         </div>

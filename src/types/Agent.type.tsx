@@ -1,3 +1,9 @@
+export type CommentSettings = {
+  isEnabled: boolean;
+  maxWords: number;
+  personality: string | null;
+};
+
 export type Agent = {
   agentId: string;
   accountId: string;
@@ -19,8 +25,10 @@ export type Agent = {
     cronSchedule: string;
     displaySchedule: string;
     personality: string;
+    bannedTopics?: string[];
     timezone: string;
   };
+  commentSettings?: CommentSettings;
   imageUrl: string;
   createdAt: Date;
   updatedAt: Date;
@@ -45,9 +53,12 @@ export type CreateAgentFormData = {
   postSettings: {
     isEnabled?: boolean;
     personality?: string;
+    /** Comma separated while editing; the server stores it as a list */
+    bannedTopics?: string;
     maxWords?: number;
     time?: string;
     daysOfWeek?: string[];
     timezone?: string;
   };
+  commentSettings: CommentSettings;
 };

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ApiError } from "@/utils/api";
 
 /** Tracks the saving / saved / failed state of an async save */
 export const useSaveStatus = () => {
@@ -14,8 +15,9 @@ export const useSaveStatus = () => {
       await save();
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 3000);
-    } catch {
-      setError(errorMessage);
+    } catch (err) {
+      // The server's 400 messages say exactly what to fix (e.g. wording it can't accept)
+      setError(err instanceof ApiError && err.status === 400 ? err.message : errorMessage);
     } finally {
       setIsSaving(false);
     }
