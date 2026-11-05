@@ -29,7 +29,9 @@ const request = async <Response,>(
       body: method === "GET" ? undefined : JSON.stringify(data),
     });
     if (!response.ok) {
-      throw new ApiError(response.status, `Request failed: ${response.statusText}`);
+      // The server explains 400s in `message`; use it when it's there
+      const body = await response.json().catch(() => null);
+      throw new ApiError(response.status, body?.message ?? `Request failed: ${response.statusText}`);
     }
     return await response.json();
   } catch (error) {

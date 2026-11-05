@@ -1,5 +1,5 @@
 import { Post, PostsApiResponse } from "@/types";
-import api from "@/utils/api";
+import api, { ApiError } from "@/utils/api";
 import { Button, ConfirmDialog, Tooltip } from "@/components";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -29,8 +29,13 @@ const Posts = ({ agentId }: { agentId: string }) => {
     try {
       await api.post(`posts`, { agentId });
       await fetchPosts();
-    } catch {
-      setGenerateError("We couldn't write a post just now. Check this agent's API key and try again.");
+    } catch (error) {
+      // The server's 400 messages say what to fix (bad key, unknown model, quota…)
+      setGenerateError(
+        error instanceof ApiError && error.status === 400
+          ? error.message
+          : "We couldn't write a post just now. Please try again in a moment."
+      );
     } finally {
       setIsGenerating(false);
     }
