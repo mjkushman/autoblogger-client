@@ -17,7 +17,7 @@ export type SiteLink = {
     },
     auth: {
       id: 'auth',
-      label: 'auth',
+      label: 'Sign in',
       path: '/auth',
     },
   };
@@ -31,5 +31,5 @@ export type SiteLink = {
     { label: "Dashboard", path: "/account", id:"account" },
   ];
   export const signedOutNavLinks: SiteLink[] = [
-    { label: "Get Started", path: siteLinks.auth.path, id:'get-started' },
-    { label: "Sign In", path: siteLinks.auth.path, id: 'sign-in' }]
+    { label: "Get started", path: `${siteLinks.auth.path}?mode=signup`, id:'get-started' },
+    { label: "Sign in", path: siteLinks.auth.path, id: 'sign-in' }]
