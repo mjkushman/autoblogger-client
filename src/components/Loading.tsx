@@ -1,15 +1,11 @@
-import { PuffLoader } from "react-spinners";
+import { Spinner } from "./Spinner";
 
-type Props = {
-  color?: string;
-  size?: number;
-  loading?: boolean;
-};
-
-export const Loading = ({
-  color = "#490f47",
-  size = 150,
-  loading = true,
-}: Props) => {
-  return <PuffLoader color={color} size={size} loading={loading} />;
-};
+export const Loading = ({ label = "Loading…" }: { label?: string }) => (
+  <div
+    role="status"
+    className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-sm text-gray-500 animate-fade-in"
+  >
+    <Spinner className="size-7 text-violet-700" />
+    <span>{label}</span>
+  </div>
+);

@@ -1,42 +1,41 @@
 import { Input } from "@headlessui/react";
-
 import classNames from "classnames";
 import FloatingLabel from "./FloatingLabel.styled";
+import { fieldStyles } from "./fieldStyles";
+import { InfoTip } from "./Tooltip";
 
-type ButtonProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  variant?: "primary";
+type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
+  /** Help text shown in a tooltip next to the field */
+  tip?: string;
   className?: string;
   id: string;
 };
 
-export const LabeledInput: React.FC<ButtonProps> = ({
-  variant = "primary",
+export const LabeledInput: React.FC<InputProps> = ({
   id,
   label,
+  tip,
   className,
   children,
   ...props
-}) => {
-  const baseStyles =
-    "block w-full px-4 pt-5 pb-2.5 rounded-md  sm:text-sm focus:outline-none peer";
-  const variantStyles = {
-    primary:
-      "bg-white text-gray-800 data-[focus]:bg-white data-[disabled]:bg-gray-200 hover:shadow-inner",
-  };
-
-  return (
-    <>
-      <Input
-        className={classNames(baseStyles, variantStyles[variant], className)}
-        placeholder=" "
-        {...props}
-      >
-        {children}
-      </Input>
-      <FloatingLabel htmlFor={id}>{label}</FloatingLabel>
-    </>
-  );
-};
+}) => (
+  <>
+    <Input
+      id={id}
+      className={classNames(fieldStyles, tip && "pe-9", className)}
+      placeholder=" "
+      {...props}
+    >
+      {children}
+    </Input>
+    <FloatingLabel htmlFor={id}>{label}</FloatingLabel>
+    {tip && (
+      <span className="absolute end-2.5 top-3.5 z-20">
+        <InfoTip label={tip} />
+      </span>
+    )}
+  </>
+);
 
 export default LabeledInput;

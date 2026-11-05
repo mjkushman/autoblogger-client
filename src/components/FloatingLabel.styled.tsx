@@ -1,13 +1,10 @@
-// For use with form inputs
+// For use with form inputs. The control must come first and carry the `peer` class.
 import { Label } from "@headlessui/react";
-
 import classNames from "classnames";
 
 type LabelProps = React.LabelHTMLAttributes<HTMLLabelElement> & {
-  variant?: "primary";
   className?: string;
-  type?: string;
-  htmlFor: string
+  htmlFor: string;
 };
 
 export const FloatingLabel: React.FC<LabelProps> = ({
@@ -17,10 +14,10 @@ export const FloatingLabel: React.FC<LabelProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] start-2.5 peer-focus:text-violet-600 peer-focus:dark:text-violet-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto";
+    "pointer-events-none absolute start-3.5 top-3.5 z-10 origin-[0] -translate-y-2.5 scale-75 text-sm text-gray-500 transition duration-200 ease-out peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-violet-700";
 
   return (
-    <Label className={classNames(baseStyles, className)} htmlFor={htmlFor} {...props} >
+    <Label className={classNames(baseStyles, className)} htmlFor={htmlFor} {...props}>
       {children}
     </Label>
   );
