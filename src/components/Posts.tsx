@@ -4,6 +4,8 @@ import { Button, ConfirmDialog, Tooltip } from "@/components";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+const PAGE_SIZE = 10;
+
 const formatDate = (date: Date | string) =>
   new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 
@@ -14,6 +16,7 @@ const Posts = ({ agentId }: { agentId: string }) => {
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [postToDelete, setPostToDelete] = useState<Post | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [page, setPage] = useState(1);
 
   const fetchPosts = async () => {
     await api
@@ -29,6 +32,7 @@ const Posts = ({ agentId }: { agentId: string }) => {
     try {
       await api.post(`posts`, { agentId });
       await fetchPosts();
+      setPage(1);
     } catch (error) {
       // The server's 400 messages say what to fix (bad key, unknown model, quota…)
       setGenerateError(
@@ -52,6 +56,10 @@ const Posts = ({ agentId }: { agentId: string }) => {
       setIsDeleting(false);
     }
   };
+
+  const totalPages = Math.max(1, Math.ceil((posts?.length ?? 0) / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages); // deleting the last row of a page falls back to the previous one
+  const visiblePosts = posts?.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE) ?? [];
 
   useEffect(() => {
     fetchPosts();
@@ -89,8 +97,9 @@ const Posts = ({ agentId }: { agentId: string }) => {
             <div className="h-11 animate-pulse rounded-lg bg-gray-100" />
           </div>
         ) : posts && posts.length > 0 ? (
+          <>
           <ul className="divide-y divide-gray-100 overflow-hidden rounded-xl ring-1 ring-gray-200">
-            {posts.map((p) => (
+            {visiblePosts.map((p) => (
               <li
                 key={p.postId}
                 className="group flex items-center justify-between gap-4 bg-white px-4 py-3 transition-colors hover:bg-violet-50/60"
@@ -117,6 +126,22 @@ const Posts = ({ agentId }: { agentId: string }) => {
               </li>
             ))}
           </ul>
+          {totalPages > 1 && (
+            <nav aria-label="Posts pagination" className="mt-3 flex items-center justify-between text-sm text-gray-600">
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <div className="flex gap-2">
+                <Button variant="secondary" size="sm" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>
+                  Previous
+                </Button>
+                <Button variant="secondary" size="sm" disabled={currentPage === totalPages} onClick={() => setPage(currentPage + 1)}>
+                  Next
+                </Button>
+              </div>
+            </nav>
+          )}
+          </>
         ) : (
           <p className="rounded-xl border border-dashed border-gray-300 px-4 py-6 text-center text-sm text-gray-500">
             No posts yet. Use “Write a post now” to see what this author can do.
