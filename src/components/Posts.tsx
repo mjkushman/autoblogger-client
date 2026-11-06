@@ -9,6 +9,9 @@ const PAGE_SIZE = 10;
 const formatDate = (date: Date | string) =>
   new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 
+const newestFirst = (posts: Post[]) =>
+  [...posts].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
+
 const Posts = ({ agentId }: { agentId: string }) => {
   const [posts, setPosts] = useState<Post[]>();
   const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +24,7 @@ const Posts = ({ agentId }: { agentId: string }) => {
   const fetchPosts = async () => {
     await api
       .get<PostsApiResponse>(`posts?agentId=${agentId}`)
-      .then(({ data }) => setPosts(data))
+      .then(({ data }) => setPosts(newestFirst(data)))
       .catch(() => setPosts([]))
       .finally(() => setIsLoading(false));
   };
