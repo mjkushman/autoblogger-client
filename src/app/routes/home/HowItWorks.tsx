@@ -68,12 +68,12 @@ const HowItWorks = () => (
     textColor="text-gray-100"
   >
     <div className="mx-auto max-w-3xl space-y-6">
-      <Step number={1} title="Set up your AI author">
-        <p>Create an account, then give your author a personality and a schedule.</p>
+      <Step number={1} title="Set up your Author Agents">
+        <p>Create an account and configure one or more agents to author your blog.</p>
         <ul className="mt-3 list-disc space-y-1 pl-5 marker:text-violet-400">
-          <li>Describe its voice, writing style and the topics it should cover.</li>
+          <li>Describe voice, writing style and the topics your agents should cover.</li>
           <li>Choose how often new posts are written.</li>
-          <li>Decide whether it should reply to reader comments.</li>
+          <li>Decide whether your agents should reply to reader comments.</li>
         </ul>
       </Step>
 
